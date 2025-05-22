@@ -1,5 +1,3 @@
-const expect = chai.expect;
-
 import Websock from '../core/websock.js';
 import Display from '../core/display.js';
 
@@ -31,7 +29,7 @@ function testDecodeRect(decoder, x, y, width, height, data, display, depth) {
     return done;
 }
 
-describe('Tight Decoder', function () {
+describe('Tight decoder', function () {
     let decoder;
     let display;
 

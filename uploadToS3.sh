@@ -17,11 +17,15 @@ replaceTagVersion () {
 
 replaceJsUrls () {
   sed -i "s/\.\/package\.json/${cdn}\/package\.json/" "./app/ui.js"
+  sed -i "s/\"app\//\"${cdn}\/app\//" "./app/ui.js"
 }
 
 prepareSources () {
   replaceHtmlUrls "href=\"app\/" "href=\"${cdn}\/app\/"
   replaceHtmlUrls "src=\"app\/" "src=\"${cdn}\/app\/"
+  replaceHtmlUrls "from \".\/" "from \"${cdn}\/"
+  replaceHtmlUrls "from '.\/" "from '${cdn}\/"
+  replaceHtmlUrls "fetch('.\/" "fetch('${cdn}\/"
   replaceTagVersion
   replaceJsUrls
 }

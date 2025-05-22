@@ -1,6 +1,6 @@
 # Spanish translations for noVNC package
 # Traducciones al español para el paquete noVNC.
-# Copyright (C) 2018 The noVNC Authors
+# Copyright (C) 2018 The noVNC authors
 # This file is distributed under the same license as the noVNC package.
 # Juanjo Diaz <juanjo.diazmo@gmail.com>, 2018.
 # Adrian Scillato <ascillato@gmail.com>, 2021.
@@ -64,7 +64,7 @@ msgid "Hide/Show the control bar"
 msgstr "Ocultar/Mostrar la barra de control"
 
 #: ../vnc.html:106
-msgid "Move/Drag Viewport"
+msgid "Move/Drag viewport"
 msgstr "Mover/Arrastrar la ventana"
 
 #: ../vnc.html:106
@@ -96,7 +96,7 @@ msgid "Keyboard"
 msgstr "Teclado"
 
 #: ../vnc.html:124
-msgid "Show Keyboard"
+msgid "Show keyboard"
 msgstr "Mostrar teclado"
 
 #: ../vnc.html:131
@@ -196,15 +196,15 @@ msgid "Shared Mode"
 msgstr "Modo Compartido"
 
 #: ../vnc.html:205
-msgid "View Only"
+msgid "View only"
 msgstr "Solo visualización"
 
 #: ../vnc.html:209
-msgid "Clip to Window"
+msgid "Clip to window"
 msgstr "Recortar al tamaño de la ventana"
 
 #: ../vnc.html:212
-msgid "Scaling Mode:"
+msgid "Scaling mode:"
 msgstr "Modo de escalado:"
 
 #: ../vnc.html:214
@@ -220,7 +220,7 @@ msgid "Local Downscaling"
 msgstr "Reducción de escala local"
 
 #: ../vnc.html:217
-msgid "Remote Resizing"
+msgid "Remote resizing"
 msgstr "Cambio de tamaño remoto"
 
 #: ../vnc.html:222
@@ -252,11 +252,11 @@ msgid "Path:"
 msgstr "Ruta:"
 
 #: ../vnc.html:254
-msgid "Automatic Reconnect"
+msgid "Automatic reconnect"
 msgstr "Reconexión automática"
 
 #: ../vnc.html:257
-msgid "Reconnect Delay (ms):"
+msgid "Reconnect delay (ms):"
 msgstr "Retraso en la reconexión (ms):"
 
 #: ../vnc.html:263

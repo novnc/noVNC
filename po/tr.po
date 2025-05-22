@@ -1,6 +1,6 @@
 # Turkish translations for noVNC package
 # Turkish translation for noVNC.
-# Copyright (C) 2018 The noVNC Authors
+# Copyright (C) 2018 The noVNC authors
 # This file is distributed under the same license as the noVNC package.
 # Ömer ÇAKMAK <farukomercakmak@gmail.com>, 2018.
 #
@@ -116,7 +116,7 @@ msgid "Extra keys"
 msgstr "Ekstra tuşlar"
 
 #: ../vnc.html:131
-msgid "Show Extra Keys"
+msgid "Show extra keys"
 msgstr "Ekstra tuşları göster"
 
 #: ../vnc.html:136

@@ -1,32 +1,170 @@
 /*
  * noVNC general input element CSS
- * Copyright (C) 2022 The noVNC Authors
+ * Copyright (C) 2025 The noVNC authors
  * noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
  * This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
  */
 
-/*
- * Common for all inputs
- */
-input, input::file-selector-button, button, select, textarea {
-  /* Respect standard font settings */
-  font: inherit;
+/* ------- SHARED BETWEEN INPUT ELEMENTS -------- */
 
-  /* Disable default rendering */
-  appearance: none;
-  background: none;
+input,
+textarea,
+button,
+select,
+input::file-selector-button {
+    padding: 0.5em var(--input-xpadding);
+    border-radius: 6px;
+    appearance: none;
+    text-overflow: ellipsis;
 
-  padding: 5px;
-  border: 1px solid rgb(192, 192, 192);
-  border-radius: 5px;
-  color: black;
-  --bg-gradient: linear-gradient(to top, rgb(255, 255, 255) 80%, rgb(240, 240, 240));
-  background-image: var(--bg-gradient);
+    /* Respect standard font settings */
+    font: inherit;
+    line-height: 1.6;
+}
+input:disabled,
+textarea:disabled,
+button:disabled,
+select:disabled,
+label[disabled] {
+    opacity: 0.4;
 }
 
-/*
- * Buttons
- */
+input:focus-visible,
+textarea:focus-visible,
+button:focus-visible,
+select:focus-visible,
+input:focus-visible::file-selector-button {
+    outline: 2px solid var(--novnc-lightblue);
+    outline-offset: 1px;
+}
+
+/* ------- TEXT INPUT -------- */
+
+input:not([type]),
+input[type=date],
+input[type=datetime-local],
+input[type=email],
+input[type=month],
+input[type=number],
+input[type=password],
+input[type=search],
+input[type=tel],
+input[type=text],
+input[type=time],
+input[type=url],
+input[type=week],
+textarea {
+    border: 1px solid var(--novnc-lightgrey);
+    /* Account for borders on text inputs, buttons dont have borders */
+    padding: calc(0.5em - 1px) var(--input-xpadding);
+}
+input:not([type]):focus-visible,
+input[type=date]:focus-visible,
+input[type=datetime-local]:focus-visible,
+input[type=email]:focus-visible,
+input[type=month]:focus-visible,
+input[type=number]:focus-visible,
+input[type=password]:focus-visible,
+input[type=search]:focus-visible,
+input[type=tel]:focus-visible,
+input[type=text]:focus-visible,
+input[type=time]:focus-visible,
+input[type=url]:focus-visible,
+input[type=week]:focus-visible,
+textarea:focus-visible {
+    outline-offset: -1px;
+}
+
+textarea {
+    margin: unset; /* Remove Firefox's built in margin */
+    /* Prevent layout from shifting when scrollbars show */
+    scrollbar-gutter: stable;
+    /* Make textareas show at minimum one line. This does not work when
+       using box-sizing border-box, in which case, vertical padding and
+       border width needs to be taken into account. */
+    min-height: 1lh;
+    vertical-align: baseline; /* Firefox gives "text-bottom" by default */
+}
+
+/* ------- NUMBER PICKERS ------- */
+
+/* We can't style the number spinner buttons:
+   https://github.com/w3c/csswg-drafts/issues/8777 */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    /* Get rid of increase/decrease buttons in WebKit */
+    appearance: none;
+}
+input[type=number] {
+    /* Get rid of increase/decrease buttons in Firefox */
+    appearance: textfield;
+}
+
+/* ------- BUTTON ACTIVATIONS -------- */
+
+/* A color overlay that depends on the activation level. The level can then be
+   set for different states on an element, for example hover and click on a
+   <button>. */
+input, button, select, option,
+input::file-selector-button,
+.button-activations {
+    --button-activation-level: 0;
+    /* Note that CSS variables aren't functions, beware when inheriting */
+    --button-activation-alpha: calc(0.08 * var(--button-activation-level));
+    /* FIXME: We want the image() function instead of the linear-gradient()
+              function below. But it's not supported in the browsers yet. */
+    --button-activation-overlay:
+        linear-gradient(rgba(0, 0, 0, var(--button-activation-alpha))
+        100%, transparent);
+    --button-activation-overlay-light:
+        linear-gradient(rgba(255, 255, 255, calc(0.23 * var(--button-activation-level)))
+        100%, transparent);
+}
+.button-activations {
+    background-image: var(--button-activation-overlay);
+
+    /* Disable Chrome's touch tap highlight to avoid conflicts with overlay */
+    -webkit-tap-highlight-color: transparent;
+}
+/* When we want the light overlay on activations instead.
+   This is best used on elements with darker backgrounds. */
+.button-activations.light-overlay {
+    background-image: var(--button-activation-overlay-light);
+    /* Can't use the normal blend mode since that gives washed out colors. */
+    /* FIXME: For elements with these activation overlays we'd like only
+              the luminosity to change. The proprty "background-blend-mode" set
+              to "luminosity" sounds good, but it doesn't work as intended,
+              see: https://bugzilla.mozilla.org/show_bug.cgi?id=1806417 */
+    background-blend-mode: overlay;
+}
+
+input:hover, button:hover, select:hover, option:hover,
+input::file-selector-button:hover,
+.button-activations:hover {
+    --button-activation-level: 1;
+}
+/* Unfortunately we have to disable the :hover effect on touch devices,
+   otherwise the style lingers after tapping the button. */
+@media (any-pointer: coarse) {
+    input:hover, button:hover, select:hover, option:hover,
+    input::file-selector-button:hover,
+    .button-activations:hover {
+        --button-activation-level: 0;
+    }
+}
+input:active, button:active, select:active, option:active,
+input::file-selector-button:active,
+.button-activations:active {
+    --button-activation-level: 2;
+}
+input:disabled, button:disabled, select:disabled, select:disabled option,
+input:disabled::file-selector-button,
+.button-activations:disabled {
+    --button-activation-level: 0;
+}
+
+/* ------- BUTTONS -------- */
+
 input[type=button],
 input[type=color],
 input[type=image],
@@ -35,226 +173,15 @@ input[type=submit],
 input::file-selector-button,
 button,
 select {
-  border-bottom-width: 2px;
-
-  /* This avoids it jumping around when :active */
-  vertical-align: middle;
-  margin-top: 0;
-
-  padding-left: 20px;
-  padding-right: 20px;
-
-  /* Disable Chrome's touch tap highlight */
-  -webkit-tap-highlight-color: transparent;
-}
-
-/*
- * Select dropdowns
- */
-select {
-  --select-arrow: url('data:image/svg+xml;utf8, \
-      <svg width="8" height="6" version="1.1" viewBox="0 0 8 6" \
-           xmlns="http://www.w3.org/2000/svg"> \
-          <path d="m6.5 1.5 -2.5 3 -2.5 -3 5 0" stroke-width="3" \
-                stroke="rgb(31,31,31)" fill="none" \
-                stroke-linecap="round" stroke-linejoin="round" /> \
-      </svg>');
-  background-image: var(--select-arrow), var(--bg-gradient);
-  background-position: calc(100% - 7px), left top;
-  background-repeat: no-repeat;
-  padding-right: calc(2*7px + 8px);
-  padding-left: 7px;
-}
-/* FIXME: :active isn't set when the <select> is opened in Firefox:
-          https://bugzilla.mozilla.org/show_bug.cgi?id=1805406 */
-select:active {
-  /* Rotated arrow */
-  background-image: url('data:image/svg+xml;utf8, \
-      <svg width="8" height="6" version="1.1" viewBox="0 0 8 6" \
-           xmlns="http://www.w3.org/2000/svg" transform="rotate(180)" > \
-          <path d="m6.5 1.5 -2.5 3 -2.5 -3 5 0" stroke-width="3" \
-                stroke="rgb(31,31,31)" fill="none" \
-                stroke-linecap="round" stroke-linejoin="round" /> \
-      </svg>'), var(--bg-gradient);
-}
-option {
-  color: black;
-  background: white;
-}
-
-/*
- * Checkboxes
- */
-input[type=checkbox] {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  background-color: white;
-  background-image: unset;
-  border: 1px solid dimgrey;
-  border-radius: 3px;
-  width: 13px;
-  height: 13px;
-  padding: 0;
-  margin-right: 6px;
-  vertical-align: bottom;
-  transition: 0.2s background-color linear;
-}
-input[type=checkbox]:checked {
-  background-color: rgb(110, 132, 163);
-  border-color: rgb(110, 132, 163);
-}
-input[type=checkbox]:checked::after {
-  content: "";
-  display: block; /* width & height doesn't work on inline elements */
-  width: 3px;
-  height: 7px;
-  border: 1px solid white;
-  border-width: 0 2px 2px 0;
-  transform: rotate(40deg) translateY(-1px);
-}
-
-/*
- * Radiobuttons
- */
-input[type=radio] {
-  border-radius: 50%;
-  border: 1px solid dimgrey;
-  width: 12px;
-  height: 12px;
-  padding: 0;
-  margin-right: 6px;
-  transition: 0.2s border linear;
-}
-input[type=radio]:checked {
-  border: 6px solid rgb(110, 132, 163);
-}
-
-/*
- * Range sliders
- */
-input[type=range] {
-  border: unset;
-  border-radius: 3px;
-  height: 20px;
-  padding: 0;
-  background: transparent;
-}
-/* -webkit-slider.. & -moz-range.. cant be in selector lists:
-   https://bugs.chromium.org/p/chromium/issues/detail?id=1154623 */
-input[type=range]::-webkit-slider-runnable-track {
-  background-color: rgb(110, 132, 163);
-  height: 6px;
-  border-radius: 3px;
-}
-input[type=range]::-moz-range-track {
-  background-color: rgb(110, 132, 163);
-  height: 6px;
-  border-radius: 3px;
-}
-input[type=range]::-webkit-slider-thumb {
-  appearance: none;
-  width: 18px;
-  height: 20px;
-  border-radius: 5px;
-  background-color: white;
-  border: 1px solid dimgray;
-  margin-top: -7px;
-}
-input[type=range]::-moz-range-thumb {
-  appearance: none;
-  width: 18px;
-  height: 20px;
-  border-radius: 5px;
-  background-color: white;
-  border: 1px solid dimgray;
-  margin-top: -7px;
-}
-
-/*
- * File choosers
- */
-input[type=file] {
-  background-image: none;
-  border: none;
-}
-input::file-selector-button {
-  margin-right: 6px;
-}
-
-/*
- * Hover
- */
-input[type=button]:hover,
-input[type=color]:hover,
-input[type=image]:hover,
-input[type=reset]:hover,
-input[type=submit]:hover,
-input::file-selector-button:hover,
-button:hover {
-  background-image: linear-gradient(to top, rgb(255, 255, 255), rgb(250, 250, 250));
-}
-select:hover {
-  background-image: var(--select-arrow),
-    linear-gradient(to top, rgb(255, 255, 255), rgb(250, 250, 250));
-  background-position: calc(100% - 7px), left top;
-  background-repeat: no-repeat;
-}
-@media (any-pointer: coarse) {
-  /* We don't want a hover style after touch input */
-  input[type=button]:hover,
-  input[type=color]:hover,
-  input[type=image]:hover,
-  input[type=reset]:hover,
-  input[type=submit]:hover,
-  input::file-selector-button:hover,
-  button:hover {
-    background-image: var(--bg-gradient);
-  }
-  select:hover {
-    background-image: var(--select-arrow), var(--bg-gradient);
-  }
-}
-
-/*
- * Active (clicked)
- */
-input[type=button]:active,
-input[type=color]:active,
-input[type=image]:active,
-input[type=reset]:active,
-input[type=submit]:active,
-input::file-selector-button:active,
-button:active,
-select:active {
-  border-bottom-width: 1px;
-  margin-top: 1px;
-}
-
-/*
- * Focus (tab)
- */
-input:focus-visible,
-input:focus-visible::file-selector-button,
-button:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
-  outline: 2px solid rgb(74, 144, 217);
-  outline-offset: 1px;
-}
-input[type=file]:focus-visible {
-  outline: none; /* We outline the button instead of the entire element */
-}
-
-/*
- * Disabled
- */
-input:disabled,
-input:disabled::file-selector-button,
-button:disabled,
-select:disabled,
-textarea:disabled {
-  opacity: 0.4;
+    min-width: 8em;
+    border: none;
+    color: black;
+    font-weight: bold;
+    background-color: var(--novnc-buttongrey);
+    background-image: var(--button-activation-overlay);
+    cursor: pointer;
+    /* Disable Chrome's touch tap highlight */
+    -webkit-tap-highlight-color: transparent;
 }
 input[type=button]:disabled,
 input[type=color]:disabled,
@@ -264,18 +191,438 @@ input[type=submit]:disabled,
 input:disabled::file-selector-button,
 button:disabled,
 select:disabled {
-  background-image: var(--bg-gradient);
-  border-bottom-width: 2px;
-  margin-top: 0;
+    /* See Firefox bug:
+       https://bugzilla.mozilla.org/show_bug.cgi?id=1798304 */
+    cursor: default;
 }
-input[type=file]:disabled {
-  background-image: none;
+
+input[type=button],
+input[type=color],
+input[type=reset],
+input[type=submit] {
+    /* Workaround for text-overflow bugs in Firefox and Chromium:
+        https://bugzilla.mozilla.org/show_bug.cgi?id=1800077
+        https://bugs.chromium.org/p/chromium/issues/detail?id=1383144 */
+    overflow: clip;
+}
+
+/* ------- COLOR PICKERS ------- */
+
+input[type=color] {
+    min-width: unset;
+    box-sizing: content-box;
+    width: 1.4em;
+    height: 1.4em;
+}
+input[type=color]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+/* -webkit-color-swatch & -moz-color-swatch cant be in a selector list:
+   https://bugs.chromium.org/p/chromium/issues/detail?id=1154623 */
+input[type=color]::-webkit-color-swatch {
+    border: none;
+    border-radius: 6px;
+}
+input[type=color]::-moz-color-swatch {
+    border: none;
+    border-radius: 6px;
+}
+
+/* -- SHARED BETWEEN CHECKBOXES, RADIOBUTTONS AND THE TOGGLE CLASS -- */
+
+input[type=radio],
+input[type=checkbox] {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--novnc-buttongrey);
+    background-image: var(--button-activation-overlay);
+    /* Disable Chrome's touch tap highlight to avoid conflicts with overlay */
+    -webkit-tap-highlight-color: transparent;
+    width: 16px;
+    --checkradio-height: 16px;
+    height: var(--checkradio-height);
+    padding: 0;
+    margin: 0 6px 0 0;
+    /* Don't have transitions for outline in order to be consistent
+       with other elements */
+    transition: all 0.2s, outline-color 0s, outline-offset 0s;
+
+    /* A transparent outline in order to work around a graphical clipping issue
+       in WebKit. See bug: https://bugs.webkit.org/show_bug.cgi?id=256003 */
+    outline: 1px solid transparent;
+    position: relative; /* Since ::before & ::after are absolute positioned */
+
+    /* We want to align with the middle of capital letters, this requires
+       a workaround. The default behavior is to align the bottom of the element
+       on top of the text baseline, this is too far up.
+       We want to push the element down half the difference in height between
+       it and a capital X. In our font, the height of a capital "X" is 0.698em.
+     */
+    vertical-align: calc(0px - (var(--checkradio-height) - 0.698em) / 2);
+    /* FIXME: Could write 1cap instead of 0.698em, but it's only supported in
+              Firefox as of 2023 */
+    /* FIXME: We probably want to use round() here, see bug 8148 */
+}
+input[type=radio]:focus-visible,
+input[type=checkbox]:focus-visible {
+    outline-color: var(--novnc-lightblue);
+}
+input[type=checkbox]::before,
+input[type=checkbox]:not(.toggle)::after,
+input[type=radio]::before,
+input[type=radio]::after {
+    content: "";
+    display: block; /* width & height doesn't work on inline elements */
+    transition: inherit;
+    /* Let's prevent the pseudo-elements from taking up layout space so that
+       the ::before and ::after pseudo-elements can be in the same place. This
+       is also required for vertical-align: baseline to work like we want it to
+       on radio/checkboxes. If the pseudo-elements take up layout space, the
+       baseline of text inside them will be used instead. */
+    position: absolute;
+}
+input[type=checkbox]:not(.toggle)::after,
+input[type=radio]::after {
+    width: 10px;
+    height: 2px;
+    background-color: transparent;
+    border-radius: 2px;
+}
+
+/* ------- CHECKBOXES ------- */
+
+input[type=checkbox]:not(.toggle) {
+    border-radius: 4px;
+}
+input[type=checkbox]:not(.toggle):checked,
+input[type=checkbox]:not(.toggle):indeterminate {
+    background-color: var(--novnc-blue);
+    background-image: var(--button-activation-overlay-light);
+    background-blend-mode: overlay;
+}
+input[type=checkbox]:not(.toggle)::before {
+    width: 25%;
+    height: 55%;
+    border-style: solid;
+    border-color: transparent;
+    border-width: 0 2px 2px 0;
+    border-radius: 1px;
+    transform: translateY(-1px) rotate(35deg);
+}
+input[type=checkbox]:not(.toggle):checked::before {
+    border-color: white;
+}
+input[type=checkbox]:not(.toggle):indeterminate::after {
+    background-color: white;
+}
+
+/* ------- RADIO BUTTONS ------- */
+
+input[type=radio] {
+    border-radius: 50%;
+    border: 1px solid transparent; /* To ensure a smooth transition */
+}
+input[type=radio]:checked {
+    border: 4px solid var(--novnc-blue);
+    background-color: white;
+    /* button-activation-overlay should be removed from the radio
+       element to not interfere with button-activation-overlay-light
+       that is set on the ::before element. */
+    background-image: none;
+}
+input[type=radio]::before {
+    width: inherit;
+    height: inherit;
+    border-radius: inherit;
+    /* We can achieve the highlight overlay effect on border colors by
+       setting button-activation-overlay-light on an element that stays
+       on top (z-axis) of the element with a border. */
+    background-image: var(--button-activation-overlay-light);
+    mix-blend-mode: overlay;
+    opacity: 0;
+}
+input[type=radio]:checked::before {
+    opacity: 1;
+}
+input[type=radio]:indeterminate::after {
+    background-color: black;
+}
+
+/* ------- TOGGLE SWITCHES ------- */
+
+/* These are meant to be used instead of checkboxes in some cases. If all of
+   the following critera are true you should use a toggle switch:
+
+    * The choice is a simple ON/OFF or ENABLE/DISABLE
+    * The choice doesn't give the feeling of "I agree" or "I confirm"
+    * There are not multiple related & grouped options
+ */
+
+input[type=checkbox].toggle {
+    display: inline-block;
+    --checkradio-height: 18px; /* Height value used in calc, see above */
+    width: 31px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    border-radius: 9px;
+}
+input[type=checkbox].toggle:disabled {
+    cursor: default;
+}
+input[type=checkbox].toggle:indeterminate {
+    background-color: var(--novnc-buttongrey);
+    background-image: var(--button-activation-overlay);
+}
+input[type=checkbox].toggle:checked {
+    background-color: var(--novnc-blue);
+    background-image: var(--button-activation-overlay-light);
+    background-blend-mode: overlay;
+}
+input[type=checkbox].toggle::before {
+    --circle-diameter: 10px;
+    --circle-offset: 4px;
+    width: var(--circle-diameter);
+    height: var(--circle-diameter);
+    top: var(--circle-offset);
+    left: var(--circle-offset);
+    background: white;
+    border-radius: 6px;
+}
+input[type=checkbox].toggle:checked::before {
+    left: calc(100% - var(--circle-offset) - var(--circle-diameter));
+}
+input[type=checkbox].toggle:indeterminate::before {
+    left: calc(50% - var(--circle-diameter) / 2);
+}
+
+/* ------- RANGE SLIDERS ------- */
+
+input[type=range] {
+    border: unset;
+    border-radius: 8px;
+    height: 15px;
+    padding: 0;
+    background: transparent;
+    /* Needed to get properly rounded corners on -moz-range-progress
+       when the thumb is all the way to the right. Without overflow
+       hidden, the pointy edges of the progress track shows to the
+       right of the thumb. */
+    overflow: hidden;
+}
+@supports selector(::-webkit-slider-thumb) {
+    input[type=range] {
+        /* Needs a fixed width to match clip-path */
+        width: 125px;
+        /* overflow: hidden is not ideal for hiding the left part of the box
+           shadow of -webkit-slider-thumb since it doesn't match the smaller
+           border-radius of the progress track. The below clip-path has two
+           circular sides to make the ends of the track have correctly rounded
+           corners. The clip path shape looks something like this:
+
+                  +-------------------------------+
+              /---|                               |---\
+             |                                         |
+              \---|                               |---/
+                  +-------------------------------+
+
+           The larger middle part of the clip path is made to have room for the
+           thumb. By using margins on the track, we prevent the thumb from
+           touching the ends of the track.
+         */
+        clip-path: path(' \
+         M 4.5 3 \
+         L 4.5 0 \
+         L 120.5 0 \
+         L 120.5 3 \
+         A 1 1 0 0 1 120.5 12 \
+         L 120.5 15 \
+         L 4.5 15 \
+         L 4.5 12 \
+         A 1 1 0 0 1 4.5 3 \
+        ');
+    }
+}
+input[type=range]:hover {
+    cursor: grab;
+}
+input[type=range]:active {
+    cursor: grabbing;
+}
+input[type=range]:disabled {
+    cursor: default;
+}
+input[type=range]:focus-visible {
+    clip-path: none; /* Otherwise it hides the outline */
+}
+/* -webkit-slider.. & -moz-range.. cant be in selector lists:
+   https://bugs.chromium.org/p/chromium/issues/detail?id=1154623 */
+input[type=range]::-webkit-slider-runnable-track {
+    background-color: var(--novnc-buttongrey);
+    height: 7px;
+    border-radius: 4px;
+    margin: 0 3px;
+}
+input[type=range]::-moz-range-track {
+    background-color: var(--novnc-buttongrey);
+    height: 7px;
+    border-radius: 4px;
+}
+input[type=range]::-moz-range-progress {
+    background-color: var(--novnc-blue);
+    height: 9px;
+    /* Needs rounded corners only on the left side. Otherwise the rounding of
+       the progress track starts before the thumb, when the thumb is close to
+       the left edge. */
+    border-radius: 5px 0 0 5px;
+}
+input[type=range]::-webkit-slider-thumb {
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: white;
+    background-image: var(--button-activation-overlay);
+    /* Disable Chrome's touch tap highlight to avoid conflicts with overlay */
+    -webkit-tap-highlight-color: transparent;
+    border: 3px solid var(--novnc-blue);
+    margin-top: -4px; /* (track height / 2) - (thumb height /2) */
+
+    /* Since there is no way to style the left part of the range track in
+       webkit, we add a large shadow (1000px wide) to the left of the thumb and
+       then crop it with a clip-path shaped like this:
+                              ___
+        +-------------------/     \
+        |      progress     |Thumb|
+        +-------------------\ ___ /
+
+        The large left part of the shadow is clipped by another clip-path on on
+        the main range input element. */
+    /* FIXME: We can remove the box shadow workaround when this is standardized:
+              https://github.com/w3c/csswg-drafts/issues/4410 */
+
+    box-shadow: calc(-100vw - 8px) 0 0 100vw var(--novnc-blue);
+    clip-path: path(' \
+     M -1000 3 \
+     L 3 3 \
+     L 15 7.5 \
+     A 1 1 0 0 1 0 7.5 \
+     A 1 1 0 0 1 15 7.5 \
+     L 3 12 \
+     L -1000 12 Z \
+    ');
+}
+input[type=range]::-moz-range-thumb {
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    box-sizing: border-box;
+    background-color: white;
+    background-image: var(--button-activation-overlay);
+    border: 3px solid var(--novnc-blue);
+    margin-top: -7px;
+}
+
+/* ------- FILE CHOOSERS ------- */
+
+input[type=file] {
+    background-image: none;
+    border: none;
+}
+input::file-selector-button {
+    margin-right: 6px;
+}
+input[type=file]:focus-visible {
+    outline: none; /* We outline the button instead of the entire element */
+}
+
+/* ------- SELECT BUTTONS ------- */
+
+select {
+    --select-arrow: url('data:image/svg+xml;utf8, \
+        <svg width="11" height="6" version="1.1" viewBox="0 0 11 6" \
+             xmlns="http://www.w3.org/2000/svg"> \
+            <path d="m10.5.5-5 5-5-5" fill="none" \
+                  stroke="black" stroke-width="1.5" \
+                  stroke-linecap="round" stroke-linejoin="round"/> \
+        </svg>');
+
+    /* FIXME: A bug in Firefox, requires a workaround for the background:
+              https://bugzilla.mozilla.org/show_bug.cgi?id=1810958 */
+    /* The dropdown list will show the select element's background above and
+       below the options in Firefox. We want the entire dropdown to be white. */
+    background-color: white;
+    /* However, we don't want the select element to actually show a white
+       background, so let's place a gradient above it with the color we want. */
+    --grey-background: linear-gradient(var(--novnc-buttongrey) 100%,
+                                       transparent);
+    background-image:
+        var(--select-arrow),
+        var(--button-activation-overlay),
+        var(--grey-background);
+    background-position: calc(100% - var(--input-xpadding)), left top, left top;
+    background-repeat: no-repeat;
+    padding-right: calc(2*var(--input-xpadding) + 11px);
+    overflow: auto;
+}
+/* FIXME: :active isn't set when the <select> is opened in Firefox:
+          https://bugzilla.mozilla.org/show_bug.cgi?id=1805406 */
+select:active {
+    /* Rotated arrow */
+    background-image: url('data:image/svg+xml;utf8, \
+        <svg width="11" height="6" version="1.1" viewBox="0 0 11 6" \
+             xmlns="http://www.w3.org/2000/svg" transform="rotate(180)"> \
+            <path d="m10.5.5-5 5-5-5" fill="none" \
+                  stroke="black" stroke-width="1.5" \
+                  stroke-linecap="round" stroke-linejoin="round"/> \
+        </svg>'),
+        var(--button-activation-overlay),
+        var(--grey-background);
 }
 select:disabled {
-  background-image: var(--select-arrow), var(--bg-gradient);
+    background-image:
+        var(--select-arrow),
+        var(--grey-background);
 }
-input[type=image]:disabled {
-  /* See Firefox bug:
-     https://bugzilla.mozilla.org/show_bug.cgi?id=1798304 */
-  cursor: default;
+/* Note that styling for <option> doesn't work in all browsers
+   since its often drawn directly by the OS. We are generally very
+   limited in what we can change here. */
+option {
+    /* Prevent Chrome from inheriting background-color from the <select> */
+    background-color: white;
+    color: black;
+    font-weight: normal;
+    background-image: var(--button-activation-overlay);
+}
+option:checked {
+    background-color: var(--novnc-lightgrey);
+}
+/* Change the look when the <select> isn't used as a dropdown. When "size"
+   or "multiple" are set, these elements behaves more like lists. */
+select[size]:not([size="1"]), select[multiple] {
+    background-color: white;
+    background-image: unset; /* Don't show the arrow and other gradients */
+    border: 1px solid var(--novnc-lightgrey);
+    padding: 0;
+    font-weight: normal; /* Without this, options get bold font in WebKit. */
+
+    /* As an exception to the "list"-look, multi-selects in Chrome on Android,
+       and Safari on iOS, are unfortunately designed to be shown as a single
+       line. We can mitigate this inconsistency by at least fixing the height
+       here. By setting a min-height that matches other input elements, it
+       doesn't look too much out of place:
+         (1px border * 2) + (6.5px padding * 2) + 24px line-height = 39px */
+    min-height: 39px;
+}
+select[size]:not([size="1"]):focus-visible,
+select[multiple]:focus-visible {
+    /* Text input style focus-visible highlight */
+    outline-offset: -1px;
+}
+select[size]:not([size="1"]) option, select[multiple] option {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 4px var(--input-xpadding);
 }

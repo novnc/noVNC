@@ -11,7 +11,7 @@
 #   "vnc": "localhost:5902"
 #}
 #}
-snapctl get services | jq -c '.[]' | while read service; do # for each service the user sepcified..
+snapctl get services | jq -c '.[]' | while read service; do # for each service the user specified..
     # get the important data for the service (listen port, VNC host:port)
     listen_port="$(echo $service | jq --raw-output '.listen')"
     vnc_host_port="$(echo $service | jq --raw-output '.vnc')" # --raw-output removes any quotation marks from the output

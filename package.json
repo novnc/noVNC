@@ -1,6 +1,6 @@
 {
   "name": "@novnc/novnc",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "An HTML5 VNC client",
   "browser": "lib/rfb",
   "directories": {
@@ -55,10 +55,8 @@
     "karma-mocha-reporter": "latest",
     "karma-safari-launcher": "latest",
     "karma-script-launcher": "latest",
-    "karma-sinon-chai": "latest",
     "mocha": "latest",
-    "node-getopt": "latest",
-    "po2json": "latest",
+    "pofile": "latest",
     "sinon": "latest",
     "sinon-chai": "latest"
   },

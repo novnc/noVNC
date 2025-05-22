@@ -1,5 +1,5 @@
 # Simplified Chinese translations for noVNC package.
-# Copyright (C) 2020 The noVNC Authors
+# Copyright (C) 2020 The noVNC authors
 # This file is distributed under the same license as the noVNC package.
 # Peter Dave Hello <hsu@peterdavehello.org>, 2018.
 #
@@ -7,278 +7,367 @@ msgid ""
 msgstr ""
 "Project-Id-Version: noVNC 1.1.0\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
-"POT-Creation-Date: 2018-01-10 00:53+0800\n"
-"PO-Revision-Date: 2020-01-02 13:19+0800\n"
-"Last-Translator: CUI Wei <ghostplant@qq.com>\n"
+"POT-Creation-Date: 2024-06-03 14:10+0200\n"
+"PO-Revision-Date: 2024-11-23 15:29+0800\n"
+"Last-Translator: wxtewx <wxtewx@qq.com>\n"
+"Language-Team: \n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.5\n"
 
-#: ../app/ui.js:430
+#: ../app/ui.js:69
+msgid ""
+"Running without HTTPS is not recommended, crashes or other issues are likely."
+msgstr "不建议在没有 HTTPS 的情况下运行，可能会出现崩溃或出现其他问题。"
+
+#: ../app/ui.js:410
 msgid "Connecting..."
 msgstr "连接中..."
 
-#: ../app/ui.js:438
-msgid "Connected (encrypted) to "
-msgstr "已连接（已加密）到"
-
-#: ../app/ui.js:440
-msgid "Connected (unencrypted) to "
-msgstr "已连接（未加密）到"
-
-#: ../app/ui.js:446
+#: ../app/ui.js:417
 msgid "Disconnecting..."
 msgstr "正在断开连接..."
 
-#: ../app/ui.js:450
-msgid "Disconnected"
-msgstr "已断开连接"
-
-#: ../app/ui.js:1052 ../core/rfb.js:248
-msgid "Must set host"
-msgstr "必须设置主机"
-
-#: ../app/ui.js:1101
+#: ../app/ui.js:423
 msgid "Reconnecting..."
 msgstr "重新连接中..."
 
-#: ../app/ui.js:1140
-msgid "Password is required"
-msgstr "请提供密码"
+#: ../app/ui.js:428
+msgid "Internal error"
+msgstr "内部错误"
 
-#: ../core/rfb.js:548
-msgid "Disconnect timeout"
-msgstr "超时断开"
+#: ../app/ui.js:1026
+msgid "Must set host"
+msgstr "必须设置主机"
 
-#: ../vnc.html:89
+#: ../app/ui.js:1052
+msgid "Failed to connect to server: "
+msgstr "无法连接到服务器："
+
+#: ../app/ui.js:1118
+msgid "Connected (encrypted) to "
+msgstr "已连接（已加密）到"
+
+#: ../app/ui.js:1120
+msgid "Connected (unencrypted) to "
+msgstr "已连接（未加密）到"
+
+#: ../app/ui.js:1143
+msgid "Something went wrong, connection is closed"
+msgstr "出了点问题，连接已关闭"
+
+#: ../app/ui.js:1146
+msgid "Failed to connect to server"
+msgstr "无法连接到服务器"
+
+#: ../app/ui.js:1158
+msgid "Disconnected"
+msgstr "已断开连接"
+
+#: ../app/ui.js:1173
+msgid "New connection has been rejected with reason: "
+msgstr "新连接被拒绝，原因如下："
+
+#: ../app/ui.js:1176
+msgid "New connection has been rejected"
+msgstr "新连接已被拒绝"
+
+#: ../app/ui.js:1242
+msgid "Credentials are required"
+msgstr "需要凭证"
+
+#: ../vnc.html:55
 msgid "noVNC encountered an error:"
 msgstr "noVNC 遇到一个错误："
 
-#: ../vnc.html:99
+#: ../vnc.html:65
 msgid "Hide/Show the control bar"
 msgstr "显示/隐藏控制栏"
 
-#: ../vnc.html:106
-msgid "Move/Drag Viewport"
+#: ../vnc.html:74
+msgid "Drag"
+msgstr "拖动"
+
+#: ../vnc.html:74
+msgid "Move/Drag viewport"
 msgstr "移动/拖动窗口"
 
-#: ../vnc.html:106
-msgid "viewport drag"
-msgstr "窗口拖动"
-
-#: ../vnc.html:112 ../vnc.html:115 ../vnc.html:118 ../vnc.html:121
-msgid "Active Mouse Button"
-msgstr "启动鼠标按键"
-
-#: ../vnc.html:112
-msgid "No mousebutton"
-msgstr "禁用鼠标按键"
-
-#: ../vnc.html:115
-msgid "Left mousebutton"
-msgstr "鼠标左键"
-
-#: ../vnc.html:118
-msgid "Middle mousebutton"
-msgstr "鼠标中键"
-
-#: ../vnc.html:121
-msgid "Right mousebutton"
-msgstr "鼠标右键"
-
-#: ../vnc.html:124
+#: ../vnc.html:80
 msgid "Keyboard"
 msgstr "键盘"
 
-#: ../vnc.html:124
-msgid "Show Keyboard"
+#: ../vnc.html:80
+msgid "Show keyboard"
 msgstr "显示键盘"
 
-#: ../vnc.html:131
+#: ../vnc.html:85
 msgid "Extra keys"
 msgstr "额外按键"
 
-#: ../vnc.html:131
-msgid "Show Extra Keys"
+#: ../vnc.html:85
+msgid "Show extra keys"
 msgstr "显示额外按键"
 
-#: ../vnc.html:136
+#: ../vnc.html:90
 msgid "Ctrl"
 msgstr "Ctrl"
 
-#: ../vnc.html:136
+#: ../vnc.html:90
 msgid "Toggle Ctrl"
 msgstr "切换 Ctrl"
 
-#: ../vnc.html:136
-msgid "Edit clipboard content in the textarea below."
-msgstr "在下面的文本区域中编辑剪贴板内容。"
-
-#: ../vnc.html:139
+#: ../vnc.html:93
 msgid "Alt"
 msgstr "Alt"
 
-#: ../vnc.html:139
+#: ../vnc.html:93
 msgid "Toggle Alt"
 msgstr "切换 Alt"
 
-#: ../vnc.html:142
+#: ../vnc.html:96
+msgid "Toggle Windows"
+msgstr "切换窗口"
+
+#: ../vnc.html:96
+msgid "Windows"
+msgstr "窗口"
+
+#: ../vnc.html:99
 msgid "Send Tab"
 msgstr "发送 Tab 键"
 
-#: ../vnc.html:142
+#: ../vnc.html:99
 msgid "Tab"
 msgstr "Tab"
 
-#: ../vnc.html:145
+#: ../vnc.html:102
 msgid "Esc"
 msgstr "Esc"
 
-#: ../vnc.html:145
+#: ../vnc.html:102
 msgid "Send Escape"
 msgstr "发送 Escape 键"
 
-#: ../vnc.html:148
+#: ../vnc.html:105
 msgid "Ctrl+Alt+Del"
 msgstr "Ctrl+Alt+Del"
 
-#: ../vnc.html:148
+#: ../vnc.html:105
 msgid "Send Ctrl-Alt-Del"
 msgstr "发送 Ctrl+Alt+Del 键"
 
-#: ../vnc.html:156
+#: ../vnc.html:112
 msgid "Shutdown/Reboot"
 msgstr "关机/重启"
 
-#: ../vnc.html:156
+#: ../vnc.html:112
 msgid "Shutdown/Reboot..."
 msgstr "关机/重启..."
 
-#: ../vnc.html:162
+#: ../vnc.html:118
 msgid "Power"
 msgstr "电源"
 
-#: ../vnc.html:164
+#: ../vnc.html:120
 msgid "Shutdown"
 msgstr "关机"
 
-#: ../vnc.html:165
+#: ../vnc.html:121
 msgid "Reboot"
 msgstr "重启"
 
-#: ../vnc.html:166
+#: ../vnc.html:122
 msgid "Reset"
 msgstr "重置"
 
-#: ../vnc.html:171 ../vnc.html:177
+#: ../vnc.html:127 ../vnc.html:133
 msgid "Clipboard"
 msgstr "剪贴板"
 
-#: ../vnc.html:181
-msgid "Clear"
-msgstr "清除"
+#: ../vnc.html:135
+msgid "Edit clipboard content in the textarea below."
+msgstr "在下面的文本区域中编辑剪贴板内容。"
 
-#: ../vnc.html:187
-msgid "Fullscreen"
+#: ../vnc.html:143
+msgid "Full screen"
 msgstr "全屏"
 
-#: ../vnc.html:192 ../vnc.html:199
+#: ../vnc.html:148 ../vnc.html:154
 msgid "Settings"
 msgstr "设置"
 
-#: ../vnc.html:200
-msgid "Encrypt"
-msgstr "加密"
-
-#: ../vnc.html:202
-msgid "Shared Mode"
+#: ../vnc.html:158
+msgid "Shared mode"
 msgstr "分享模式"
 
-#: ../vnc.html:205
-msgid "View Only"
+#: ../vnc.html:161
+msgid "View only"
 msgstr "仅查看"
 
-#: ../vnc.html:209
-msgid "Clip to Window"
+#: ../vnc.html:165
+msgid "Clip to window"
 msgstr "限制/裁切窗口大小"
 
-#: ../vnc.html:212
-msgid "Scaling Mode:"
+#: ../vnc.html:168
+msgid "Scaling mode:"
 msgstr "缩放模式："
 
-#: ../vnc.html:214
+#: ../vnc.html:170
 msgid "None"
 msgstr "无"
 
-#: ../vnc.html:215
-msgid "Local Scaling"
+#: ../vnc.html:171
+msgid "Local scaling"
 msgstr "本地缩放"
 
-#: ../vnc.html:216
-msgid "Local Downscaling"
-msgstr "降低本地尺寸"
-
-#: ../vnc.html:217
-msgid "Remote Resizing"
+#: ../vnc.html:172
+msgid "Remote resizing"
 msgstr "远程调整大小"
 
-#: ../vnc.html:222
+#: ../vnc.html:177
 msgid "Advanced"
 msgstr "高级"
 
-#: ../vnc.html:225
-msgid "Local Cursor"
-msgstr "本地光标"
+#: ../vnc.html:180
+msgid "Quality:"
+msgstr "品质："
 
-#: ../vnc.html:229
+#: ../vnc.html:184
+msgid "Compression level:"
+msgstr "压缩级别："
+
+#: ../vnc.html:189
 msgid "Repeater ID:"
 msgstr "中继站 ID"
 
-#: ../vnc.html:233
+#: ../vnc.html:193
 msgid "WebSocket"
 msgstr "WebSocket"
 
-#: ../vnc.html:239
+#: ../vnc.html:196
+msgid "Encrypt"
+msgstr "加密"
+
+#: ../vnc.html:199
 msgid "Host:"
 msgstr "主机："
 
-#: ../vnc.html:243
+#: ../vnc.html:203
 msgid "Port:"
 msgstr "端口："
 
-#: ../vnc.html:247
+#: ../vnc.html:207
 msgid "Path:"
 msgstr "路径："
 
-#: ../vnc.html:254
-msgid "Automatic Reconnect"
+#: ../vnc.html:214
+msgid "Automatic reconnect"
 msgstr "自动重新连接"
 
-#: ../vnc.html:257
-msgid "Reconnect Delay (ms):"
+#: ../vnc.html:217
+msgid "Reconnect delay (ms):"
 msgstr "重新连接间隔 (ms)："
 
-#: ../vnc.html:263
+#: ../vnc.html:222
+msgid "Show dot when no cursor"
+msgstr "无光标时显示点"
+
+#: ../vnc.html:227
 msgid "Logging:"
 msgstr "日志级别："
 
-#: ../vnc.html:275
+#: ../vnc.html:236
+msgid "Version:"
+msgstr "版本："
+
+#: ../vnc.html:244
 msgid "Disconnect"
 msgstr "断开连接"
 
-#: ../vnc.html:294
+#: ../vnc.html:267
 msgid "Connect"
 msgstr "连接"
 
+#: ../vnc.html:276
+msgid "Server identity"
+msgstr "服务器身份"
+
+#: ../vnc.html:279
+msgid "The server has provided the following identifying information:"
+msgstr "服务器提供了以下识别信息："
+
+#: ../vnc.html:283
+msgid "Fingerprint:"
+msgstr "指纹："
+
+#: ../vnc.html:286
+msgid ""
+"Please verify that the information is correct and press \"Approve\". "
+"Otherwise press \"Reject\"."
+msgstr "请核实信息是否正确，并按 “同意”，否则按 “拒绝”。"
+
+#: ../vnc.html:291
+msgid "Approve"
+msgstr "同意"
+
+#: ../vnc.html:292
+msgid "Reject"
+msgstr "拒绝"
+
+#: ../vnc.html:300
+msgid "Credentials"
+msgstr "凭证"
+
 #: ../vnc.html:304
+msgid "Username:"
+msgstr "用户名:"
+
+#: ../vnc.html:308
 msgid "Password:"
 msgstr "密码："
 
-#: ../vnc.html:318
+#: ../vnc.html:312
+msgid "Send credentials"
+msgstr "发送凭证"
+
+#: ../vnc.html:321
 msgid "Cancel"
 msgstr "取消"
 
-#: ../vnc.html:334
-msgid "Canvas not supported."
-msgstr "不支持 Canvas。"
+#~ msgid "Password is required"
+#~ msgstr "请提供密码"
+
+#~ msgid "Disconnect timeout"
+#~ msgstr "超时断开"
+
+#~ msgid "viewport drag"
+#~ msgstr "窗口拖动"
+
+#~ msgid "Active Mouse Button"
+#~ msgstr "启动鼠标按键"
+
+#~ msgid "No mousebutton"
+#~ msgstr "禁用鼠标按键"
+
+#~ msgid "Left mousebutton"
+#~ msgstr "鼠标左键"
+
+#~ msgid "Middle mousebutton"
+#~ msgstr "鼠标中键"
+
+#~ msgid "Right mousebutton"
+#~ msgstr "鼠标右键"
+
+#~ msgid "Clear"
+#~ msgstr "清除"
+
+#~ msgid "Local Downscaling"
+#~ msgstr "降低本地尺寸"
+
+#~ msgid "Local Cursor"
+#~ msgstr "本地光标"
+
+#~ msgid "Canvas not supported."
+#~ msgstr "不支持 Canvas。"

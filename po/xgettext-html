@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 /*
  * xgettext-html: HTML gettext parser
- * Copyright (C) 2018 The noVNC Authors
+ * Copyright (C) 2018 The noVNC authors
  * Licensed under MPL 2.0 (see LICENSE.txt)
  */
 
-const getopt = require('node-getopt');
+const { program } = require('commander');
 const jsdom = require("jsdom");
 const fs = require("fs");
 
-const opt = getopt.create([
-    ['o', 'output=FILE', 'write output to specified file'],
-    ['h', 'help', 'display this help'],
-]).bindHelp().parseSystem();
+program
+    .argument('<INPUT...>')
+    .requiredOption('-o, --output <FILE>', 'write output to specified file')
+    .parse(process.argv);
 
 const strings = {};
 
@@ -87,8 +87,8 @@ function process(elem, locator, enabled) {
     }
 }
 
-for (let i = 0; i < opt.argv.length; i++) {
-    const fn = opt.argv[i];
+for (let i = 0; i < program.args.length; i++) {
+    const fn = program.args[i];
     const file = fs.readFileSync(fn, "utf8");
     const dom = new jsdom.JSDOM(file, { includeNodeLocations: true });
     const body = dom.window.document.body;
@@ -116,4 +116,4 @@ for (let str in strings) {
     output += "\n";
 }
 
-fs.writeFileSync(opt.options.output, output);
+fs.writeFileSync(program.opts().output, output);

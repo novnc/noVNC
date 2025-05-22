@@ -1,5 +1,3 @@
-const expect = chai.expect;
-
 import { inflateInit, inflate } from "../vendor/pako/lib/zlib/inflate.js";
 import ZStream from "../vendor/pako/lib/zlib/zstream.js";
 import Deflator from "../core/deflator.js";

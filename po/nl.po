@@ -1,306 +1,384 @@
 # Dutch translations for noVNC package
 # Nederlandse vertalingen voor het pakket noVNC.
-# Copyright (C) 2018 The noVNC Authors
+# Copyright (C) 2018 The noVNC authors
 # This file is distributed under the same license as the noVNC package.
 # Loek Janssen <loekjanssen@gmail.com>, 2016.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: noVNC 1.1.0\n"
+"Project-Id-Version: noVNC 1.6.0\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
-"POT-Creation-Date: 2019-04-09 11:06+0100\n"
-"PO-Revision-Date: 2019-04-09 17:17+0100\n"
-"Last-Translator: Arend Lapere <arend.lapere@gmail.com>\n"
+"POT-Creation-Date: 2025-02-14 10:14+0100\n"
+"PO-Revision-Date: 2025-03-03 18:20+0100\n"
+"Last-Translator: Harold Horsman <haroldhorsman@gmail.com>\n"
 "Language-Team: none\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.5\n"
 
-#: ../app/ui.js:383
+#: ../app/ui.js:84
+msgid ""
+"Running without HTTPS is not recommended, crashes or other issues are likely."
+msgstr ""
+"Het is niet aan te raden om zonder HTTPS te werken, crashes of andere "
+"problemen zijn dan waarschijnlijk."
+
+#: ../app/ui.js:413
 msgid "Connecting..."
-msgstr "Verbinden..."
+msgstr "Aan het verbinden…"
 
-#: ../app/ui.js:390
+#: ../app/ui.js:420
 msgid "Disconnecting..."
-msgstr "Verbinding verbreken..."
+msgstr "Bezig om verbinding te verbreken..."
 
-#: ../app/ui.js:396
+#: ../app/ui.js:426
 msgid "Reconnecting..."
 msgstr "Opnieuw verbinding maken..."
 
-#: ../app/ui.js:401
+#: ../app/ui.js:431
 msgid "Internal error"
 msgstr "Interne fout"
 
-#: ../app/ui.js:991
-msgid "Must set host"
-msgstr "Host moeten worden ingesteld"
+#: ../app/ui.js:1079
+#, fuzzy
+msgid "Failed to connect to server: "
+msgstr "Verbinding maken met server is mislukt"
 
-#: ../app/ui.js:1073
+#: ../app/ui.js:1145
 msgid "Connected (encrypted) to "
 msgstr "Verbonden (versleuteld) met "
 
-#: ../app/ui.js:1075
+#: ../app/ui.js:1147
 msgid "Connected (unencrypted) to "
 msgstr "Verbonden (onversleuteld) met "
 
-#: ../app/ui.js:1098
+#: ../app/ui.js:1170
 msgid "Something went wrong, connection is closed"
 msgstr "Er iets fout gelopen, verbinding werd verbroken"
 
-#: ../app/ui.js:1101
+#: ../app/ui.js:1173
 msgid "Failed to connect to server"
 msgstr "Verbinding maken met server is mislukt"
 
-#: ../app/ui.js:1111
+#: ../app/ui.js:1185
 msgid "Disconnected"
 msgstr "Verbinding verbroken"
 
-#: ../app/ui.js:1124
+#: ../app/ui.js:1200
 msgid "New connection has been rejected with reason: "
-msgstr "Nieuwe verbinding is geweigerd omwille van de volgende reden: "
+msgstr "Nieuwe verbinding is geweigerd met de volgende reden: "
 
-#: ../app/ui.js:1127
+#: ../app/ui.js:1203
 msgid "New connection has been rejected"
 msgstr "Nieuwe verbinding is geweigerd"
 
-#: ../app/ui.js:1147
-msgid "Password is required"
-msgstr "Wachtwoord is vereist"
+#: ../app/ui.js:1269
+msgid "Credentials are required"
+msgstr "Inloggegevens zijn nodig"
 
-#: ../vnc.html:80
+#: ../vnc.html:106
 msgid "noVNC encountered an error:"
 msgstr "noVNC heeft een fout bemerkt:"
 
-#: ../vnc.html:90
+#: ../vnc.html:116
 msgid "Hide/Show the control bar"
 msgstr "Verberg/Toon de bedieningsbalk"
 
-#: ../vnc.html:97
-msgid "Move/Drag Viewport"
+#: ../vnc.html:125
+msgid "Drag"
+msgstr "Sleep"
+
+#: ../vnc.html:125
+#, fuzzy
+msgid "Move/Drag viewport"
 msgstr "Verplaats/Versleep Kijkvenster"
 
-#: ../vnc.html:97
-msgid "viewport drag"
-msgstr "kijkvenster slepen"
-
-#: ../vnc.html:103 ../vnc.html:106 ../vnc.html:109 ../vnc.html:112
-msgid "Active Mouse Button"
-msgstr "Actieve Muisknop"
-
-#: ../vnc.html:103
-msgid "No mousebutton"
-msgstr "Geen muisknop"
-
-#: ../vnc.html:106
-msgid "Left mousebutton"
-msgstr "Linker muisknop"
-
-#: ../vnc.html:109
-msgid "Middle mousebutton"
-msgstr "Middelste muisknop"
-
-#: ../vnc.html:112
-msgid "Right mousebutton"
-msgstr "Rechter muisknop"
-
-#: ../vnc.html:115
+#: ../vnc.html:131
 msgid "Keyboard"
 msgstr "Toetsenbord"
 
-#: ../vnc.html:115
-msgid "Show Keyboard"
+#: ../vnc.html:131
+#, fuzzy
+msgid "Show keyboard"
 msgstr "Toon Toetsenbord"
 
-#: ../vnc.html:121
+#: ../vnc.html:136
 msgid "Extra keys"
 msgstr "Extra toetsen"
 
-#: ../vnc.html:121
-msgid "Show Extra Keys"
+#: ../vnc.html:136
+#, fuzzy
+msgid "Show extra keys"
 msgstr "Toon Extra Toetsen"
 
-#: ../vnc.html:126
+#: ../vnc.html:141
 msgid "Ctrl"
 msgstr "Ctrl"
 
-#: ../vnc.html:126
+#: ../vnc.html:141
 msgid "Toggle Ctrl"
 msgstr "Ctrl omschakelen"
 
-#: ../vnc.html:129
+#: ../vnc.html:144
 msgid "Alt"
 msgstr "Alt"
 
-#: ../vnc.html:129
+#: ../vnc.html:144
 msgid "Toggle Alt"
 msgstr "Alt omschakelen"
 
-#: ../vnc.html:132
+#: ../vnc.html:147
 msgid "Toggle Windows"
-msgstr "Windows omschakelen"
+msgstr "Vensters omschakelen"
 
-#: ../vnc.html:132
+#: ../vnc.html:147
 msgid "Windows"
-msgstr "Windows"
+msgstr "Vensters"
 
-#: ../vnc.html:135
+#: ../vnc.html:150
 msgid "Send Tab"
 msgstr "Tab Sturen"
 
-#: ../vnc.html:135
+#: ../vnc.html:150
 msgid "Tab"
 msgstr "Tab"
 
-#: ../vnc.html:138
+#: ../vnc.html:153
 msgid "Esc"
 msgstr "Esc"
 
-#: ../vnc.html:138
+#: ../vnc.html:153
 msgid "Send Escape"
 msgstr "Escape Sturen"
 
-#: ../vnc.html:141
+#: ../vnc.html:156
 msgid "Ctrl+Alt+Del"
 msgstr "Ctrl-Alt-Del"
 
-#: ../vnc.html:141
+#: ../vnc.html:156
 msgid "Send Ctrl-Alt-Del"
 msgstr "Ctrl-Alt-Del Sturen"
 
-#: ../vnc.html:149
+#: ../vnc.html:163
 msgid "Shutdown/Reboot"
 msgstr "Uitschakelen/Herstarten"
 
-#: ../vnc.html:149
+#: ../vnc.html:163
 msgid "Shutdown/Reboot..."
 msgstr "Uitschakelen/Herstarten..."
 
-#: ../vnc.html:155
+#: ../vnc.html:169
 msgid "Power"
 msgstr "Systeem"
 
-#: ../vnc.html:157
+#: ../vnc.html:171
 msgid "Shutdown"
 msgstr "Uitschakelen"
 
-#: ../vnc.html:158
+#: ../vnc.html:172
 msgid "Reboot"
 msgstr "Herstarten"
 
-#: ../vnc.html:159
+#: ../vnc.html:173
 msgid "Reset"
 msgstr "Resetten"
 
-#: ../vnc.html:164 ../vnc.html:170
+#: ../vnc.html:178 ../vnc.html:184
 msgid "Clipboard"
 msgstr "Klembord"
 
-#: ../vnc.html:174
-msgid "Clear"
-msgstr "Wissen"
+#: ../vnc.html:186
+msgid "Edit clipboard content in the textarea below."
+msgstr "Edit de inhoud van het klembord in het tekstveld hieronder"
 
-#: ../vnc.html:180
-msgid "Fullscreen"
+#: ../vnc.html:194
+#, fuzzy
+msgid "Full screen"
 msgstr "Volledig Scherm"
 
-#: ../vnc.html:185 ../vnc.html:192
+#: ../vnc.html:199 ../vnc.html:205
 msgid "Settings"
 msgstr "Instellingen"
 
-#: ../vnc.html:195
-msgid "Shared Mode"
+#: ../vnc.html:211
+#, fuzzy
+msgid "Shared mode"
 msgstr "Gedeelde Modus"
 
-#: ../vnc.html:198
-msgid "View Only"
+#: ../vnc.html:218
+#, fuzzy
+msgid "View only"
 msgstr "Alleen Kijken"
 
-#: ../vnc.html:202
-msgid "Clip to Window"
+#: ../vnc.html:226
+msgid "Clip to window"
 msgstr "Randen buiten venster afsnijden"
 
-#: ../vnc.html:205
-msgid "Scaling Mode:"
+#: ../vnc.html:231
+msgid "Scaling mode:"
 msgstr "Schaalmodus:"
 
-#: ../vnc.html:207
+#: ../vnc.html:233
 msgid "None"
 msgstr "Geen"
 
-#: ../vnc.html:208
-msgid "Local Scaling"
+#: ../vnc.html:234
+#, fuzzy
+msgid "Local scaling"
 msgstr "Lokaal Schalen"
 
-#: ../vnc.html:209
-msgid "Remote Resizing"
+#: ../vnc.html:235
+#, fuzzy
+msgid "Remote resizing"
 msgstr "Op Afstand Formaat Wijzigen"
 
-#: ../vnc.html:214
+#: ../vnc.html:240
 msgid "Advanced"
 msgstr "Geavanceerd"
 
-#: ../vnc.html:217
+#: ../vnc.html:243
+msgid "Quality:"
+msgstr "Kwaliteit:"
+
+#: ../vnc.html:247
+msgid "Compression level:"
+msgstr "Compressieniveau:"
+
+#: ../vnc.html:252
 msgid "Repeater ID:"
 msgstr "Repeater ID:"
 
-#: ../vnc.html:221
+#: ../vnc.html:256
 msgid "WebSocket"
 msgstr "WebSocket"
 
-#: ../vnc.html:224
+#: ../vnc.html:261
 msgid "Encrypt"
 msgstr "Versleutelen"
 
-#: ../vnc.html:227
+#: ../vnc.html:266
 msgid "Host:"
 msgstr "Host:"
 
-#: ../vnc.html:231
+#: ../vnc.html:270
 msgid "Port:"
 msgstr "Poort:"
 
-#: ../vnc.html:235
+#: ../vnc.html:274
 msgid "Path:"
 msgstr "Pad:"
 
-#: ../vnc.html:242
-msgid "Automatic Reconnect"
+#: ../vnc.html:283
+#, fuzzy
+msgid "Automatic reconnect"
 msgstr "Automatisch Opnieuw Verbinden"
 
-#: ../vnc.html:245
-msgid "Reconnect Delay (ms):"
+#: ../vnc.html:288
+#, fuzzy
+msgid "Reconnect delay (ms):"
 msgstr "Vertraging voor Opnieuw Verbinden (ms):"
 
-#: ../vnc.html:250
-msgid "Show Dot when No Cursor"
+#: ../vnc.html:295
+msgid "Show dot when no cursor"
 msgstr "Geef stip weer indien geen cursor"
 
-#: ../vnc.html:255
+#: ../vnc.html:302
 msgid "Logging:"
 msgstr "Logmeldingen:"
 
-#: ../vnc.html:267
+#: ../vnc.html:311
+msgid "Version:"
+msgstr "Versie:"
+
+#: ../vnc.html:319
 msgid "Disconnect"
 msgstr "Verbinding verbreken"
 
-#: ../vnc.html:286
+#: ../vnc.html:342
 msgid "Connect"
 msgstr "Verbinden"
 
-#: ../vnc.html:296
+#: ../vnc.html:351
+msgid "Server identity"
+msgstr "Serveridentiteit"
+
+#: ../vnc.html:354
+msgid "The server has provided the following identifying information:"
+msgstr "De server geeft de volgende identificerende informatie:"
+
+#: ../vnc.html:357
+msgid "Fingerprint:"
+msgstr "Vingerafdruk:"
+
+#: ../vnc.html:361
+msgid ""
+"Please verify that the information is correct and press \"Approve\". "
+"Otherwise press \"Reject\"."
+msgstr ""
+"Verifieer dat de informatie is correct en druk “OK”. Druk anders op "
+"“Afwijzen”."
+
+#: ../vnc.html:366
+msgid "Approve"
+msgstr "OK"
+
+#: ../vnc.html:367
+msgid "Reject"
+msgstr "Afwijzen"
+
+#: ../vnc.html:375
+msgid "Credentials"
+msgstr "Inloggegevens"
+
+#: ../vnc.html:379
+msgid "Username:"
+msgstr "Gebruikersnaam:"
+
+#: ../vnc.html:383
 msgid "Password:"
 msgstr "Wachtwoord:"
 
-#: ../vnc.html:300
-msgid "Send Password"
-msgstr "Verzend Wachtwoord:"
+# Translated by Harold Horsman
+#: ../vnc.html:387
+msgid "Send credentials"
+msgstr "Stuur inloggegevens"
 
-#: ../vnc.html:310
+#: ../vnc.html:396
 msgid "Cancel"
 msgstr "Annuleren"
+
+#~ msgid "Must set host"
+#~ msgstr "Host moeten worden ingesteld"
+
+#~ msgid "Password is required"
+#~ msgstr "Wachtwoord is vereist"
+
+#~ msgid "viewport drag"
+#~ msgstr "kijkvenster slepen"
+
+#~ msgid "Active Mouse Button"
+#~ msgstr "Actieve Muisknop"
+
+#~ msgid "No mousebutton"
+#~ msgstr "Geen muisknop"
+
+#~ msgid "Left mousebutton"
+#~ msgstr "Linker muisknop"
+
+#~ msgid "Middle mousebutton"
+#~ msgstr "Middelste muisknop"
+
+#~ msgid "Right mousebutton"
+#~ msgstr "Rechter muisknop"
+
+#~ msgid "Clear"
+#~ msgstr "Wissen"
+
+#~ msgid "Send Password"
+#~ msgstr "Verzend Wachtwoord:"
 
 #~ msgid "Disconnect timeout"
 #~ msgstr "Timeout tijdens verbreken van verbinding"

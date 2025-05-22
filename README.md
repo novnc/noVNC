@@ -1,4 +1,4 @@
-## noVNC: HTML VNC Client Library and Application
+## noVNC: HTML VNC client library and application
 
 [![Test Status](https://github.com/novnc/noVNC/workflows/Test/badge.svg)](https://github.com/novnc/noVNC/actions?query=workflow%3ATest)
 [![Lint Status](https://github.com/novnc/noVNC/workflows/Lint/badge.svg)](https://github.com/novnc/noVNC/actions?query=workflow%3ALint)
@@ -14,19 +14,19 @@ Many companies, projects and products have integrated noVNC including
 [OpenNebula](http://opennebula.org/),
 [LibVNCServer](http://libvncserver.sourceforge.net), and
 [ThinLinc](https://cendio.com/thinlinc). See
-[the Projects and Companies wiki page](https://github.com/novnc/noVNC/wiki/Projects-and-companies-using-noVNC)
+[the Projects and companies wiki page](https://github.com/novnc/noVNC/wiki/Projects-and-companies-using-noVNC)
 for a more complete list with additional info and links.
 
-### Table of Contents
+### Table of contents
 
 - [News/help/contact](#newshelpcontact)
 - [Features](#features)
 - [Screenshots](#screenshots)
-- [Browser Requirements](#browser-requirements)
-- [Server Requirements](#server-requirements)
-- [Quick Start](#quick-start)
-- [Installation from Snap Package](#installation-from-snap-package)
-- [Integration and Deployment](#integration-and-deployment)
+- [Browser requirements](#browser-requirements)
+- [Server requirements](#server-requirements)
+- [Quick start](#quick-start)
+- [Installation from snap package](#installation-from-snap-package)
+- [Integration and deployment](#integration-and-deployment)
 - [Authors/Contributors](#authorscontributors)
 
 ### News/help/contact
@@ -66,8 +66,9 @@ profits such as:
   RSA-AES, Tight, VeNCrypt Plain, XVP, Apple's Diffie-Hellman,
   UltraVNC's MSLogonII
 * Supported VNC encodings: raw, copyrect, rre, hextile, tight, tightPNG,
-  ZRLE, JPEG
+  ZRLE, JPEG, Zlib, H.264
 * Supports scaling, clipping and resizing the desktop
+* Supports back & forward mouse buttons
 * Local cursor rendering
 * Clipboard copy/paste with full Unicode support
 * Translations
@@ -86,16 +87,16 @@ See more screenshots
 [here](http://novnc.com/screenshots.html).
 
 
-### Browser Requirements
+### Browser requirements
 
 noVNC uses many modern web technologies so a formal requirement list is
 not available. However these are the minimum versions we are currently
 aware of:
 
-* Chrome 64, Firefox 79, Safari 13.4, Opera 51, Edge 79
+* Chrome 89, Firefox 89, Safari 15, Opera 75, Edge 89
 
 
-### Server Requirements
+### Server requirements
 
 noVNC follows the standard VNC protocol, but unlike other VNC clients it does
 require WebSockets support. Many servers include support (e.g.
@@ -107,7 +108,7 @@ use a WebSockets to TCP socket proxy. noVNC has a sister project
 proxy.
 
 
-### Quick Start
+### Quick start
 
 * Use the `novnc_proxy` script to automatically download and start websockify, which
   includes a mini-webserver and the WebSockets proxy. The `--vnc` option is
@@ -124,25 +125,25 @@ proxy.
   script. Hit the Connect button, enter a password if the VNC server has one
   configured, and enjoy!
 
-### Installation from Snap Package
-Running the command below will install the latest release of noVNC from Snap:
+### Installation from snap package
+Running the command below will install the latest release of noVNC from snap:
 
 `sudo snap install novnc`
 
-#### Running noVNC from Snap Directly
+#### Running noVNC from snap directly
 
-You can run the Snap-package installed novnc directly with, for example:
+You can run the snap package installed novnc directly with, for example:
 
 `novnc --listen 6081 --vnc localhost:5901 # /snap/bin/novnc if /snap/bin is not in your PATH`
 
-If you want to use certificate files, due to standard Snap confinement restrictions you need to have them in the /home/\<user\>/snap/novnc/current/ directory. If your username is jsmith an example command would be:
+If you want to use certificate files, due to standard snap confinement restrictions you need to have them in the /home/\<user\>/snap/novnc/current/ directory. If your username is jsmith an example command would be:
   
   `novnc --listen 8443 --cert ~jsmith/snap/novnc/current/self.crt --key ~jsmith/snap/novnc/current/self.key --vnc ubuntu.example.com:5901`
 
-#### Running noVNC from Snap as a Service (Daemon)
-The Snap package also has the capability to run a 'novnc' service which can be 
+#### Running noVNC from snap as a service (daemon)
+The snap package also has the capability to run a 'novnc' service which can be
 configured to listen on multiple ports connecting to multiple VNC servers 
-(effectively a service runing multiple instances of novnc).
+(effectively a service running multiple instances of novnc).
 Instructions (with example values):
 
 List current services (out-of-box this will be blank):
@@ -172,7 +173,7 @@ services.n6082.listen  6082
 services.n6082.vnc     localhost:5902
 ```
 
-Disable a service (note that because of a limitation in  Snap it's currently not 
+Disable a service (note that because of a limitation in snap it's currently not
 possible to unset config variables, setting them to blank values is the way 
 to disable a service):
 
@@ -189,7 +190,7 @@ services.n6082.listen
 services.n6082.vnc
 ```
 
-### Integration and Deployment
+### Integration and deployment
 
 Please see our other documents for how to integrate noVNC in your own software,
 or deploying the noVNC application in production environments:
@@ -212,8 +213,8 @@ that list and you think you should be, feel free to send a PR to fix that.
     * [Solly Ross](https://github.com/DirectXMan12) (Red Hat / OpenStack)
 
 * Notable contributions:
-    * UI and Icons : Pierre Ossman, Chris Gordon
-    * Original Logo : Michael Sersen
+    * UI and icons : Pierre Ossman, Chris Gordon
+    * Original logo : Michael Sersen
     * tight encoding : Michael Tinglof (Mercuri.ca)
     * RealVNC RSA AES authentication : USTC Vlab Team
 

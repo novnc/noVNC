@@ -1,5 +1,3 @@
-﻿const expect = chai.expect;
-
 import keysyms from '../core/input/keysymdef.js';
 import * as KeyboardUtil from "../core/input/util.js";
 

@@ -1,5 +1,5 @@
 # Portuguese translations for noVNC package.
-# Copyright (C) 2021 The noVNC Authors
+# Copyright (C) 2021 The noVNC authors
 # This file is distributed under the same license as the noVNC package.
 #  <liddack@outlook.com>, 2021.
 #
@@ -83,7 +83,7 @@ msgid "Drag"
 msgstr "Arrastar"
 
 #: ../vnc.html:78
-msgid "Move/Drag Viewport"
+msgid "Move/Drag viewport"
 msgstr "Mover/arrastar a janela"
 
 #: ../vnc.html:84
@@ -91,7 +91,7 @@ msgid "Keyboard"
 msgstr "Teclado"
 
 #: ../vnc.html:84
-msgid "Show Keyboard"
+msgid "Show keyboard"
 msgstr "Mostrar teclado"
 
 #: ../vnc.html:89
@@ -99,8 +99,8 @@ msgid "Extra keys"
 msgstr "Teclas adicionais"
 
 #: ../vnc.html:89
-msgid "Show Extra Keys"
-msgstr "Mostar teclas adicionais"
+msgid "Show extra keys"
+msgstr "Mostrar teclas adicionais"
 
 #: ../vnc.html:94
 msgid "Ctrl"
@@ -191,19 +191,19 @@ msgid "Settings"
 msgstr "Configurações"
 
 #: ../vnc.html:162
-msgid "Shared Mode"
+msgid "Shared mode"
 msgstr "Modo compartilhado"
 
 #: ../vnc.html:165
-msgid "View Only"
+msgid "View only"
 msgstr "Apenas visualizar"
 
 #: ../vnc.html:169
-msgid "Clip to Window"
+msgid "Clip to window"
 msgstr "Recortar à janela"
 
 #: ../vnc.html:172
-msgid "Scaling Mode:"
+msgid "Scaling mode:"
 msgstr "Modo de dimensionamento:"
 
 #: ../vnc.html:174
@@ -211,11 +211,11 @@ msgid "None"
 msgstr "Nenhum"
 
 #: ../vnc.html:175
-msgid "Local Scaling"
+msgid "Local scaling"
 msgstr "Local"
 
 #: ../vnc.html:176
-msgid "Remote Resizing"
+msgid "Remote resizing"
 msgstr "Remoto"
 
 #: ../vnc.html:181
@@ -255,15 +255,15 @@ msgid "Path:"
 msgstr "Caminho:"
 
 #: ../vnc.html:218
-msgid "Automatic Reconnect"
+msgid "Automatic reconnect"
 msgstr "Reconexão automática"
 
 #: ../vnc.html:221
-msgid "Reconnect Delay (ms):"
+msgid "Reconnect delay (ms):"
 msgstr "Atraso da reconexão (ms)"
 
 #: ../vnc.html:226
-msgid "Show Dot when No Cursor"
+msgid "Show dot when no cursor"
 msgstr "Mostrar ponto quando não há cursor"
 
 #: ../vnc.html:231
@@ -291,7 +291,7 @@ msgid "Password:"
 msgstr "Senha:"
 
 #: ../vnc.html:285
-msgid "Send Credentials"
+msgid "Send credentials"
 msgstr "Enviar credenciais"
 
 #: ../vnc.html:295

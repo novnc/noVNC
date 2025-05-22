@@ -1,4 +1,4 @@
-# Embedding and Deploying noVNC Application
+# Embedding and deploying noVNC application
 
 This document describes how to embed and deploy the noVNC application, which
 includes settings and a full user interface. If you are looking for
@@ -25,8 +25,27 @@ server and setting up a WebSocket proxy to the VNC server.
 
 ## Parameters
 
-The noVNC application can be controlled by including certain settings in the
-query string. Currently the following options are available:
+The noVNC application can be controlled via a number of settings. All of
+them are available in the UI for the user to change, but they can also
+be set via other means:
+
+* Via the URL, either as a query parameter:
+
+  ```
+  https://www.example.com/vnc.html?reconnect=0&shared=1
+  ```
+
+  or as a fragment:
+
+  ```
+  https://www.example.com/vnc.html#reconnect=0&shared=1
+  ```
+
+  The latter might be preferred as it is not sent to the server.
+
+* Via the files `defaults.json` and `mandatory.json`
+
+Currently, the following options are available:
 
 * `autoconnect` - Automatically connect as soon as the page has finished
   loading.
@@ -37,13 +56,18 @@ query string. Currently the following options are available:
 * `reconnect_delay` - How long to wait in milliseconds before attempting to
   reconnect.
 
-* `host` - The WebSocket host to connect to.
+* `host` - The WebSocket host to connect to. This setting is deprecated
+  in favor of specifying a URL in `path`.
 
-* `port` - The WebSocket port to connect to.
+* `port` - The WebSocket port to connect to. This setting is deprecated
+  in favor of specifying a URL in `path`.
 
-* `encrypt` - If TLS should be used for the WebSocket connection.
+* `encrypt` - If TLS should be used for the WebSocket connection. This
+  setting is deprecated in favor of specifying a URL in `path`.
 
-* `path` - The WebSocket path to use.
+* `path` - The WebSocket URL to use. It can be either an absolute URL,
+  or a URL relative vnc.html. If `host` is specified, then `path` will
+  be interpreted as the path component in the URL instead.
 
 * `password` - The password sent to the server, if required.
 
@@ -71,8 +95,8 @@ query string. Currently the following options are available:
 * `logging` - The console log level. Can be one of `error`, `warn`, `info` or
   `debug`.
 
-## HTTP Serving Considerations
-### Browser Cache Issue
+## HTTP serving considerations
+### Browser cache issue
 
 If you serve noVNC files using a web server that provides an ETag header, and
 include any options in the query string, a nasty browser cache issue can bite
@@ -84,7 +108,7 @@ to always revalidate cached files using conditional requests. The correct
 semantics are achieved via the (confusingly named) `Cache-Control: no-cache`
 header that needs to be provided in the web server responses.
 
-### Example Server Configurations
+### Example server configurations
 
 Apache:
 

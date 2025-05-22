@@ -1,5 +1,3 @@
-const expect = chai.expect;
-
 import Websock from '../core/websock.js';
 import Display from '../core/display.js';
 
@@ -38,7 +36,7 @@ function push32(arr, num) {
              num & 0xFF);
 }
 
-describe('Hextile Decoder', function () {
+describe('Hextile decoder', function () {
     let decoder;
     let display;
 

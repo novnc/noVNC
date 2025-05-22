@@ -1,4 +1,4 @@
-noVNC is Copyright (C) 2022 The noVNC Authors
+noVNC is Copyright (C) 2022 The noVNC authors
 (./AUTHORS)
 
 The noVNC core library files are licensed under the MPL 2.0 (Mozilla

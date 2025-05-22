@@ -6,11 +6,11 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: noVNC 1.3.0\n"
+"Project-Id-Version: noVNC 1.5.0\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
 "POT-Creation-Date: 2021-08-27 16:03+0200\n"
-"PO-Revision-Date: 2021-09-09 10:29+0400\n"
-"Last-Translator: Nia Remez <nia.remez@cendio.com>\n"
+"PO-Revision-Date: 2024-02-11 03:58+0300\n"
+"Last-Translator: Dim5x <dim5x@yahoo.com>\n"
 "Language-Team: Russian\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -86,7 +86,7 @@ msgid "Drag"
 msgstr "Переместить"
 
 #: ../vnc.html:78
-msgid "Move/Drag Viewport"
+msgid "Move/Drag viewport"
 msgstr "Переместить окно"
 
 #: ../vnc.html:84
@@ -94,7 +94,7 @@ msgid "Keyboard"
 msgstr "Клавиатура"
 
 #: ../vnc.html:84
-msgid "Show Keyboard"
+msgid "Show keyboard"
 msgstr "Показать клавиатуру"
 
 #: ../vnc.html:89
@@ -111,7 +111,7 @@ msgstr "Ctrl"
 
 #: ../vnc.html:94
 msgid "Toggle Ctrl"
-msgstr "Переключение нажатия Ctrl"
+msgstr "Зажать Ctrl"
 
 #: ../vnc.html:97
 msgid "Alt"
@@ -119,11 +119,11 @@ msgstr "Alt"
 
 #: ../vnc.html:97
 msgid "Toggle Alt"
-msgstr "Переключение нажатия Alt"
+msgstr "Зажать Alt"
 
 #: ../vnc.html:100
 msgid "Toggle Windows"
-msgstr "Переключение вкладок"
+msgstr "Зажать Windows"
 
 #: ../vnc.html:100
 msgid "Windows"
@@ -194,7 +194,7 @@ msgid "Settings"
 msgstr "Настройки"
 
 #: ../vnc.html:162
-msgid "Shared Mode"
+msgid "Shared mode"
 msgstr "Общий режим"
 
 #: ../vnc.html:165
@@ -202,11 +202,11 @@ msgid "View Only"
 msgstr "Только Просмотр"
 
 #: ../vnc.html:169
-msgid "Clip to Window"
+msgid "Clip to window"
 msgstr "В окно"
 
 #: ../vnc.html:172
-msgid "Scaling Mode:"
+msgid "Scaling mode:"
 msgstr "Масштаб:"
 
 #: ../vnc.html:174
@@ -214,11 +214,11 @@ msgid "None"
 msgstr "Нет"
 
 #: ../vnc.html:175
-msgid "Local Scaling"
-msgstr "Локльный масштаб"
+msgid "Local scaling"
+msgstr "Локальный масштаб"
 
 #: ../vnc.html:176
-msgid "Remote Resizing"
+msgid "Remote resizing"
 msgstr "Удаленная перенастройка размера"
 
 #: ../vnc.html:181
@@ -258,15 +258,15 @@ msgid "Path:"
 msgstr "Путь:"
 
 #: ../vnc.html:218
-msgid "Automatic Reconnect"
+msgid "Automatic reconnect"
 msgstr "Автоматическое переподключение"
 
 #: ../vnc.html:221
-msgid "Reconnect Delay (ms):"
+msgid "Reconnect delay (ms):"
 msgstr "Задержка переподключения (мс):"
 
 #: ../vnc.html:226
-msgid "Show Dot when No Cursor"
+msgid "Show dot when no cursor"
 msgstr "Показать точку вместо курсора"
 
 #: ../vnc.html:231
