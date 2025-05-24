@@ -208,6 +208,14 @@ export default class Keyboard {
             return;
         }
 
+	// The event gives us some very useful info about modkeys but
+	// when fingerprinting is on, it only stores this info without
+	// sending it, so we have to manually send the modkeys ourselves
+	if (browser.isFirefox()) {
+		this._updateModifierState(false, false);
+		this._updateModifierState(e, true);
+	}
+
         this._sendKeyEvent(keysym, code, true, numlock, capslock);
     }
 
@@ -241,6 +249,22 @@ export default class Keyboard {
             if ('ShiftLeft' in this._keyDownList) {
                 this._sendKeyEvent(this._keyDownList['ShiftLeft'],
                                    'ShiftLeft', false);
+            }
+        }
+    }
+
+    _updateModifierState(e, isKeyDown) {
+        const modMap = {
+            shiftKey: KeyTable.XK_Shift_L,
+            ctrlKey: KeyTable.XK_Control_L,
+            altKey: KeyTable.XK_Alt_L,
+            metaKey: KeyTable.XK_Super_L
+        };
+
+        for (let key in modMap) {
+            if(!e) this._sendKeyEvent(modMap[key], key, false);
+            if (e[key]) {
+                this._sendKeyEvent(modMap[key], key, isKeyDown);
             }
         }
     }
