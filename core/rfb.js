@@ -309,7 +309,7 @@ export default class RFB extends EventTargetMixin {
 
     get viewOnly() { return this._viewOnly; }
     set viewOnly(viewOnly) {
-        this._viewOnly = viewOnly;
+        this._viewOnly = this._cursor.viewOnly = viewOnly;
 
         if (this._rfbConnectionState === "connecting" ||
             this._rfbConnectionState === "connected") {
@@ -411,6 +411,11 @@ export default class RFB extends EventTargetMixin {
         if (this._rfbConnectionState === 'connected') {
             this._sendEncodings();
         }
+    }
+
+    get showRemoteCursor() { return this._showRemoteCursor; }
+    set showRemoteCursor(show) {
+        this._showRemoteCursor = show;
     }
 
     // ===== PUBLIC METHODS =====
@@ -2264,6 +2269,12 @@ export default class RFB extends EventTargetMixin {
         if (this._fbDepth == 24) {
             encs.push(encodings.pseudoEncodingVMwareCursor);
             encs.push(encodings.pseudoEncodingCursor);
+            encs.push(encodings.pseudoEncodingRichCursor);
+        }
+
+        if (this._showRemoteCursor) {
+            encs.push(encodings.pseudoEncodingPointerPos);
+            encs.push(encodings.pseudoEncodingTightPointerPos);
         }
 
         RFB.messages.clientEncodings(this._sock, encs);
@@ -2673,6 +2684,7 @@ export default class RFB extends EventTargetMixin {
                 return this._handleVMwareCursor();
 
             case encodings.pseudoEncodingCursor:
+            case encodings.pseudoEncodingRichCursor:
                 return this._handleCursor();
 
             case encodings.pseudoEncodingQEMUExtendedKeyEvent:
@@ -2695,6 +2707,10 @@ export default class RFB extends EventTargetMixin {
 
             case encodings.pseudoEncodingQEMULedEvent:
                 return this._handleLedEvent();
+
+            case encodings.pseudoEncodingPointerPos:
+            case encodings.pseudoEncodingTightPointerPos:
+                return this._handlePointerPos();
 
             default:
                 return this._handleDataRect();
@@ -2884,6 +2900,15 @@ export default class RFB extends EventTargetMixin {
         let capsLock = data & 4 ? true : false;
         this._remoteCapsLock = capsLock;
         this._remoteNumLock = numLock;
+
+        return true;
+    }
+
+    _handlePointerPos() {
+        const x = this._FBU.x;
+        const y = this._FBU.y;
+
+        this._cursor.moveRemote(x, y, this._display.scale);
 
         return true;
     }

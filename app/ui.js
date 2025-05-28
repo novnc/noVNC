@@ -184,6 +184,7 @@ const UI = {
         UI.initSetting('shared', true);
         UI.initSetting('bell', 'on');
         UI.initSetting('view_only', false);
+        UI.initSetting('show_remote_cursor', true);
         UI.initSetting('show_dot', false);
         UI.initSetting('path', 'websockify');
         UI.initSetting('repeaterID', '');
@@ -369,6 +370,8 @@ const UI = {
         UI.addSettingChangeHandler('shared');
         UI.addSettingChangeHandler('view_only');
         UI.addSettingChangeHandler('view_only', UI.updateViewOnly);
+        UI.addSettingChangeHandler('show_remote_cursor');
+        UI.addSettingChangeHandler('show_remote_cursor', UI.updateShowRemoteCursor);
         UI.addSettingChangeHandler('show_dot');
         UI.addSettingChangeHandler('show_dot', UI.updateShowDotCursor);
         UI.addSettingChangeHandler('host');
@@ -441,6 +444,7 @@ const UI = {
             UI.disableSetting('port');
             UI.disableSetting('path');
             UI.disableSetting('repeaterID');
+            UI.disableSetting('show_remote_cursor');
 
             // Hide the controlbar after 2 seconds
             UI.closeControlbarTimeout = setTimeout(UI.closeControlbar, 2000);
@@ -451,6 +455,7 @@ const UI = {
             UI.enableSetting('port');
             UI.enableSetting('path');
             UI.enableSetting('repeaterID');
+            UI.enableSetting('show_remote_cursor');
             UI.updatePowerButton();
             UI.keepControlbar();
         }
@@ -887,6 +892,7 @@ const UI = {
         UI.updateSetting('compression');
         UI.updateSetting('shared');
         UI.updateSetting('view_only');
+        UI.updateSetting('show_remote_cursor');
         UI.updateSetting('path');
         UI.updateSetting('repeaterID');
         UI.updateSetting('logging');
@@ -1100,6 +1106,7 @@ const UI = {
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
         UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
         UI.rfb.compressionLevel = parseInt(UI.getSetting('compression'));
+        UI.rfb.showRemoteCursor = UI.getSetting('show_remote_cursor');
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
 
         UI.updateViewOnly(); // requires UI.rfb
@@ -1752,6 +1759,11 @@ const UI = {
             document.getElementById('noVNC_clipboard_button')
                 .classList.remove('noVNC_hidden');
         }
+    },
+
+    updateShowRemoteCursor () {
+        if (!UI.rfb) return;
+        UI.rfb.showRemoteCursor = UI.getSetting('show_remote_cursor');
     },
 
     updateShowDotCursor() {
