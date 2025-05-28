@@ -77,6 +77,10 @@ protocol stream.
     if the remote session is smaller than its container, or handled
     according to `clipViewport` if it is larger. Disabled by default.
 
+`showRemoteCursor`
+  - Is a `boolean` indicating whether the remote cursor position should
+    be tracked. The server must support the respective pseudo encoding.
+
 `showDotCursor`
   - Is a `boolean` indicating whether a dot cursor should be shown
     instead of a zero-sized or fully-transparent cursor if the server

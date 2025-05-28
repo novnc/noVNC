@@ -34,7 +34,10 @@ export const encodings = {
     pseudoEncodingCompressLevel9: -247,
     pseudoEncodingCompressLevel0: -256,
     pseudoEncodingVMwareCursor: 0x574d5664,
-    pseudoEncodingExtendedClipboard: 0xc0a1e5ce
+    pseudoEncodingExtendedClipboard: 0xc0a1e5ce,
+    pseudoEncodingRichCursor: 0xffffff11,
+    pseudoEncodingPointerPos: 0xffffff18,
+    pseudoEncodingTightPointerPos: -232
 };
 
 export function encodingName(num) {
