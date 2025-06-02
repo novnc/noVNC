@@ -22,6 +22,7 @@ export const encodings = {
     pseudoEncodingQualityLevel0: -32,
     pseudoEncodingDesktopSize: -223,
     pseudoEncodingLastRect: -224,
+    pseudoEncodingPointerPos: -232,
     pseudoEncodingCursor: -239,
     pseudoEncodingQEMUExtendedKeyEvent: -258,
     pseudoEncodingQEMULedEvent: -261,
@@ -34,10 +35,7 @@ export const encodings = {
     pseudoEncodingCompressLevel9: -247,
     pseudoEncodingCompressLevel0: -256,
     pseudoEncodingVMwareCursor: 0x574d5664,
-    pseudoEncodingExtendedClipboard: 0xc0a1e5ce,
-    pseudoEncodingRichCursor: 0xffffff11,
-    pseudoEncodingPointerPos: 0xffffff18,
-    pseudoEncodingTightPointerPos: -232
+    pseudoEncodingExtendedClipboard: 0xc0a1e5ce
 };
 
 export function encodingName(num) {

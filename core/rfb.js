@@ -413,11 +413,6 @@ export default class RFB extends EventTargetMixin {
         }
     }
 
-    get showRemoteCursor() { return this._showRemoteCursor; }
-    set showRemoteCursor(show) {
-        this._showRemoteCursor = show;
-    }
-
     // ===== PUBLIC METHODS =====
 
     disconnect() {
@@ -2256,6 +2251,7 @@ export default class RFB extends EventTargetMixin {
 
         encs.push(encodings.pseudoEncodingDesktopSize);
         encs.push(encodings.pseudoEncodingLastRect);
+        encs.push(encodings.pseudoEncodingPointerPos);
         encs.push(encodings.pseudoEncodingQEMUExtendedKeyEvent);
         encs.push(encodings.pseudoEncodingQEMULedEvent);
         encs.push(encodings.pseudoEncodingExtendedDesktopSize);
@@ -2269,12 +2265,6 @@ export default class RFB extends EventTargetMixin {
         if (this._fbDepth == 24) {
             encs.push(encodings.pseudoEncodingVMwareCursor);
             encs.push(encodings.pseudoEncodingCursor);
-            encs.push(encodings.pseudoEncodingRichCursor);
-        }
-
-        if (this._showRemoteCursor) {
-            encs.push(encodings.pseudoEncodingPointerPos);
-            encs.push(encodings.pseudoEncodingTightPointerPos);
         }
 
         RFB.messages.clientEncodings(this._sock, encs);
@@ -2684,7 +2674,6 @@ export default class RFB extends EventTargetMixin {
                 return this._handleVMwareCursor();
 
             case encodings.pseudoEncodingCursor:
-            case encodings.pseudoEncodingRichCursor:
                 return this._handleCursor();
 
             case encodings.pseudoEncodingQEMUExtendedKeyEvent:
@@ -2709,7 +2698,6 @@ export default class RFB extends EventTargetMixin {
                 return this._handleLedEvent();
 
             case encodings.pseudoEncodingPointerPos:
-            case encodings.pseudoEncodingTightPointerPos:
                 return this._handlePointerPos();
 
             default:
