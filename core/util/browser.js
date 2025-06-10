@@ -11,6 +11,39 @@
 import * as Log from './logging.js';
 import Base64 from '../base64.js';
 
+// Async clipboard detection
+
+/* Evaluates if there is browser support for the async clipboard API and
+ * relevant clipboard permissions. Returns 'unsupported' if permission states
+ * cannot be resolved. On the other hand, detecting 'granted' or 'prompt'
+ * permission states for both read and write indicates full API support with no
+ * imposed native browser paste prompt. Conversely, detecting 'denied' indicates
+ * the user elected to disable clipboard.
+ */
+export async function browserAsyncClipboardSupport() {
+    if (!(navigator?.permissions?.query &&
+          navigator?.clipboard?.writeText &&
+          navigator?.clipboard?.readText)) {
+        return 'unsupported';
+    }
+    try {
+        const writePerm = await navigator.permissions.query(
+            {name: "clipboard-write", allowWithoutGesture: true});
+        const readPerm = await navigator.permissions.query(
+            {name: "clipboard-read",  allowWithoutGesture: false});
+        if (writePerm.state === "denied" || readPerm.state  === "denied") {
+            return 'denied';
+        }
+        if ((writePerm.state === "granted" || writePerm.state === "prompt") &&
+            (readPerm.state  === "granted" || readPerm.state  === "prompt")) {
+            return 'available';
+        }
+    } catch {
+        return 'unsupported';
+    }
+    return 'unsupported';
+}
+
 // Touch detection
 export let isTouchDevice = ('ontouchstart' in document.documentElement) ||
                                  // required for Chrome debugger
