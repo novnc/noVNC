@@ -11,6 +11,35 @@
 import * as Log from './logging.js';
 import Base64 from '../base64.js';
 
+// Async clipboard detection
+
+function _isAsyncClipboardSupported() {
+    return !!(navigator?.permissions?.query &&
+              navigator?.clipboard?.writeText &&
+              navigator?.clipboard?.readText);
+}
+
+async function _hasAsyncClipboardPermissions() {
+    try {
+        const writePerm = await navigator.permissions.query(
+            {name: "clipboard-write", allowWithoutGesture: false});
+        const readPerm = await navigator.permissions.query(
+            {name: "clipboard-read",  allowWithoutGesture: false});
+        if ((writePerm.state === "granted" || writePerm.state === "prompt") &&
+            (readPerm.state  === "granted" || readPerm.state  === "prompt")) {
+            return true;
+        }
+    } catch {
+        return false;
+    }
+    return false;
+}
+
+export async function isAsyncClipboardAvailable() {
+    return (_isAsyncClipboardSupported() &&
+            await _hasAsyncClipboardPermissions());
+}
+
 // Touch detection
 export let isTouchDevice = ('ontouchstart' in document.documentElement) ||
                                  // required for Chrome debugger
