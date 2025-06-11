@@ -10,8 +10,8 @@
 import { toUnsigned32bit, toSigned32bit } from './util/int.js';
 import * as Log from './util/logging.js';
 import { encodeUTF8, decodeUTF8 } from './util/strings.js';
-import { dragThreshold, supportsWebCodecsH264Decode, isAsyncClipboardAvailable
-       } from './util/browser.js';
+import { dragThreshold, supportsWebCodecsH264Decode,
+         isAsyncClipboardAvailable } from './util/browser.js';
 import { clientToElement } from './util/element.js';
 import { setCapture } from './util/events.js';
 import EventTargetMixin from './util/eventtarget.js';
@@ -271,6 +271,7 @@ export default class RFB extends EventTargetMixin {
 
         this._clipboard = new Clipboard(this._canvas);
         this._clipboard.onRead = this.clipboardPasteFrom.bind(this);
+        this._isAsyncClipboardAvailable = isAsyncClipboardAvailable;
 
         this._keyboard = new Keyboard(this._canvas);
         this._keyboard.onkeyevent = this._handleKeyEvent.bind(this);
@@ -322,14 +323,14 @@ export default class RFB extends EventTargetMixin {
             if (viewOnly) {
                 this._keyboard.ungrab();
                 (async () => {
-                    if (await isAsyncClipboardAvailable()) {
+                    if (await this._isAsyncClipboardAvailable()) {
                         this._clipboard.ungrab();
                     }
                 })();
             } else {
                 this._keyboard.grab();
                 (async () => {
-                    if (await isAsyncClipboardAvailable()) {
+                    if (await this._isAsyncClipboardAvailable()) {
                         this._clipboard.grab();
                     }
                 })();
@@ -2227,7 +2228,7 @@ export default class RFB extends EventTargetMixin {
         if (!this._viewOnly) {
             this._keyboard.grab();
             (async () => {
-                if (await isAsyncClipboardAvailable()) {
+                if (await this._isAsyncClipboardAvailable()) {
                     this._clipboard.grab();
                 }
             })();
@@ -2349,7 +2350,7 @@ export default class RFB extends EventTargetMixin {
     _writeClipboard(text) {
         if (this._viewOnly) return;
         (async () => {
-            if (await isAsyncClipboardAvailable()) {
+            if (await this._isAsyncClipboardAvailable()) {
                 await this._clipboard.writeClipboard(text);
             } else {
                 // Dispatch event for the alternative clipboard
