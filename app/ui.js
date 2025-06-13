@@ -423,7 +423,7 @@ const UI = {
             case 'disconnected':
                 break;
             case 'reconnecting':
-                transitionElem.textContent = _("Reconnecting...");
+                transitionElem.textContent = _("Connecting...");//Reconnecting state changed to Connecting
                 document.documentElement.classList.add("noVNC_reconnecting");
                 break;
             default:
@@ -1076,7 +1076,9 @@ const UI = {
         } catch (exc) {
             Log.Error("Failed to connect to server: " + exc);
             UI.updateVisualState('disconnected');
-            UI.showStatus(_("Failed to connect to server: ") + exc, 'error');
+            if(!UI.getSetting('reconnect', false)) {
+                UI.showStatus(_("Failed to connect to server: ") + exc, 'error');
+            }
             return;
         }
 
@@ -1170,7 +1172,9 @@ const UI = {
                 UI.showStatus(_("Something went wrong, connection is closed"),
                               'error');
             } else {
-                UI.showStatus(_("Failed to connect to server"), 'error');
+                if(!UI.getSetting('reconnect', false)) {
+                    UI.showStatus(_("Failed to connect to server"), 'error');
+                }
             }
         }
         // If reconnecting is allowed process it now
