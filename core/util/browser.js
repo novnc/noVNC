@@ -27,6 +27,8 @@ window.addEventListener('touchstart', function onFirstTouch() {
 // brings us a bit closer but is not optimal.
 export let dragThreshold = 10 * (window.devicePixelRatio || 1);
 
+export const supportsKeyboardLock = ('keyboard' in navigator && 'lock' in navigator.keyboard && typeof(navigator.keyboard.lock) === 'function');
+
 let _supportsCursorURIs = false;
 
 try {

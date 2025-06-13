@@ -32,7 +32,7 @@ import "core-js/stable";
 import "regenerator-runtime/runtime";
 import * as Log from '../core/util/logging.js';
 import _, { l10n } from './localization.js';
-import { isTouchDevice, isSafari, hasScrollbarGutter, dragThreshold, supportsBinaryClipboard, isFirefox, isWindows, isIOS, supportsPointerLock }
+import { isTouchDevice, isSafari, hasScrollbarGutter, dragThreshold, supportsBinaryClipboard, isFirefox, isWindows, isIOS, supportsPointerLock, supportsKeyboardLock }
     from '../core/util/browser.js';
 import { setCapture, getPointerEvent } from '../core/util/events.js';
 import KeyTable from "../core/input/keysym.js";
@@ -1551,7 +1551,7 @@ const UI = {
             //keep alive for websocket connection to stay open, since we may not control reverse proxies
             //send a keep alive within a window that we control
             UI._sessionTimeoutInterval = setInterval(function() {
-                if (UI.rfb) {
+               if (UI.rfb) {
                     const timeSinceLastActivityInS = (Date.now() - UI.rfb.lastActiveAt) / 1000;
                     let idleDisconnectInS = 1200; //20 minute default 
                     if (Number.isFinite(parseFloat(UI.rfb.idleDisconnect))) {
@@ -1869,6 +1869,9 @@ const UI = {
             document.mozFullScreenElement || // currently working methods
             document.webkitFullscreenElement ||
             document.msFullscreenElement) {
+            if (supportsKeyboardLock) {
+                navigator.keyboard.unlock();
+            }
             if (document.exitFullscreen) {
                 document.exitFullscreen();
             } else if (document.mozCancelFullScreen) {
@@ -1888,8 +1891,11 @@ const UI = {
             } else if (document.body.msRequestFullscreen) {
                 document.body.msRequestFullscreen();
             }
-            if(navigator.keyboard && navigator.keyboard.lock){
-                navigator.keyboard.lock(['Escape']);
+            // No need to explicitly ask for permission,
+            // but it's expected that user grant it since Chromium 131.
+            // See https://developer.chrome.com/blog/keyboard-lock-pointer-lock-permission
+            if (supportsKeyboardLock) {
+                navigator.keyboard.lock();
             }
         }
         UI.updateFullscreenButton();
