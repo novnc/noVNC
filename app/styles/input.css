@@ -12,7 +12,7 @@ textarea,
 button,
 select,
 input::file-selector-button {
-    padding: 0.5em var(--input-xpadding);
+    padding: auto;
     border-radius: 6px;
     appearance: none;
     text-overflow: ellipsis;
@@ -114,7 +114,7 @@ input::file-selector-button,
     /* FIXME: We want the image() function instead of the linear-gradient()
               function below. But it's not supported in the browsers yet. */
     --button-activation-overlay:
-        linear-gradient(rgba(0, 0, 0, var(--button-activation-alpha))
+        linear-gradient(rgba(50, 0, 0, var(--button-activation-alpha))
         100%, transparent);
     --button-activation-overlay-light:
         linear-gradient(rgba(255, 255, 255, calc(0.23 * var(--button-activation-level)))
@@ -173,11 +173,11 @@ input[type=submit],
 input::file-selector-button,
 button,
 select {
-    min-width: 8em;
+    min-width: 3em;
     border: none;
     color: black;
     font-weight: bold;
-    background-color: var(--novnc-buttongrey);
+    background-color: rgb(246, 246, 247);
     background-image: var(--button-activation-overlay);
     cursor: pointer;
     /* Disable Chrome's touch tap highlight */
@@ -361,7 +361,7 @@ input[type=radio]:indeterminate::after {
 
 input[type=checkbox].toggle {
     display: inline-block;
-    --checkradio-height: 18px; /* Height value used in calc, see above */
+    --checkradio-height: 18px; /* Height value used in calc, see above */ 
     width: 31px;
     cursor: pointer;
     user-select: none;

@@ -35,18 +35,20 @@
 }
 
 body {
-    margin:0;
-    padding:0;
-    /*Background image with light grey curve.*/
-    background-color:#494949;
-    background-repeat:no-repeat;
-    background-position:right bottom;
-    height:100%;
-    touch-action: none;
+    margin: 0;
+    padding: 0;
+    background-image: url('../images/boreal.png');
+    background-color: #0a2540;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    height: 100%;
 }
 
+
+
 html {
-    height:100%;
+    height: 100%;
 }
 
 .noVNC_only_touch.noVNC_hidden {
@@ -65,13 +67,17 @@ html {
 .noVNC_spinner {
     position: relative;
 }
-.noVNC_spinner, .noVNC_spinner::before, .noVNC_spinner::after {
+
+.noVNC_spinner,
+.noVNC_spinner::before,
+.noVNC_spinner::after {
     width: 10px;
     height: 10px;
     border-radius: 2px;
     box-shadow: -60px 10px 0 rgba(255, 255, 255, 0);
     animation: noVNC_spinner 1.0s linear infinite;
 }
+
 .noVNC_spinner::before {
     content: "";
     position: absolute;
@@ -79,6 +85,7 @@ html {
     top: 0px;
     animation-delay: -0.1s;
 }
+
 .noVNC_spinner::after {
     content: "";
     position: absolute;
@@ -86,10 +93,22 @@ html {
     left: 0px;
     animation-delay: 0.1s;
 }
+
 @keyframes noVNC_spinner {
-    0% { box-shadow: -60px 10px 0 rgba(255, 255, 255, 0); width: 20px; }
-    25% { box-shadow: 20px 10px 0 rgba(255, 255, 255, 1); width: 10px; }
-    50% { box-shadow: 60px 10px 0 rgba(255, 255, 255, 0); width: 10px; }
+    0% {
+        box-shadow: -60px 10px 0 rgba(255, 255, 255, 0);
+        width: 20px;
+    }
+
+    25% {
+        box-shadow: 20px 10px 0 rgba(255, 255, 255, 1);
+        width: 10px;
+    }
+
+    50% {
+        box-shadow: 60px 10px 0 rgba(255, 255, 255, 0);
+        width: 10px;
+    }
 }
 
 /* ----------------------------------------
@@ -114,9 +133,11 @@ html {
     height: 100%;
     pointer-events: none;
 }
-.noVNC_center > * {
+
+.noVNC_center>* {
     pointer-events: auto;
 }
+
 .noVNC_vcenter {
     display: flex !important;
     flex-direction: column;
@@ -129,7 +150,8 @@ html {
     padding: 0 !important;
     pointer-events: none;
 }
-.noVNC_vcenter > * {
+
+.noVNC_vcenter>* {
     pointer-events: auto;
 }
 
@@ -155,11 +177,12 @@ html {
     background: rgba(0, 0, 0, 0.8);
     pointer-events: all;
 }
+
 #noVNC_fallback_error.noVNC_open {
     visibility: visible;
 }
 
-#noVNC_fallback_error > div {
+#noVNC_fallback_error>div {
     max-width: calc(100vw - 30px - 30px);
     max-height: calc(100vh - 30px - 30px);
     overflow: auto;
@@ -177,9 +200,10 @@ html {
 
     border-radius: 12px;
     box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
-    background: rgba(200,55,55,0.8);
+    background: rgba(200, 55, 55, 0.8);
 }
-#noVNC_fallback_error.noVNC_open > div {
+
+#noVNC_fallback_error.noVNC_open>div {
     transform: translateY(0);
     opacity: 1;
 }
@@ -228,9 +252,11 @@ html {
     /* Edge misrenders animations wihthout this */
     transform: translateX(0);
 }
+
 :root.noVNC_connected #noVNC_control_bar_anchor.noVNC_idle {
     opacity: 0.8;
 }
+
 #noVNC_control_bar_anchor.noVNC_right {
     left: auto;
     right: 0;
@@ -242,17 +268,20 @@ html {
 
     transition: 0.5s ease-in-out;
 
-    background-color: var(--novnc-blue);
+    background-color: rgb(0, 33, 78);
     border-radius: 0 12px 12px 0;
 
     user-select: none;
     -webkit-user-select: none;
-    -webkit-touch-callout: none; /* Disable iOS image long-press popup */
+    -webkit-touch-callout: none;
+    /* Disable iOS image long-press popup */
 }
+
 #noVNC_control_bar.noVNC_open {
     box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
     left: 0;
 }
+
 #noVNC_control_bar::before {
     /* This extra element is to get a proper shadow */
     content: "";
@@ -263,16 +292,20 @@ html {
     left: -30px;
     transition: box-shadow 0.5s ease-in-out;
 }
+
 #noVNC_control_bar.noVNC_open::before {
     box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
 }
+
 .noVNC_right #noVNC_control_bar {
     left: 100%;
     border-radius: 12px 0 0 12px;
 }
+
 .noVNC_right #noVNC_control_bar.noVNC_open {
     left: 0;
 }
+
 .noVNC_right #noVNC_control_bar::before {
     visibility: hidden;
 }
@@ -293,33 +326,41 @@ html {
     background-position: right;
     box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.5);
 }
+
 #noVNC_control_bar_handle:after {
     content: "";
     transition: transform 0.5s ease-in-out;
     background: url("../images/handle.svg");
     position: absolute;
-    top: 22px; /* (50px-6px)/2 */
+    top: 22px;
+    /* (50px-6px)/2 */
     right: 5px;
     width: 5px;
     height: 6px;
 }
+
 #noVNC_control_bar.noVNC_open #noVNC_control_bar_handle:after {
     transform: translateX(1px) rotate(180deg);
 }
+
 :root:not(.noVNC_connected) #noVNC_control_bar_handle {
     display: none;
 }
+
 .noVNC_right #noVNC_control_bar_handle {
     background-position: left;
 }
+
 .noVNC_right #noVNC_control_bar_handle:after {
     left: 5px;
     right: 0;
     transform: translateX(1px) rotate(180deg);
 }
+
 .noVNC_right #noVNC_control_bar.noVNC_open #noVNC_control_bar_handle:after {
     transform: none;
 }
+
 /* Larger touch area for the handle, used when a touch screen is available */
 #noVNC_control_bar_handle div {
     position: absolute;
@@ -329,26 +370,32 @@ html {
     height: 100%;
     display: none;
 }
+
 @media (any-pointer: coarse) {
     #noVNC_control_bar_handle div {
         display: initial;
     }
 }
+
 .noVNC_right #noVNC_control_bar_handle div {
     left: -35px;
     right: auto;
 }
 
-#noVNC_control_bar > .noVNC_scroll {
-    max-height: 100vh; /* Chrome is buggy with 100% */
+#noVNC_control_bar>.noVNC_scroll {
+    max-height: 80vh;
+    width: 40px;
+    height: auto;
+    /* Chrome is buggy with 100% */
     overflow-x: hidden;
     overflow-y: auto;
-    padding: 0 10px;
+    padding: 0 5px;
 }
 
-#noVNC_control_bar > .noVNC_scroll > * {
+#noVNC_control_bar>.noVNC_scroll>* {
     display: block;
     margin: 10px auto;
+    color: rgb(0, 33, 78);
 }
 
 /* Control bar hint */
@@ -357,10 +404,12 @@ html {
     right: -50px;
     left: auto;
 }
-#noVNC_control_bar_anchor.noVNC_right + #noVNC_hint_anchor {
+
+#noVNC_control_bar_anchor.noVNC_right+#noVNC_hint_anchor {
     left: -50px;
     right: auto;
 }
+
 #noVNC_control_bar_hint {
     position: relative;
     transform: scale(0);
@@ -376,12 +425,14 @@ html {
     border-radius: 12px;
     transition-delay: 0s;
 }
+
 #noVNC_control_bar_hint.noVNC_active {
     visibility: visible;
     opacity: 1;
     transition-delay: 0.2s;
     transform: scale(1);
 }
+
 #noVNC_control_bar_hint.noVNC_notransition {
     transition: none !important;
 }
@@ -391,14 +442,16 @@ html {
     min-width: unset;
     padding: 4px 4px;
     vertical-align: middle;
-    border:1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgb(10, 37, 64);
     border-radius: 6px;
-    background-color: transparent;
+    background-color: rgb(246, 246, 247);
 }
+
 #noVNC_control_bar .noVNC_button.noVNC_selected {
     border-color: rgba(0, 0, 0, 0.8);
     background-color: rgba(0, 0, 0, 0.5);
 }
+
 #noVNC_control_bar .noVNC_button.noVNC_hidden {
     display: none !important;
 }
@@ -409,62 +462,76 @@ html {
 
     transition: 0.5s ease-in-out;
 
-    box-sizing: border-box; /* so max-width don't have to care about padding */
-    max-width: calc(100vw - 75px - 25px); /* minus left and right margins */
-    max-height: 100vh; /* Chrome is buggy with 100% */
+    box-sizing: border-box;
+    /* so max-width don't have to care about padding */
+    max-width: calc(100vw - 75px - 25px);
+    /* minus left and right margins */
+    max-height: 100vh;
+    /* Chrome is buggy with 100% */
     overflow-x: hidden;
     overflow-y: auto;
 
     visibility: hidden;
     opacity: 0;
 
-    padding: 15px;
+    padding: 5px;
 
-    background: #fff;
+    background: rgb(0, 33, 78);
     border-radius: 12px;
     color: #000;
     border: 2px solid #E0E0E0;
     box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
 }
+
 .noVNC_panel.noVNC_open {
     visibility: visible;
     opacity: 1;
     transform: translateX(75px);
+    text-align: left;
 }
+
 .noVNC_right .noVNC_vcenter {
     left: auto;
     right: 0;
 }
+
 .noVNC_right .noVNC_panel {
     transform: translateX(-25px);
 }
+
 .noVNC_right .noVNC_panel.noVNC_open {
     transform: translateX(-75px);
 }
 
-.noVNC_panel > * {
+.noVNC_panel>* {
     display: block;
     margin: 10px auto;
 }
-.noVNC_panel > *:first-child {
+
+.noVNC_panel>*:first-child {
     margin-top: 0 !important;
 }
-.noVNC_panel > *:last-child {
+
+.noVNC_panel>*:last-child {
     margin-bottom: 0 !important;
 }
 
 .noVNC_panel hr {
     border: none;
     border-top: 1px solid var(--novnc-lightgrey);
-    width: 100%; /* <hr> inside a flexbox will otherwise be 0px wide */
+    width: 100%;
+    /* <hr> inside a flexbox will otherwise be 0px wide */
 }
 
 .noVNC_panel label {
     display: block;
     white-space: nowrap;
-    margin: 5px;
+    margin: 2px;
+    font-size: 15px;
 }
+
 @media (max-width: 540px) {
+
     /* Allow wrapping on small screens */
     .noVNC_panel label {
         white-space: unset;
@@ -476,19 +543,20 @@ html {
 }
 
 .noVNC_panel .noVNC_heading {
-    background-color: var(--novnc-blue);
+    background-color: rgb(246, 246, 247);
     border-radius: 6px;
-    padding: 5px 8px;
+    padding: 2px 8px;
     /* Compensate for padding in image */
     padding-right: 11px;
     display: flex;
     align-items: center;
     gap: 6px;
-    color: white;
-    font-size: 20px;
+    color: rgb(10, 37, 64);
+    font-size: 10px;
     font-weight: bold;
     white-space: nowrap;
 }
+
 .noVNC_panel .noVNC_heading img {
     vertical-align: bottom;
 }
@@ -505,31 +573,38 @@ html {
     gap: 10px;
     justify-content: space-between;
 }
+
 .noVNC_panel .button_row *:only-child {
-    margin-left: auto; /* Align single buttons to the right */
+    margin-left: auto;
+    /* Align single buttons to the right */
 }
 
 /* Expanders */
 .noVNC_expander {
     cursor: pointer;
+    font-size: 15px;
 }
+
 .noVNC_expander::before {
     content: url("../images/expander.svg");
     display: inline-block;
     margin-right: 5px;
     transition: 0.2s ease-in-out;
 }
+
 .noVNC_expander.noVNC_open::before {
     transform: rotateZ(90deg);
 }
-.noVNC_expander ~ * {
+
+.noVNC_expander~* {
     margin: 5px;
     margin-left: 10px;
-    padding: 5px;
+    padding: 3px;
     background: rgba(0, 0, 0, 0.04);
     border-radius: 6px;
 }
-.noVNC_expander:not(.noVNC_open) ~ * {
+
+.noVNC_expander:not(.noVNC_open)~* {
     display: none;
 }
 
@@ -539,7 +614,7 @@ html {
     font-size: 13px;
 }
 
-.noVNC_logo + hr {
+.noVNC_logo+hr {
     /* Remove all but top border */
     border: none;
     border-top: 1px solid rgba(255, 255, 255, 0.2);
@@ -553,7 +628,9 @@ html {
 :root:not(.noVNC_connected) #noVNC_mobile_buttons {
     display: none;
 }
+
 @media not all and (any-pointer: coarse) {
+
     /* FIXME: The button for the virtual keyboard is the only button in this
               group of "mobile buttons". It is bad to assume that no touch
               devices have physical keyboards available. Hopefully we can get
@@ -579,8 +656,9 @@ html {
 :root:not(.noVNC_connected) #noVNC_power_button {
     display: none;
 }
-#noVNC_power {
-}
+
+#noVNC_power {}
+
 #noVNC_power_buttons {
     display: none;
 }
@@ -593,6 +671,7 @@ html {
 :root:not(.noVNC_connected) #noVNC_clipboard_button {
     display: none;
 }
+
 #noVNC_clipboard_text {
     width: 360px;
     min-width: 150px;
@@ -606,12 +685,15 @@ html {
 }
 
 /* Settings */
-#noVNC_settings {
-}
+#noVNC_settings {}
+
 #noVNC_settings ul {
     list-style: none;
+    width: 300px;
+    height: 350px;
     padding: 0px;
 }
+
 #noVNC_settings button,
 #noVNC_settings select,
 #noVNC_settings textarea,
@@ -624,6 +706,7 @@ html {
 #noVNC_setting_port {
     width: 80px;
 }
+
 #noVNC_setting_path {
     width: 100px;
 }
@@ -676,6 +759,7 @@ html {
 
     border-bottom: 1px solid rgba(0, 0, 0, 0.9);
 }
+
 #noVNC_status.noVNC_open {
     transform: translateY(0);
     visibility: visible;
@@ -691,20 +775,25 @@ html {
 }
 
 #noVNC_status.noVNC_status_normal {
-    background: rgba(128,128,128,0.9);
+    background: rgba(128, 128, 128, 0.9);
 }
+
 #noVNC_status.noVNC_status_normal::before {
     content: url("../images/info.svg") " ";
 }
+
 #noVNC_status.noVNC_status_error {
-    background: rgba(200,55,55,0.9);
+    background: rgb(233, 70, 37);
 }
+
 #noVNC_status.noVNC_status_error::before {
     content: url("../images/error.svg") " ";
 }
+
 #noVNC_status.noVNC_status_warn {
-    background: rgba(180,180,30,0.9);
+    background: rgba(180, 180, 30, 0.9);
 }
+
 #noVNC_status.noVNC_status_warn::before {
     content: url("../images/warning.svg") " ";
 }
@@ -721,11 +810,14 @@ html {
     visibility: hidden;
     opacity: 0;
 }
+
 #noVNC_connect_dlg.noVNC_open {
     transform: scale(1, 1);
     visibility: visible;
     opacity: 1;
+    gap: 16px;
 }
+
 #noVNC_connect_dlg .noVNC_logo {
     transition: 0.5s ease-in-out;
     padding: 10px;
@@ -736,32 +828,29 @@ html {
 
     border-radius: 6px;
 }
+
 @media (max-width: 440px) {
     #noVNC_connect_dlg {
         max-width: calc(100vw - 100px);
     }
+
     #noVNC_connect_dlg .noVNC_logo {
         font-size: calc(25vw - 30px);
     }
 }
 #noVNC_connect_dlg div {
-    padding: 18px;
-
-    background-color: var(--novnc-darkgrey);
-    border-radius: 12px;
     text-align: center;
     font-size: 20px;
-
-    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
 }
+
 #noVNC_connect_button {
     width: 100%;
     padding: 6px 30px;
     cursor: pointer;
     border-color: transparent;
     border-radius: 12px;
-    background-color: var(--novnc-blue);
-    color: white;
+    background-color: rgb(246, 246, 247);
+    color: rgb(10, 37, 64);
 
     display: flex;
     justify-content: center;
@@ -784,9 +873,11 @@ html {
 
     transform: translateY(-50px);
 }
+
 #noVNC_verify_server_dlg.noVNC_open {
     transform: translateY(0);
 }
+
 #noVNC_fingerprint_block {
     margin: 10px;
 }
@@ -801,9 +892,11 @@ html {
 
     transform: translateY(-50px);
 }
+
 #noVNC_credentials_dlg.noVNC_open {
     transform: translateY(0);
 }
+
 #noVNC_username_block.noVNC_hidden,
 #noVNC_password_block.noVNC_hidden {
     display: none;
@@ -838,6 +931,7 @@ html {
     justify-content: center;
     flex-direction: column;
 }
+
 :root.noVNC_loading #noVNC_transition,
 :root.noVNC_connecting #noVNC_transition,
 :root.noVNC_disconnecting #noVNC_transition,
@@ -845,9 +939,11 @@ html {
     opacity: 1;
     visibility: visible;
 }
+
 :root:not(.noVNC_reconnecting) #noVNC_cancel_reconnect_button {
     display: none;
 }
+
 #noVNC_transition_text {
     font-size: 1.5em;
 }
@@ -866,6 +962,9 @@ html {
     user-select: none;
     -webkit-user-select: none;
 }
+
+
+
 
 #noVNC_keyboardinput {
     width: 1px;
@@ -886,7 +985,7 @@ html {
     font-style: normal;
     font-weight: 700;
     src: local('?'), url('Orbitron700.woff') format('woff'),
-                     url('Orbitron700.ttf') format('truetype');
+        url('Orbitron700.ttf') format('truetype');
 }
 
 .noVNC_logo {
@@ -895,20 +994,40 @@ html {
     line-height: 0.9;
     text-shadow: 0.1em 0.1em 0 black;
 }
-.noVNC_logo span{
+
+.noVNC_logo span {
     color: var(--novnc-green);
+}
+
+.layout_logo {
+    text-align: center;
 }
 
 #noVNC_bell {
     display: none;
 }
 
+.logo-img {
+  max-width: 100%;
+  height: auto;
+  align-items: center;
+}
+
+.svg-container{
+    display: flex;
+    justify-content: center;  /* alinha no centro horizontal */
+    mix-blend-mode: multiply;
+    height: auto;
+    width: 100%;           
+}
+
+
 /* ----------------------------------------
  * Media sizing
  * ----------------------------------------
  */
 
-@media screen and (max-width: 640px){
+@media screen and (max-width: 640px) {
     #noVNC_logo {
         font-size: 150px;
     }
