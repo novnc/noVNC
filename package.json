@@ -18,10 +18,6 @@
     "./lib/*.js": "./core/*.js",
     "./core/*": "./core/*.js",
     "./core/*.js": "./core/*.js",
-    "./lib/vendor/*": "./vendor/*.js",
-    "./lib/vendor/*.js": "./vendor/*.js",
-    "./vendor/*": "./vendor/*.js",
-    "./vendor/*.js": "./vendor/*.js",
     "./package.json": "./package.json"
   },
   "scripts": {
