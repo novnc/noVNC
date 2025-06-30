@@ -1,6 +1,6 @@
 {
   "name": "@novnc/novnc",
-  "version": "1.6.1-alpha.1",
+  "version": "1.6.0",
   "description": "An HTML5 VNC client",
   "type": "module",
   "files": [
