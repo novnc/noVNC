@@ -264,7 +264,7 @@ export default class Display {
         let i = 0;
 
  
-        //getting parent node size down to the subpixel
+        //getting parent node size with sub-pixel precision
         let parentNodeSize = this._target.parentNode.getBoundingClientRect(); 
         //recalculate primary display container size
         this._screens[i].containerHeight = Math.floor(parentNodeSize.height / 2) * 2;
