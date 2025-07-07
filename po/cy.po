@@ -221,7 +221,7 @@ msgstr "Modd Gêm seibio, cliciwch ar y sgrin i ailddechrau Modd Gêm."
 msgid "Clipboard Up"
 msgstr "Clipfwrdd i Fyny"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Clipfwrdd i lawr"
 
 msgid "Clipboard Seamless"

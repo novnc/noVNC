@@ -221,7 +221,7 @@ msgstr "Spiltilstand sat på pause, klik på skærmen for at genoptage spiltilst
 msgid "Clipboard Up"
 msgstr "Udklipsholder op"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Udklipsholder ned"
 
 msgid "Clipboard Seamless"

@@ -221,7 +221,7 @@ msgstr "Mòd jwèt pran yon poz, klike sou ekran an pou rekòmanse mòd jwèt."
 msgid "Clipboard Up"
 msgstr "Klipboard moute"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Klipboard desann"
 
 msgid "Clipboard Seamless"

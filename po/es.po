@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: noVNC 1.0.0-testing.2\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
-"POT-Creation-Date: 2017-10-06 10:07+0200\n"
+"POT-Creation-Date: 2020-07-03 16:11+0200\n"
 "PO-Revision-Date: 2018-01-30 19:14-0800\n"
 "Last-Translator: Juanjo Diaz <juanjo.diazmo@gmail.com>\n"
 "Language-Team: Spanish\n"
@@ -18,311 +18,285 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../app/ui.js:430
+#: ../app/ui.js:394
 msgid "Connecting..."
 msgstr "Conectando..."
 
-#: ../app/ui.js:438
-msgid "Connected (encrypted) to "
-msgstr "Conectado (con encriptación) a"
-
-#: ../app/ui.js:440
-msgid "Connected (unencrypted) to "
-msgstr "Conectado (sin encriptación) a"
-
-#: ../app/ui.js:446
+#: ../app/ui.js:401
 msgid "Disconnecting..."
 msgstr "Desconectando..."
 
-#: ../app/ui.js:450
-msgid "Disconnected"
-msgstr "Desconectado"
-
-#: ../app/ui.js:1052 ../core/rfb.js:248
-msgid "Must set host"
-msgstr "Debes configurar el host"
-
-#: ../app/ui.js:1101
+#: ../app/ui.js:407
 msgid "Reconnecting..."
 msgstr "Reconectando..."
 
-#: ../app/ui.js:1140
-msgid "Password is required"
-msgstr "Contraseña es obligatoria"
-
-#: ../core/rfb.js:548
-msgid "Disconnect timeout"
-msgstr "Tiempo de desconexión agotado"
-
-#: ../vnc.html:89
-#: ../vnc.html:99
-msgid "Hide/Show the control bar"
-msgstr "Ocultar/Mostrar la barra de control"
-
-#: ../vnc.html:106
-msgid "Move/Drag Viewport"
-msgstr "Mover/Arrastrar la ventana"
-
-#: ../vnc.html:106
-msgid "viewport drag"
-msgstr "Arrastrar la ventana"
-
-#: ../vnc.html:112 ../vnc.html:115 ../vnc.html:118 ../vnc.html:121
-msgid "Active Mouse Button"
-msgstr "Botón activo del ratón"
-
-#: ../vnc.html:112
-msgid "No mousebutton"
-msgstr "Ningún botón del ratón"
-
-#: ../vnc.html:115
-msgid "Left mousebutton"
-msgstr "Botón izquierdo del ratón"
-
-#: ../vnc.html:118
-msgid "Middle mousebutton"
-msgstr "Botón central del ratón"
-
-#: ../vnc.html:121
-msgid "Right mousebutton"
-msgstr "Botón derecho del ratón"
-
-#: ../vnc.html:124
-msgid "Keyboard"
-msgstr "Teclado"
-
-#: ../vnc.html:124
-msgid "Show Keyboard"
-msgstr "Mostrar teclado"
-
-#: ../vnc.html:131
-msgid "Extra keys"
-msgstr "Teclas adicionales"
-
-#: ../vnc.html:131
-msgid "Show Extra Keys"
-msgstr "Mostrar Teclas Adicionales"
-
-#: ../vnc.html:136
-msgid "Ctrl"
-msgstr "Ctrl"
-
-#: ../vnc.html:136
-msgid "Toggle Ctrl"
-msgstr "Pulsar/Soltar Ctrl"
-
-#: ../vnc.html:139
-msgid "Alt"
-msgstr "Alt"
-
-#: ../vnc.html:139
-msgid "Toggle Alt"
-msgstr "Pulsar/Soltar Alt"
-
-#: ../vnc.html:142
-msgid "Send Tab"
-msgstr "Enviar Tabulación"
-
-#: ../vnc.html:142
-msgid "Tab"
-msgstr "Tabulación"
-
-#: ../vnc.html:145
-msgid "Esc"
-msgstr "Esc"
-
-#: ../vnc.html:145
-msgid "Send Escape"
-msgstr "Enviar Escape"
-
-#: ../vnc.html:148
-msgid "Ctrl+Alt+Del"
-msgstr "Ctrl+Alt+Del"
-
-#: ../vnc.html:148
-msgid "Send Ctrl-Alt-Del"
-msgstr "Enviar Ctrl+Alt+Del"
-
-#: ../vnc.html:156
-msgid "Shutdown/Reboot"
-msgstr "Apagar/Reiniciar"
-
-#: ../vnc.html:156
-msgid "Shutdown/Reboot..."
-msgstr "Apagar/Reiniciar..."
-
-#: ../vnc.html:162
-msgid "Power"
-msgstr "Encender"
-
-#: ../vnc.html:164
-msgid "Shutdown"
-msgstr "Apagar"
-
-#: ../vnc.html:165
-msgid "Reboot"
-msgstr "Reiniciar"
-
-#: ../vnc.html:166
-msgid "Reset"
-msgstr "Restablecer"
-
-#: ../vnc.html:171 ../vnc.html:177
-msgid "Clipboard"
-msgstr "Portapapeles"
-
-#: ../vnc.html:181
-msgid "Clear"
-msgstr "Vaciar"
-
-#: ../vnc.html:187
-msgid "Fullscreen"
-msgstr "Pantalla Completa"
-
-#: ../vnc.html:192 ../vnc.html:199
-msgid "Settings"
-msgstr "Configuraciones"
-
-#: ../vnc.html:202
-msgid "Shared Mode"
-msgstr "Modo Compartido"
-
-#: ../vnc.html:205
-msgid "View Only"
-msgstr "Solo visualización"
-
-#: ../vnc.html:209
-msgid "Clip to Window"
-msgstr "Recortar al tamaño de la ventana"
-
-#: ../vnc.html:212
-msgid "Scaling Mode:"
-msgstr "Modo de escalado:"
-
-#: ../vnc.html:214
-msgid "None"
-msgstr "Ninguno"
-
-#: ../vnc.html:215
-msgid "Local Scaling"
-msgstr "Escalado Local"
-
-#: ../vnc.html:216
-msgid "Local Downscaling"
-msgstr "Reducción de escala local"
-
-#: ../vnc.html:217
-msgid "Remote Resizing"
-msgstr "Cambio de tamaño remoto"
-
-#: ../vnc.html:222
-msgid "Advanced"
-msgstr "Avanzado"
-
-#: ../vnc.html:225
-msgid "Local Cursor"
-msgstr "Cursor Local"
-
-#: ../vnc.html:229
-msgid "Repeater ID:"
-msgstr "ID del Repetidor"
-
-#: ../vnc.html:233
-msgid "WebSocket"
-msgstr "WebSocket"
-
-#: ../vnc.html:236
-msgid "Encrypt"
-msgstr ""
-
-#: ../vnc.html:239
-msgid "Host:"
-msgstr "Host"
-
-#: ../vnc.html:243
-msgid "Port:"
-msgstr "Puesto"
-
-#: ../vnc.html:247
-msgid "Path:"
-msgstr "Ruta"
-
-#: ../vnc.html:254
-msgid "Automatic Reconnect"
-msgstr "Reconexión automática"
-
-#: ../vnc.html:257
-msgid "Reconnect Delay (ms):"
-msgstr "Retraso en la reconexión (ms)"
-
-#: ../vnc.html:263
-msgid "Logging:"
-msgstr "Logging"
-
-#: ../vnc.html:275
-msgid "Disconnect"
-msgstr "Desconectar"
-
-#: ../vnc.html:294
-msgid "Connect"
-msgstr "Conectar"
-
-#: ../vnc.html:304
-msgid "Password:"
-msgstr "Contraseña"
-
-#: ../vnc.html:318
-msgid "Cancel"
-msgstr "Cancelar"
-
-#: ../vnc.html:334
-msgid "Canvas not supported."
-msgstr "Canvas no está soportado"
-
+#: ../app/ui.js:412
 msgid "Internal error"
 msgstr "Error interno"
 
+#: ../app/ui.js:1008
+msgid "Must set host"
+msgstr "Debes configurar el host"
+
+#: ../app/ui.js:1090
+msgid "Connected (encrypted) to "
+msgstr "Conectado (con encriptación) a"
+
+#: ../app/ui.js:1092
+msgid "Connected (unencrypted) to "
+msgstr "Conectado (sin encriptación) a"
+
+#: ../app/ui.js:1115
 msgid "Something went wrong, connection is closed"
 msgstr "Algo salió mal, la conexión está cerrada"
 
+#: ../app/ui.js:1118
 msgid "Failed to connect to server"
 msgstr "Error al conectar con el servidor"
 
+#: ../app/ui.js:1128
+msgid "Disconnected"
+msgstr "Desconectado"
+
+#: ../app/ui.js:1143
 msgid "New connection has been rejected with reason: "
 msgstr "La nueva conexión ha sido rechazada por el motivo: "
 
+#: ../app/ui.js:1146
 msgid "New connection has been rejected"
 msgstr "Nueva conexión ha sido rechazada"
 
+#: ../app/ui.js:1181
 msgid "Credentials are required"
 msgstr "Se requieren credenciales"
 
+#: ../vnc.html:74
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC encontró un error:"
+
+#: ../vnc.html:84
+msgid "Hide/Show the control bar"
+msgstr "Ocultar/Mostrar la barra de control"
+
+#: ../vnc.html:91
 msgid "Drag"
 msgstr "Arrastrar"
 
+#: ../vnc.html:91
+msgid "Move/Drag Viewport"
+msgstr "Mover/Arrastrar la ventana"
+
+#: ../vnc.html:97
+msgid "Keyboard"
+msgstr "Teclado"
+
+#: ../vnc.html:97
+msgid "Show Keyboard"
+msgstr "Mostrar teclado"
+
+#: ../vnc.html:102
+msgid "Extra keys"
+msgstr "Teclas adicionales"
+
+#: ../vnc.html:102
+msgid "Show Extra Keys"
+msgstr "Mostrar Teclas Adicionales"
+
+#: ../vnc.html:107
+msgid "Ctrl"
+msgstr "Ctrl"
+
+#: ../vnc.html:107
+msgid "Toggle Ctrl"
+msgstr "Pulsar/Soltar Ctrl"
+
+#: ../vnc.html:110
+msgid "Alt"
+msgstr "Alt"
+
+#: ../vnc.html:110
+msgid "Toggle Alt"
+msgstr "Pulsar/Soltar Alt"
+
+#: ../vnc.html:113
 msgid "Toggle Windows"
 msgstr "Alternar ventanas"
 
+#: ../vnc.html:113
 msgid "Windows"
 msgstr "ventanas"
 
+#: ../vnc.html:116
+msgid "Send Tab"
+msgstr "Enviar Tabulación"
+
+#: ../vnc.html:116
+msgid "Tab"
+msgstr "Tabulación"
+
+#: ../vnc.html:119
+msgid "Esc"
+msgstr "Esc"
+
+#: ../vnc.html:119
+msgid "Send Escape"
+msgstr "Enviar Escape"
+
+#: ../vnc.html:122
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+#: ../vnc.html:122
+msgid "Send Ctrl-Alt-Del"
+msgstr "Enviar Ctrl+Alt+Del"
+
+#: ../vnc.html:129
+msgid "Shutdown/Reboot"
+msgstr "Apagar/Reiniciar"
+
+#: ../vnc.html:129
+msgid "Shutdown/Reboot..."
+msgstr "Apagar/Reiniciar..."
+
+#: ../vnc.html:135
+msgid "Power"
+msgstr "Encender"
+
+#: ../vnc.html:137
+msgid "Shutdown"
+msgstr "Apagar"
+
+#: ../vnc.html:138
+msgid "Reboot"
+msgstr "Reiniciar"
+
+#: ../vnc.html:139
+msgid "Reset"
+msgstr "Restablecer"
+
+#: ../vnc.html:144 ../vnc.html:150
+msgid "Clipboard"
+msgstr "Portapapeles"
+
+#: ../vnc.html:154
+msgid "Clear"
+msgstr "Vaciar"
+
+#: ../vnc.html:160
+msgid "Fullscreen"
+msgstr "Pantalla Completa"
+
+#: ../vnc.html:165 ../vnc.html:172
+msgid "Settings"
+msgstr "Configuraciones"
+
+#: ../vnc.html:175
+msgid "Shared Mode"
+msgstr "Modo Compartido"
+
+#: ../vnc.html:178
+msgid "View Only"
+msgstr "Solo visualización"
+
+#: ../vnc.html:182
+msgid "Clip to Window"
+msgstr "Recortar al tamaño de la ventana"
+
+#: ../vnc.html:185
+msgid "Scaling Mode:"
+msgstr "Modo de escalado:"
+
+#: ../vnc.html:187
+msgid "None"
+msgstr "Ninguno"
+
+#: ../vnc.html:188
+msgid "Local Scaling"
+msgstr "Escalado Local"
+
+#: ../vnc.html:189
+msgid "Remote Resizing"
+msgstr "Cambio de tamaño remoto"
+
+#: ../vnc.html:194
+msgid "Advanced"
+msgstr "Avanzado"
+
+#: ../vnc.html:197
 msgid "Quality:"
 msgstr "Calidad:"
 
+#: ../vnc.html:201
 msgid "Compression level:"
 msgstr "Nivel de compresión:"
 
+#: ../vnc.html:206
+msgid "Repeater ID:"
+msgstr "ID del Repetidor"
+
+#: ../vnc.html:210
+msgid "WebSocket"
+msgstr "WebSocket"
+
+#: ../vnc.html:213
+msgid "Encrypt"
+msgstr ""
+
+#: ../vnc.html:216
+msgid "Host:"
+msgstr "Host"
+
+#: ../vnc.html:220
+msgid "Port:"
+msgstr "Puesto"
+
+#: ../vnc.html:224
+msgid "Path:"
+msgstr "Ruta"
+
+#: ../vnc.html:231
+msgid "Automatic Reconnect"
+msgstr "Reconexión automática"
+
+#: ../vnc.html:234
+msgid "Reconnect Delay (ms):"
+msgstr "Retraso en la reconexión (ms)"
+
+#: ../vnc.html:239
 msgid "Show Dot when No Cursor"
 msgstr "Mostrar punto cuando no hay cursor"
 
+#: ../vnc.html:244
+msgid "Logging:"
+msgstr "Logging"
+
+#: ../vnc.html:253
 msgid "Version:"
 msgstr "Versión:"
 
+#: ../vnc.html:261
+msgid "Disconnect"
+msgstr "Desconectar"
+
+#: ../vnc.html:280
+msgid "Connect"
+msgstr "Conectar"
+
+#: ../vnc.html:290
 msgid "Username:"
 msgstr "Nombre de usuario:"
 
+#: ../vnc.html:294
+msgid "Password:"
+msgstr "Contraseña"
+
+#: ../vnc.html:298
 msgid "Send Credentials"
 msgstr "Enviar Credenciales"
+
+#: ../vnc.html:308
+msgid "Cancel"
+msgstr "Cancelar"
 
 msgid "Keys"
 msgstr "Llaves"
@@ -334,12 +308,15 @@ msgid "Press Esc Key to Exit Pointer Lock Mode"
 msgstr "Presione la tecla Esc para salir del modo de bloqueo del puntero"
 
 msgid "Game Mode paused, click on screen to resume Game Mode."
-msgstr "Modo de juego en pausa, haga clic en la pantalla para reanudar el modo de juego"
+msgstr ""
+"Modo de juego en pausa, haga clic en la pantalla para reanudar el modo de "
+"juego"
 
 msgid "Clipboard Up"
 msgstr "Portapapeles arriba"
 
-msgid "CLipboard Down"
+#, fuzzy
+msgid "Clipboard Down"
 msgstr "Portapapeles abajo"
 
 msgid "Clipboard Seamless"
@@ -468,9 +445,6 @@ msgstr "Documentación"
 msgid "Drag Viewport"
 msgstr "Arrastrar ventana gráfica"
 
-msgid "KasmVNC encountered an error:"
-msgstr "KasmVNC encontró un error:"
-
 msgid "Displays"
 msgstr "Pantallas"
 
@@ -480,8 +454,12 @@ msgstr "Habilitar decodificación por subprocesos"
 msgid "Arrange Displays"
 msgstr "Organizar pantallas"
 
-msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
-msgstr "Arrastre y suelte para organizar las pantallas; los nuevos monitores se agregan al lado derecho del monitor anterior"
+msgid ""
+"Drag and drop to arrange displays, new monitors are added to the right hand "
+"side of the previous monitor."
+msgstr ""
+"Arrastre y suelte para organizar las pantallas; los nuevos monitores se "
+"agregan al lado derecho del monitor anterior"
 
 msgid "Add Monitor"
 msgstr "Agregar monitor"
@@ -497,3 +475,36 @@ msgstr "Hecho"
 
 msgid "Control Panel"
 msgstr "Panel de control"
+
+#~ msgid "Password is required"
+#~ msgstr "Contraseña es obligatoria"
+
+#~ msgid "Disconnect timeout"
+#~ msgstr "Tiempo de desconexión agotado"
+
+#~ msgid "viewport drag"
+#~ msgstr "Arrastrar la ventana"
+
+#~ msgid "Active Mouse Button"
+#~ msgstr "Botón activo del ratón"
+
+#~ msgid "No mousebutton"
+#~ msgstr "Ningún botón del ratón"
+
+#~ msgid "Left mousebutton"
+#~ msgstr "Botón izquierdo del ratón"
+
+#~ msgid "Middle mousebutton"
+#~ msgstr "Botón central del ratón"
+
+#~ msgid "Right mousebutton"
+#~ msgstr "Botón derecho del ratón"
+
+#~ msgid "Local Downscaling"
+#~ msgstr "Reducción de escala local"
+
+#~ msgid "Local Cursor"
+#~ msgstr "Cursor Local"
+
+#~ msgid "Canvas not supported."
+#~ msgstr "Canvas no está soportado"

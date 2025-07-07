@@ -221,7 +221,7 @@ msgstr "கேம் பயன்முறை இடைநிறுத்தப�
 msgid "Clipboard Up"
 msgstr "கிளிப்போர்டு அப்"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "கிளிப்போர்டு டவுன்"
 
 msgid "Clipboard Seamless"

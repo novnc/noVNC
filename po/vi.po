@@ -221,7 +221,7 @@ msgstr "Chế độ Trò chơi đã tạm dừng, nhấp vào màn hình để t
 msgid "Clipboard Up"
 msgstr "Clipboard Up"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Xuống Clipboard"
 
 msgid "Clipboard Seamless"

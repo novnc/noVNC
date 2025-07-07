@@ -221,7 +221,7 @@ msgstr "Ігровий режим призупинено, клацніть на 
 msgid "Clipboard Up"
 msgstr "Буфер обміну вгору"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Буфер обміну вниз"
 
 msgid "Clipboard Seamless"

@@ -332,7 +332,7 @@ msgstr "Oyun Modu duraklatıldı, Oyun Moduna devam etmek için ekrana tıklayı
 msgid "Clipboard Up"
 msgstr "Pano Yukarı"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Pano Aşağı"
 
 msgid "Clipboard Seamless"

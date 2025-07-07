@@ -221,7 +221,7 @@ msgstr "గేమ్ మోడ్ పాజ్ చేయబడింది, గ�
 msgid "Clipboard Up"
 msgstr "క్లిప్u200cబోర్డ్ పైకి"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "క్లిప్u200cబోర్డ్ డౌన్"
 
 msgid "Clipboard Seamless"

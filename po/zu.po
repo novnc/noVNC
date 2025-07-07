@@ -221,7 +221,7 @@ msgstr "Imodi yegeyimu imisiwe, chofoza esikrinini ukuze uqalise kabusha i-Game 
 msgid "Clipboard Up"
 msgstr "Ibhodi lokunamathisela phezulu"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "I-Clipboard Phansi"
 
 msgid "Clipboard Seamless"

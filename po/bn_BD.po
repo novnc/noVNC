@@ -221,7 +221,7 @@ msgstr "গেম মোড পজ করা হয়েছে, গেম ম�
 msgid "Clipboard Up"
 msgstr "ক্লিপবোর্ড আপ"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "ক্লিপবোর্ড নিচে"
 
 msgid "Clipboard Seamless"

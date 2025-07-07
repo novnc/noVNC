@@ -221,7 +221,7 @@ msgstr "A játékmód szünetel, kattintson a képernyőre a Játék mód folyta
 msgid "Clipboard Up"
 msgstr "Vágólap fel"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Vágólap le"
 
 msgid "Clipboard Seamless"

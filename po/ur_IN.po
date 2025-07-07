@@ -221,7 +221,7 @@ msgstr "۔ﮟﯾﺮﮐ ﮏﻠﮐ ﺮﭘ ﻦﯾﺮﮑﺳﺍ ﮯﯿﻟ ﮯﮐ ﮯ�
 msgid "Clipboard Up"
 msgstr "ﺮﭘﻭﺍ ﮈﺭﻮﺑ ﭗﻠﮐ"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "ﮯﭽﯿﻧ ﮈﺭﻮﺑ ﭗﻠﮐ"
 
 msgid "Clipboard Seamless"

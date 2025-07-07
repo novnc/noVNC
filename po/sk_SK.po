@@ -221,7 +221,7 @@ msgstr "Herný režim pozastavený, kliknutím na obrazovku obnovíte herný re�
 msgid "Clipboard Up"
 msgstr "Schránka hore"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Schránka dole"
 
 msgid "Clipboard Seamless"

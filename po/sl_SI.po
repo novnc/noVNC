@@ -221,7 +221,7 @@ msgstr "Game Mode pauseed, click on screen to continue Game Mode."
 msgid "Clipboard Up"
 msgstr "Odložišče gor"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Clipboard Down"
 
 msgid "Clipboard Seamless"

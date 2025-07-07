@@ -221,7 +221,7 @@ msgstr "קחשמ בצמ תא שדחל ידכ ךסמה לע ץחל ,ההשומ ק
 msgid "Clipboard Up"
 msgstr "הלעמל חול"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "הטמל חול"
 
 msgid "Clipboard Seamless"

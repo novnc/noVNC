@@ -221,7 +221,7 @@ msgstr "Гульнёвы рэжым прыпынены, пстрыкніце п�
 msgid "Clipboard Up"
 msgstr "Буфер абмену ўверх"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Буфер абмену ўніз"
 
 msgid "Clipboard Seamless"

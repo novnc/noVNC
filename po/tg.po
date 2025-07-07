@@ -221,7 +221,7 @@ msgstr "Усули бозӣ таваққуф карда шуд, барои ид�
 msgid "Clipboard Up"
 msgstr "Бо буфер боло"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Поён кардани буфер"
 
 msgid "Clipboard Seamless"

@@ -221,7 +221,7 @@ msgstr "Modh geama air a stad, cliog air an sgrion gus Modh Gèam ath-thòiseach
 msgid "Clipboard Up"
 msgstr "Clipboard Up"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Clipboard Down"
 
 msgid "Clipboard Seamless"

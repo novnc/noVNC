@@ -221,7 +221,7 @@ msgstr "ක්u200dරීඩා ප්u200dරකාරය විරාම ක�
 msgid "Clipboard Up"
 msgstr "ක්ලිප්බෝඩ් ඉහළට"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "ක්ලිප්බෝඩ් පහලට"
 
 msgid "Clipboard Seamless"

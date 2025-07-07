@@ -312,7 +312,7 @@ msgstr ""
 msgid "Clipboard Up"
 msgstr ""
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr ""
 
 msgid "Clipboard Seamless"
@@ -466,7 +466,4 @@ msgid "Done"
 msgstr ""
 
 msgid "Control Panel"
-msgstr ""
-
-msgid "Fullscreen"
 msgstr ""

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: noVNC 1.0.0-testing.2\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
-"POT-Creation-Date: 2018-10-19 12:00+0200\n"
+"POT-Creation-Date: 2020-07-03 16:11+0200\n"
 "PO-Revision-Date: 2018-10-19 12:00+0200\n"
 "Last-Translator: Petr <petr@kle.cz>\n"
 "Language-Team: Czech\n"
@@ -17,305 +17,285 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 
-#: ../app/ui.js:389
+#: ../app/ui.js:394
 msgid "Connecting..."
 msgstr "Připojení..."
 
-#: ../app/ui.js:396
+#: ../app/ui.js:401
 msgid "Disconnecting..."
 msgstr "Odpojení..."
 
-#: ../app/ui.js:402
+#: ../app/ui.js:407
 msgid "Reconnecting..."
 msgstr "Obnova připojení..."
 
-#: ../app/ui.js:407
+#: ../app/ui.js:412
 msgid "Internal error"
 msgstr "Vnitřní chyba"
 
-#: ../app/ui.js:997
+#: ../app/ui.js:1008
 msgid "Must set host"
 msgstr "Hostitel musí být nastavení"
 
-#: ../app/ui.js:1079
+#: ../app/ui.js:1090
 msgid "Connected (encrypted) to "
 msgstr "Připojení (šifrované) k "
 
-#: ../app/ui.js:1081
+#: ../app/ui.js:1092
 msgid "Connected (unencrypted) to "
 msgstr "Připojení (nešifrované) k "
 
-#: ../app/ui.js:1104
+#: ../app/ui.js:1115
 msgid "Something went wrong, connection is closed"
 msgstr "Něco se pokazilo, odpojeno"
 
-#: ../app/ui.js:1107
+#: ../app/ui.js:1118
 msgid "Failed to connect to server"
 msgstr "Chyba připojení k serveru"
 
-#: ../app/ui.js:1117
+#: ../app/ui.js:1128
 msgid "Disconnected"
 msgstr "Odpojeno"
 
-#: ../app/ui.js:1130
+#: ../app/ui.js:1143
 msgid "New connection has been rejected with reason: "
 msgstr "Nové připojení bylo odmítnuto s odůvodněním: "
 
-#: ../app/ui.js:1133
+#: ../app/ui.js:1146
 msgid "New connection has been rejected"
 msgstr "Nové připojení bylo odmítnuto"
 
-#: ../app/ui.js:1153
-msgid "Password is required"
-msgstr "Je vyžadováno heslo"
-
-#: ../vnc.html:84
-#: ../vnc.html:94
-msgid "Hide/Show the control bar"
-msgstr "Skrýt/zobrazit ovládací panel"
-
-#: ../vnc.html:101
-msgid "Move/Drag Viewport"
-msgstr "Přesunout/přetáhnout výřez"
-
-#: ../vnc.html:101
-msgid "viewport drag"
-msgstr "přesun výřezu"
-
-#: ../vnc.html:107 ../vnc.html:110 ../vnc.html:113 ../vnc.html:116
-msgid "Active Mouse Button"
-msgstr "Aktivní tlačítka myši"
-
-#: ../vnc.html:107
-msgid "No mousebutton"
-msgstr "Žádné"
-
-#: ../vnc.html:110
-msgid "Left mousebutton"
-msgstr "Levé tlačítko myši"
-
-#: ../vnc.html:113
-msgid "Middle mousebutton"
-msgstr "Prostřední tlačítko myši"
-
-#: ../vnc.html:116
-msgid "Right mousebutton"
-msgstr "Pravé tlačítko myši"
-
-#: ../vnc.html:119
-msgid "Keyboard"
-msgstr "Klávesnice"
-
-#: ../vnc.html:119
-msgid "Show Keyboard"
-msgstr "Zobrazit klávesnici"
-
-#: ../vnc.html:126
-msgid "Extra keys"
-msgstr "Extra klávesy"
-
-#: ../vnc.html:126
-msgid "Show Extra Keys"
-msgstr "Zobrazit extra klávesy"
-
-#: ../vnc.html:131
-msgid "Ctrl"
-msgstr "Ctrl"
-
-#: ../vnc.html:131
-msgid "Toggle Ctrl"
-msgstr "Přepnout Ctrl"
-
-#: ../vnc.html:134
-msgid "Alt"
-msgstr "Alt"
-
-#: ../vnc.html:134
-msgid "Toggle Alt"
-msgstr "Přepnout Alt"
-
-#: ../vnc.html:137
-msgid "Send Tab"
-msgstr "Odeslat tabulátor"
-
-#: ../vnc.html:137
-msgid "Tab"
-msgstr "Tab"
-
-#: ../vnc.html:140
-msgid "Esc"
-msgstr "Esc"
-
-#: ../vnc.html:140
-msgid "Send Escape"
-msgstr "Odeslat Esc"
-
-#: ../vnc.html:143
-msgid "Ctrl+Alt+Del"
-msgstr "Ctrl+Alt+Del"
-
-#: ../vnc.html:143
-msgid "Send Ctrl-Alt-Del"
-msgstr "Poslat Ctrl-Alt-Del"
-
-#: ../vnc.html:151
-msgid "Shutdown/Reboot"
-msgstr "Vypnutí/Restart"
-
-#: ../vnc.html:151
-msgid "Shutdown/Reboot..."
-msgstr "Vypnutí/Restart..."
-
-#: ../vnc.html:157
-msgid "Power"
-msgstr "Napájení"
-
-#: ../vnc.html:159
-msgid "Shutdown"
-msgstr "Vypnout"
-
-#: ../vnc.html:160
-msgid "Reboot"
-msgstr "Restart"
-
-#: ../vnc.html:161
-msgid "Reset"
-msgstr "Reset"
-
-#: ../vnc.html:166 ../vnc.html:172
-msgid "Clipboard"
-msgstr "Schránka"
-
-#: ../vnc.html:176
-msgid "Clear"
-msgstr "Vymazat"
-
-#: ../vnc.html:182
-msgid "Fullscreen"
-msgstr "Celá obrazovka"
-
-#: ../vnc.html:187 ../vnc.html:194
-msgid "Settings"
-msgstr "Nastavení"
-
-#: ../vnc.html:197
-msgid "Shared Mode"
-msgstr "Sdílený režim"
-
-#: ../vnc.html:200
-msgid "View Only"
-msgstr "Pouze prohlížení"
-
-#: ../vnc.html:204
-msgid "Clip to Window"
-msgstr "Přizpůsobit oknu"
-
-#: ../vnc.html:207
-msgid "Scaling Mode:"
-msgstr "Přizpůsobení velikosti"
-
-#: ../vnc.html:209
-msgid "None"
-msgstr "Žádné"
-
-#: ../vnc.html:210
-msgid "Local Scaling"
-msgstr "Místní"
-
-#: ../vnc.html:211
-msgid "Remote Resizing"
-msgstr "Vzdálené"
-
-#: ../vnc.html:216
-msgid "Advanced"
-msgstr "Pokročilé"
-
-#: ../vnc.html:219
-msgid "Repeater ID:"
-msgstr "ID opakovače"
-
-#: ../vnc.html:223
-msgid "WebSocket"
-msgstr "WebSocket"
-
-#: ../vnc.html:226
-msgid "Encrypt"
-msgstr "Šifrování:"
-
-#: ../vnc.html:229
-msgid "Host:"
-msgstr "Hostitel:"
-
-#: ../vnc.html:233
-msgid "Port:"
-msgstr "Port:"
-
-#: ../vnc.html:237
-msgid "Path:"
-msgstr "Cesta"
-
-#: ../vnc.html:244
-msgid "Automatic Reconnect"
-msgstr "Automatická obnova připojení"
-
-#: ../vnc.html:247
-msgid "Reconnect Delay (ms):"
-msgstr "Zpoždění připojení (ms)"
-
-#: ../vnc.html:252
-msgid "Show Dot when No Cursor"
-msgstr "Tečka místo chybějícího kurzoru myši"
-
-#: ../vnc.html:257
-msgid "Logging:"
-msgstr "Logování:"
-
-#: ../vnc.html:269
-msgid "Disconnect"
-msgstr "Odpojit"
-
-#: ../vnc.html:288
-msgid "Connect"
-msgstr "Připojit"
-
-#: ../vnc.html:298
-msgid "Password:"
-msgstr "Heslo"
-
-#: ../vnc.html:302
-msgid "Send Password"
-msgstr "Odeslat heslo"
-
-#: ../vnc.html:312
-msgid "Cancel"
-msgstr "Zrušit"
-
+#: ../app/ui.js:1181
 msgid "Credentials are required"
 msgstr "Jsou vyžadovány přihlašovací údaje"
 
+#: ../vnc.html:74
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC narazil na chybu:"
+
+#: ../vnc.html:84
+msgid "Hide/Show the control bar"
+msgstr "Skrýt/zobrazit ovládací panel"
+
+#: ../vnc.html:91
 msgid "Drag"
 msgstr "Táhnout"
 
+#: ../vnc.html:91
+msgid "Move/Drag Viewport"
+msgstr "Přesunout/přetáhnout výřez"
+
+#: ../vnc.html:97
+msgid "Keyboard"
+msgstr "Klávesnice"
+
+#: ../vnc.html:97
+msgid "Show Keyboard"
+msgstr "Zobrazit klávesnici"
+
+#: ../vnc.html:102
+msgid "Extra keys"
+msgstr "Extra klávesy"
+
+#: ../vnc.html:102
+msgid "Show Extra Keys"
+msgstr "Zobrazit extra klávesy"
+
+#: ../vnc.html:107
+msgid "Ctrl"
+msgstr "Ctrl"
+
+#: ../vnc.html:107
+msgid "Toggle Ctrl"
+msgstr "Přepnout Ctrl"
+
+#: ../vnc.html:110
+msgid "Alt"
+msgstr "Alt"
+
+#: ../vnc.html:110
+msgid "Toggle Alt"
+msgstr "Přepnout Alt"
+
+#: ../vnc.html:113
 msgid "Toggle Windows"
 msgstr "Přepnout Windows"
 
+#: ../vnc.html:113
 msgid "Windows"
 msgstr "Okna"
 
+#: ../vnc.html:116
+msgid "Send Tab"
+msgstr "Odeslat tabulátor"
+
+#: ../vnc.html:116
+msgid "Tab"
+msgstr "Tab"
+
+#: ../vnc.html:119
+msgid "Esc"
+msgstr "Esc"
+
+#: ../vnc.html:119
+msgid "Send Escape"
+msgstr "Odeslat Esc"
+
+#: ../vnc.html:122
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+#: ../vnc.html:122
+msgid "Send Ctrl-Alt-Del"
+msgstr "Poslat Ctrl-Alt-Del"
+
+#: ../vnc.html:129
+msgid "Shutdown/Reboot"
+msgstr "Vypnutí/Restart"
+
+#: ../vnc.html:129
+msgid "Shutdown/Reboot..."
+msgstr "Vypnutí/Restart..."
+
+#: ../vnc.html:135
+msgid "Power"
+msgstr "Napájení"
+
+#: ../vnc.html:137
+msgid "Shutdown"
+msgstr "Vypnout"
+
+#: ../vnc.html:138
+msgid "Reboot"
+msgstr "Restart"
+
+#: ../vnc.html:139
+msgid "Reset"
+msgstr "Reset"
+
+#: ../vnc.html:144 ../vnc.html:150
+msgid "Clipboard"
+msgstr "Schránka"
+
+#: ../vnc.html:154
+msgid "Clear"
+msgstr "Vymazat"
+
+#: ../vnc.html:160
+msgid "Fullscreen"
+msgstr "Celá obrazovka"
+
+#: ../vnc.html:165 ../vnc.html:172
+msgid "Settings"
+msgstr "Nastavení"
+
+#: ../vnc.html:175
+msgid "Shared Mode"
+msgstr "Sdílený režim"
+
+#: ../vnc.html:178
+msgid "View Only"
+msgstr "Pouze prohlížení"
+
+#: ../vnc.html:182
+msgid "Clip to Window"
+msgstr "Přizpůsobit oknu"
+
+#: ../vnc.html:185
+msgid "Scaling Mode:"
+msgstr "Přizpůsobení velikosti"
+
+#: ../vnc.html:187
+msgid "None"
+msgstr "Žádné"
+
+#: ../vnc.html:188
+msgid "Local Scaling"
+msgstr "Místní"
+
+#: ../vnc.html:189
+msgid "Remote Resizing"
+msgstr "Vzdálené"
+
+#: ../vnc.html:194
+msgid "Advanced"
+msgstr "Pokročilé"
+
+#: ../vnc.html:197
 msgid "Quality:"
 msgstr "Kvalitní:"
 
+#: ../vnc.html:201
 msgid "Compression level:"
 msgstr "Úroveň komprese:"
 
+#: ../vnc.html:206
+msgid "Repeater ID:"
+msgstr "ID opakovače"
+
+#: ../vnc.html:210
+msgid "WebSocket"
+msgstr "WebSocket"
+
+#: ../vnc.html:213
+msgid "Encrypt"
+msgstr "Šifrování:"
+
+#: ../vnc.html:216
+msgid "Host:"
+msgstr "Hostitel:"
+
+#: ../vnc.html:220
+msgid "Port:"
+msgstr "Port:"
+
+#: ../vnc.html:224
+msgid "Path:"
+msgstr "Cesta"
+
+#: ../vnc.html:231
+msgid "Automatic Reconnect"
+msgstr "Automatická obnova připojení"
+
+#: ../vnc.html:234
+msgid "Reconnect Delay (ms):"
+msgstr "Zpoždění připojení (ms)"
+
+#: ../vnc.html:239
+msgid "Show Dot when No Cursor"
+msgstr "Tečka místo chybějícího kurzoru myši"
+
+#: ../vnc.html:244
+msgid "Logging:"
+msgstr "Logování:"
+
+#: ../vnc.html:253
 msgid "Version:"
 msgstr "Verze:"
 
+#: ../vnc.html:261
+msgid "Disconnect"
+msgstr "Odpojit"
+
+#: ../vnc.html:280
+msgid "Connect"
+msgstr "Připojit"
+
+#: ../vnc.html:290
 msgid "Username:"
 msgstr "Uživatelské jméno:"
 
+#: ../vnc.html:294
+msgid "Password:"
+msgstr "Heslo"
+
+#: ../vnc.html:298
 msgid "Send Credentials"
 msgstr "Odeslat přihlašovací údaje"
+
+#: ../vnc.html:308
+msgid "Cancel"
+msgstr "Zrušit"
 
 msgid "Keys"
 msgstr "klíče"
@@ -332,7 +312,8 @@ msgstr "Herní režim pozastaven, kliknutím na obrazovku obnovíte herní reži
 msgid "Clipboard Up"
 msgstr "Schránka nahoru"
 
-msgid "CLipboard Down"
+#, fuzzy
+msgid "Clipboard Down"
 msgstr "Schránka dolů"
 
 msgid "Clipboard Seamless"
@@ -461,9 +442,6 @@ msgstr "Dokumentace"
 msgid "Drag Viewport"
 msgstr "Přetáhnout výřez"
 
-msgid "KasmVNC encountered an error:"
-msgstr "KasmVNC narazil na chybu:"
-
 msgid "Displays"
 msgstr "zobrazuje"
 
@@ -473,8 +451,12 @@ msgstr "Povolit dekódování vláken"
 msgid "Arrange Displays"
 msgstr "Uspořádat displeje"
 
-msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
-msgstr "Přetažením uspořádáte zobrazení, nové monitory se přidají na pravou stranu předchozího monitoru."
+msgid ""
+"Drag and drop to arrange displays, new monitors are added to the right hand "
+"side of the previous monitor."
+msgstr ""
+"Přetažením uspořádáte zobrazení, nové monitory se přidají na pravou stranu "
+"předchozího monitoru."
 
 msgid "Add Monitor"
 msgstr "Přidat monitor"
@@ -490,3 +472,27 @@ msgstr "Hotovo"
 
 msgid "Control Panel"
 msgstr "Ovládací panel"
+
+#~ msgid "Password is required"
+#~ msgstr "Je vyžadováno heslo"
+
+#~ msgid "viewport drag"
+#~ msgstr "přesun výřezu"
+
+#~ msgid "Active Mouse Button"
+#~ msgstr "Aktivní tlačítka myši"
+
+#~ msgid "No mousebutton"
+#~ msgstr "Žádné"
+
+#~ msgid "Left mousebutton"
+#~ msgstr "Levé tlačítko myši"
+
+#~ msgid "Middle mousebutton"
+#~ msgstr "Prostřední tlačítko myši"
+
+#~ msgid "Right mousebutton"
+#~ msgstr "Pravé tlačítko myši"
+
+#~ msgid "Send Password"
+#~ msgstr "Odeslat heslo"

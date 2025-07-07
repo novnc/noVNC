@@ -221,7 +221,7 @@ msgstr "ဂိမ်းမုဒ်ကို ခေတ္တရပ်ထား�
 msgid "Clipboard Up"
 msgstr "ကလစ်ဘုတ်ပေါ်"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "ကလစ်ဘုတ်အောက်"
 
 msgid "Clipboard Seamless"

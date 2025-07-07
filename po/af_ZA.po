@@ -221,7 +221,7 @@ msgstr "Spelmodus is onderbreek, klik op die skerm om Spelmodus te hervat."
 msgid "Clipboard Up"
 msgstr "Klipbord op"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Klipbord af"
 
 msgid "Clipboard Seamless"

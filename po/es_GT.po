@@ -339,7 +339,7 @@ msgstr "Modo de juego en pausa, haga clic en la pantalla para reanudar el modo d
 msgid "Clipboard Up"
 msgstr "Portapapeles arriba"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Portapapeles abajo"
 
 msgid "Clipboard Seamless"

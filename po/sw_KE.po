@@ -221,7 +221,7 @@ msgstr "Njia ya Mchezo imesitishwa, bofya skrini ili kuendelea na Hali ya Mchezo
 msgid "Clipboard Up"
 msgstr "Ubao wa kunakili Juu"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Clipboard Chini"
 
 msgid "Clipboard Seamless"

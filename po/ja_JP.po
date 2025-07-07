@@ -297,28 +297,28 @@ msgid "Cancel"
 msgstr "キャンセル"
 
 #~ msgid "Password is required"
-#~ msgstr """"""""""""""パスワードが必要です"
+#~ msgstr "パスワードが必要です"
 
 #~ msgid "viewport drag"
-#~ msgstr """"""""""""""ビューポートをドラッグ"
+#~ msgstr "ビューポートをドラッグ"
 
 #~ msgid "Active Mouse Button"
-#~ msgstr """"""""""""""アクティブなマウスボタン"
+#~ msgstr "アクティブなマウスボタン"
 
 #~ msgid "No mousebutton"
-#~ msgstr """"""""""""""マウスボタンなし"
+#~ msgstr "マウスボタンなし"
 
 #~ msgid "Left mousebutton"
-#~ msgstr """"""""""""""左マウスボタン"
+#~ msgstr "左マウスボタン"
 
 #~ msgid "Middle mousebutton"
-#~ msgstr """"""""""""""中マウスボタン"
+#~ msgstr "中マウスボタン"
 
 #~ msgid "Right mousebutton"
-#~ msgstr """"""""""""""右マウスボタン"
+#~ msgstr "右マウスボタン"
 
 #~ msgid "Send Password"
-#~ msgstr """"""""""""""パスワードを送信"
+#~ msgstr "パスワードを送信"
 
 msgid "Keys"
 msgstr "「キー」"
@@ -335,7 +335,7 @@ msgstr "「ゲームモードが一時停止しました。ゲームモードを
 msgid "Clipboard Up"
 msgstr "「クリップボードアップ」"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "「クリップボードダウン」"
 
 msgid "Clipboard Seamless"

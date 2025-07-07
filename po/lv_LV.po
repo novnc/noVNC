@@ -221,7 +221,7 @@ msgstr "Spēles režīms apturēts, noklikšķiniet uz ekrāna, lai atsāktu sp�
 msgid "Clipboard Up"
 msgstr "Starpliktuve uz augšu"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Starpliktuve uz leju"
 
 msgid "Clipboard Seamless"

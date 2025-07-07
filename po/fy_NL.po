@@ -221,7 +221,7 @@ msgstr "Spulmodus ûnderbrutsen, klikje op it skerm om de spielmodus te hervatte
 msgid "Clipboard Up"
 msgstr "Klimboerd omheech"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Clipboard Down"
 
 msgid "Clipboard Seamless"

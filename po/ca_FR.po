@@ -221,7 +221,7 @@ msgstr "Mode de joc en pausa, feu clic a la pantalla per reprendre el mode de jo
 msgid "Clipboard Up"
 msgstr "Porta-retalls amunt"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Porta-retalls avall"
 
 msgid "Clipboard Seamless"

@@ -221,7 +221,7 @@ msgstr "Modalità di gioco in pausa, fai clic sullo schermo per riprendere la mo
 msgid "Clipboard Up"
 msgstr "Appunti in alto"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Appunti giù"
 
 msgid "Clipboard Seamless"

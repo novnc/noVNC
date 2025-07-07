@@ -221,7 +221,7 @@ msgstr "गेम मोड रुका हुआ है, गेम मोड �
 msgid "Clipboard Up"
 msgstr "क्लिपबोर्ड ऊपर"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "क्लिपबोर्ड डाउन"
 
 msgid "Clipboard Seamless"

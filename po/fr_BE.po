@@ -221,7 +221,7 @@ msgstr "Mode jeu en pause, cliquez sur l'écran pour reprendre le mode jeu."
 msgid "Clipboard Up"
 msgstr "Presse-papiers vers le haut"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Bloc-notes vers le bas"
 
 msgid "Clipboard Seamless"

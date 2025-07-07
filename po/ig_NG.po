@@ -221,7 +221,7 @@ msgstr "Ụdị egwuregwu kwụsịrị, pịa ihuenyo ka ịmaliteghachi ọn�
 msgid "Clipboard Up"
 msgstr "Klipbọọdụ Elu"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Klipbọọdụ ala"
 
 msgid "Clipboard Seamless"

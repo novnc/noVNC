@@ -310,7 +310,7 @@ msgstr "Modo de jogo pausado, clique na tela para retomar o modo de jogo."
 msgid "Clipboard Up"
 msgstr "Área de transferência para cima"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Área de transferência para baixo"
 
 msgid "Clipboard Seamless"

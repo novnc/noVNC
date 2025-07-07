@@ -221,7 +221,7 @@ msgstr "Mod Permainan dijeda, klik pada skrin untuk menyambung semula Mod Permai
 msgid "Clipboard Up"
 msgstr "Papan Keratan Atas"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Papan Klip ke Bawah"
 
 msgid "Clipboard Seamless"

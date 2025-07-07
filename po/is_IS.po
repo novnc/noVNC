@@ -221,7 +221,7 @@ msgstr "Hlé gert á leikjastillingu, smelltu á skjáinn til að halda áfram l
 msgid "Clipboard Up"
 msgstr "Klippborð upp"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Klippborð niður"
 
 msgid "Clipboard Seamless"

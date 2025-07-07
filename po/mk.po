@@ -221,7 +221,7 @@ msgstr "Режимот на игра е паузиран, кликнете на 
 msgid "Clipboard Up"
 msgstr "Таблата со исечоци нагоре"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Клипборд надолу"
 
 msgid "Clipboard Seamless"

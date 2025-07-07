@@ -221,7 +221,7 @@ msgstr "ໂໝດເກມຢຸດຊົ່ວຄາວ, ຄລິກທີ່�
 msgid "Clipboard Up"
 msgstr "ຄລິບບອດຂຶ້ນ"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "ຄລິບບອດລົງ"
 
 msgid "Clipboard Seamless"

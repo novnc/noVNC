@@ -221,7 +221,7 @@ msgstr "ਗੇਮ ਮੋਡ ਰੋਕਿਆ ਗਿਆ, ਗੇਮ ਮੋਡ ਨ�
 msgid "Clipboard Up"
 msgstr "ਕਲਿੱਪਬੋਰਡ ਅੱਪ"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "ਕਲਿੱਪਬੋਰਡ ਹੇਠਾਂ"
 
 msgid "Clipboard Seamless"

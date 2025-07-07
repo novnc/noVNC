@@ -221,8 +221,8 @@ msgstr "ﺔﺒﻌﻠﻟﺍ ﻊﺿﻭ ﻑﺎﻨﺌﺘﺳﻻ﻿ ﺔﺷﺎﺸﻟﺍ
 msgid "Clipboard Up"
 msgstr "ﺔﻈﻓﺎﺤﻟﺍ"
 
-msgid "CLipboard Down"
-msgstr "CLipboard Down"
+msgid "Clipboard Down"
+msgstr "Clipboard Down"
 
 msgid "Clipboard Seamless"
 msgstr "ﺲﻠﺴﻟﺍ ﺔﻈﻓﺎﺤﻟﺍ"

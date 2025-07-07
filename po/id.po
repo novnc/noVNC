@@ -221,7 +221,7 @@ msgstr "Mode Game dijeda, klik di layar untuk melanjutkan Mode Game."
 msgid "Clipboard Up"
 msgstr "Papan Klip Naik"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Papan klip Turun"
 
 msgid "Clipboard Seamless"

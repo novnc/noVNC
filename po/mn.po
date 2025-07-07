@@ -221,7 +221,7 @@ msgstr "Тоглоомын горим түр зогссон. Тоглоомын 
 msgid "Clipboard Up"
 msgstr "Цахилгаан санах ой"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Clipboard Down"
 
 msgid "Clipboard Seamless"

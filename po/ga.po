@@ -221,7 +221,7 @@ msgstr "Mód Cluiche ar sos, cliceáil ar an scáileán chun Mód Cluiche a atos
 msgid "Clipboard Up"
 msgstr "Gearrthaisce Suas"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Clipboard Down"
 
 msgid "Clipboard Seamless"

@@ -221,7 +221,7 @@ msgstr "Kua okioki te Aratau Keemu, pawhiria te mata ki te whakaara ano i te Ara
 msgid "Clipboard Up"
 msgstr "Papa Topenga ki runga"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Papa Topa ki Raro"
 
 msgid "Clipboard Seamless"

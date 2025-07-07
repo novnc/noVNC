@@ -221,7 +221,7 @@ msgstr "Joko modua pausatu da, egin klik pantailan Joko modua berriro hasteko"
 msgid "Clipboard Up"
 msgstr "Arbela gora"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Arbela behera"
 
 msgid "Clipboard Seamless"

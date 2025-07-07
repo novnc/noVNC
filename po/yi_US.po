@@ -221,7 +221,7 @@ msgstr "עדאָמ ליפּש רעדיוו כיז נעמענ וצ ןלעטשרא
 msgid "Clipboard Up"
 msgstr "ףיוראַ דראָבפּילק"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "פּאָראַ דראָבפּילק"
 
 msgid "Clipboard Seamless"

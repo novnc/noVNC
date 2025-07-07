@@ -221,7 +221,7 @@ msgstr "Imo yomdlalo imisiwe, cofa kwiscreen ukuze uqalise iMowudi yoMdlalo."
 msgid "Clipboard Up"
 msgstr "Ibhodi eqhotyoshwayo phezulu"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Clipboard Phantsi"
 
 msgid "Clipboard Seamless"

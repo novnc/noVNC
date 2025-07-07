@@ -221,7 +221,7 @@ msgstr "ഗെയിം മോഡ് താൽക്കാലികമായി 
 msgid "Clipboard Up"
 msgstr "ക്ലിപ്പ്ബോർഡ് അപ്പ്"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "ക്ലിപ്പ്ബോർഡ് ഡൗൺ"
 
 msgid "Clipboard Seamless"

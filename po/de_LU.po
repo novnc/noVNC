@@ -221,7 +221,7 @@ msgstr "Spielmodus angehalten, klicken Sie auf den Bildschirm, um den Spielmodus
 msgid "Clipboard Up"
 msgstr "Zwischenablage hoch"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Zwischenablage runter"
 
 msgid "Clipboard Seamless"

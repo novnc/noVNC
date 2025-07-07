@@ -221,7 +221,7 @@ msgstr "O'yin rejimi to'xtatildi, o'yin rejimini davom ettirish uchun ekranni bo
 msgid "Clipboard Up"
 msgstr "Bufer yuqoriga"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Klipboard pastga"
 
 msgid "Clipboard Seamless"

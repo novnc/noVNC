@@ -221,7 +221,7 @@ msgstr "ﺉړﮐﻭ ﮏﯿﻠﮐ ﯤﺪﻧﺎﺑ ﻦﯾﺮﮑﺳ ﻪﭘ ﻩﺭ�
 msgid "Clipboard Up"
 msgstr "ﻪﺗﺭﻮﭘ ډﺭﻮﺑ ﭗﯿﻠﮐ"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "ﻪﺘﮑښ ډﺭﻮﺑ ﭗﯿﻠﮐ"
 
 msgid "Clipboard Seamless"

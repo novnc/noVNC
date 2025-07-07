@@ -221,7 +221,7 @@ msgstr "Modul de joc a fost întrerupt, faceți clic pe ecran pentru a relua mod
 msgid "Clipboard Up"
 msgstr "Clipboard Up"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Clipboard Down"
 
 msgid "Clipboard Seamless"

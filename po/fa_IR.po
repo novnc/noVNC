@@ -221,7 +221,7 @@ msgstr "ﺪﯿﻨﮐ ﮏﯿﻠﮐ ﻪﺤﻔﺻ ﯼﻭﺭ ﯼﺯﺎﺑ ﺖﻟﺎ�
 msgid "Clipboard Up"
 msgstr "ﺩﺭﻮﺑ ﭗﯿﻠﮐ ﻻ﻿ﺎﺑ"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "ﻦﯿﯾﺎﭘ ﺩﺭﻮﺑ ﭗﯿﻠﮐ"
 
 msgid "Clipboard Seamless"

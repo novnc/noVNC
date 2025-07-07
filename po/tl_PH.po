@@ -221,8 +221,8 @@ msgstr "Naka-pause ang Game Mode, mag-click sa screen para ipagpatuloy ang Game 
 msgid "Clipboard Up"
 msgstr "Itaas ang Clipboard"
 
-msgid "CLipboard Down"
-msgstr "CLipboard Down"
+msgid "Clipboard Down"
+msgstr "Clipboard Down"
 
 msgid "Clipboard Seamless"
 msgstr "Clipboard Seamless"

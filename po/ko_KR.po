@@ -331,7 +331,7 @@ msgstr "\"게임 모드가 일시 중지되었습니다. 게임 모드를 다시
 msgid "Clipboard Up"
 msgstr "클립보드 위로"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "클립보드 아래로"
 
 msgid "Clipboard Seamless"

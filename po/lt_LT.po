@@ -221,7 +221,7 @@ msgstr "Žaidimo režimas pristabdytas, spustelėkite ekraną, kad atnaujintumė
 msgid "Clipboard Up"
 msgstr "Iškarpinė aukštyn"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Nuomėta mainų sritis"
 
 msgid "Clipboard Seamless"

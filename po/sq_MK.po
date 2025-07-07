@@ -221,7 +221,7 @@ msgstr "Modaliteti i lojës u ndërpre, klikoni në ekran për të rifilluar mod
 msgid "Clipboard Up"
 msgstr "Klipboard lart"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Clipboard poshtë"
 
 msgid "Clipboard Seamless"

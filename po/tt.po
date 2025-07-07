@@ -221,7 +221,7 @@ msgstr "Уен режимы туктады, Уен режимын дәвам и�
 msgid "Clipboard Up"
 msgstr "Такта өстә"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Такта асты"
 
 msgid "Clipboard Seamless"

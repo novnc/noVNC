@@ -221,7 +221,7 @@ msgstr "Modalità Logħba waqfa qasira, ikklikkja fuq l-iskrin biex terġa 'tibd
 msgid "Clipboard Up"
 msgstr "Clipboard Up"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "CLIPboard 'l isfel"
 
 msgid "Clipboard Seamless"

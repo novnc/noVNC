@@ -221,7 +221,7 @@ msgstr "თამაშის რეჟიმი შეჩერებული�
 msgid "Clipboard Up"
 msgstr "Clipboard Up"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Clipboard ქვემოთ"
 
 msgid "Clipboard Seamless"

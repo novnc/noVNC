@@ -221,7 +221,7 @@ msgstr "खेल मोड पज गरियो, खेल मोड पु�
 msgid "Clipboard Up"
 msgstr "क्लिपबोर्ड माथि"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "क्लिपबोर्ड तल"
 
 msgid "Clipboard Seamless"

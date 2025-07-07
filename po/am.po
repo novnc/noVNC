@@ -221,7 +221,7 @@ msgstr "የጨዋታ ሁነታ ባለበት ቆሟል፣ የጨዋታ ሁነታ�
 msgid "Clipboard Up"
 msgstr "ክሊፕቦርድ ወደ ላይ"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "ክሊፕቦርድ ወደታች"
 
 msgid "Clipboard Seamless"

@@ -221,7 +221,7 @@ msgstr "Game Mode e emisitsoe, tobetsa skrineng ho qala Mokhoa oa Papali hape."
 msgid "Clipboard Up"
 msgstr "Clipboard Up"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Clipboard Down"
 
 msgid "Clipboard Seamless"

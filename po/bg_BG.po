@@ -221,7 +221,7 @@ msgstr "Режимът на играта е на пауза, щракнете в
 msgid "Clipboard Up"
 msgstr "Клипборда нагоре"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Клипборда надолу"
 
 msgid "Clipboard Seamless"

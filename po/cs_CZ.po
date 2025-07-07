@@ -332,7 +332,7 @@ msgstr "Herní režim pozastaven, kliknutím na obrazovku obnovíte herní reži
 msgid "Clipboard Up"
 msgstr "Schránka nahoru"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Schránka dolů"
 
 msgid "Clipboard Seamless"

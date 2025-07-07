@@ -221,7 +221,7 @@ msgstr "Niato ny lalao lalao, tsindrio eo amin'ny efijery mba hanohy ny lalao la
 msgid "Clipboard Up"
 msgstr "Clipboard miakatra"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Clipboard Midina"
 
 msgid "Clipboard Seamless"

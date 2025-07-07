@@ -221,7 +221,7 @@ msgstr "Ойын режимі кідіртілді, ойын режимін жа
 msgid "Clipboard Up"
 msgstr "Аралық сақтағыш жоғары"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Аралық буфер төмен"
 
 msgid "Clipboard Seamless"

@@ -221,7 +221,7 @@ msgstr "Mängurežiim peatatud, mängurežiimi jätkamiseks klõpsake ekraanil."
 msgid "Clipboard Up"
 msgstr "Lõikelaud üles"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Lõikelaud alla"
 
 msgid "Clipboard Seamless"

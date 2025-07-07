@@ -221,7 +221,7 @@ msgstr "Ipo ere ti daduro, tẹ loju iboju lati bẹrẹ Ipo Ere."
 msgid "Clipboard Up"
 msgstr "Clipboard Up"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Clipboard isalẹ"
 
 msgid "Clipboard Seamless"

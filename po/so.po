@@ -221,7 +221,7 @@ msgstr "Qaabka ciyaarta waa la hakiyay, guji shaashadda si aad dib ugu bilowdo H
 msgid "Clipboard Up"
 msgstr "Clipboard Up"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Clipboard Down"
 
 msgid "Clipboard Seamless"

@@ -221,7 +221,7 @@ msgstr "ಗೇಮ್ ಮೋಡ್ ಅನ್ನು ವಿರಾಮಗೊಳಿಸ
 msgid "Clipboard Up"
 msgstr "ಕ್ಲಿಪ್ಬೋರ್ಡ್ ಅಪ್"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "ಕ್ಲಿಪ್ಬೋರ್ಡ್ ಡೌನ್"
 
 msgid "Clipboard Seamless"

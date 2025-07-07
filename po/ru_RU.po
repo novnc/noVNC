@@ -338,7 +338,7 @@ msgstr "Игровой режим приостановлен, нажмите н�
 msgid "Clipboard Up"
 msgstr "Буфер обмена вверх"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Буфер обмена вниз"
 
 msgid "Clipboard Seamless"

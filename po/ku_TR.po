@@ -221,7 +221,7 @@ msgstr "Moda lîstikê rawestiya, li ser ekranê bikirtînin da ku moda lîstik�
 msgid "Clipboard Up"
 msgstr "Clipboard Up"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Clipboard Down"
 
 msgid "Clipboard Seamless"

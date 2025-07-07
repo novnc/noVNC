@@ -221,7 +221,7 @@ msgstr "ગેમ મોડ થોભાવ્યો, ગેમ મોડ ફર
 msgid "Clipboard Up"
 msgstr "ક્લિપબોર્ડ ઉપર"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "ક્લિપબોર્ડ ડાઉન"
 
 msgid "Clipboard Seamless"

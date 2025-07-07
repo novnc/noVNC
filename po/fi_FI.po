@@ -221,7 +221,7 @@ msgstr "Pelitila keskeytetty, napsauta näyttöä jatkaaksesi pelitilaa."
 msgid "Clipboard Up"
 msgstr "Leikepöytä ylös"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "Leikepöytä alas"
 
 msgid "Clipboard Seamless"

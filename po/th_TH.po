@@ -221,7 +221,7 @@ msgstr "โหมดเกมหยุดชั่วคราว คลิก�
 msgid "Clipboard Up"
 msgstr "คลิปบอร์ดขึ้น"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "คลิปบอร์ดลง"
 
 msgid "Clipboard Seamless"

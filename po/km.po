@@ -221,7 +221,7 @@ msgstr "បានផ្អាកមុខងារហ្គេម ចុចល�
 msgid "Clipboard Up"
 msgstr "ក្ដារតម្បៀតខ្ទាស់ឡើង"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "ក្ដារតម្បៀតខ្ទាស់ចុះក្រោម"
 
 msgid "Clipboard Seamless"

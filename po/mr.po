@@ -221,7 +221,7 @@ msgstr "गेम मोडला विराम दिला, गेम मो
 msgid "Clipboard Up"
 msgstr "क्लिपबोर्ड वर"
 
-msgid "CLipboard Down"
+msgid "Clipboard Down"
 msgstr "क्लिपबोर्ड खाली"
 
 msgid "Clipboard Seamless"
