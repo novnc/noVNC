@@ -19,15 +19,15 @@ msgstr ""
 
 #: ../app/ui.js:395
 msgid "Connecting..."
-msgstr "연결중..."
+msgstr "연결 중..."
 
 #: ../app/ui.js:402
 msgid "Disconnecting..."
-msgstr "연결 해제중..."
+msgstr "연결 해제 중..."
 
 #: ../app/ui.js:408
 msgid "Reconnecting..."
-msgstr "재연결중..."
+msgstr "재연결 중..."
 
 #: ../app/ui.js:413
 msgid "Internal error"
@@ -35,52 +35,52 @@ msgstr "내부 오류"
 
 #: ../app/ui.js:1002
 msgid "Must set host"
-msgstr "호스트는 설정되어야 합니다."
+msgstr "서버 주소를 입력하세요"
 
 #: ../app/ui.js:1083
 msgid "Connected (encrypted) to "
-msgstr "다음과 (암호화되어) 연결되었습니다:"
+msgstr "암호화 연결됨: "
 
 #: ../app/ui.js:1085
 msgid "Connected (unencrypted) to "
-msgstr "다음과 (암호화 없이) 연결되었습니다:"
+msgstr "비암호화 연결됨: "
 
 #: ../app/ui.js:1108
 msgid "Something went wrong, connection is closed"
-msgstr "무언가 잘못되었습니다, 연결이 닫혔습니다."
+msgstr "오류가 발생해 연결이 끊어졌습니다"
 
 #: ../app/ui.js:1111
 msgid "Failed to connect to server"
-msgstr "서버에 연결하지 못했습니다."
+msgstr "서버 연결에 실패했습니다"
 
 #: ../app/ui.js:1121
 msgid "Disconnected"
-msgstr "연결이 해제되었습니다."
+msgstr "연결 해제됨"
 
 #: ../app/ui.js:1134
 msgid "New connection has been rejected with reason: "
-msgstr "새 연결이 다음 이유로 거부되었습니다:"
+msgstr "새 연결이 거부되었습니다. 이유: "
 
 #: ../app/ui.js:1137
 msgid "New connection has been rejected"
-msgstr "새 연결이 거부되었습니다."
+msgstr "새 연결이 거부되었습니다"
 
 #: ../app/ui.js:1158
 msgid "Password is required"
-msgstr "비밀번호가 필요합니다."
+msgstr "비밀번호가 필요합니다"
 
 #: ../vnc.html:91
 #: ../vnc.html:101
 msgid "Hide/Show the control bar"
-msgstr "컨트롤 바 숨기기/보이기"
+msgstr "제어바 숨기기/보이기"
 
 #: ../vnc.html:108
 msgid "Move/Drag Viewport"
-msgstr "움직이기/드래그 뷰포트"
+msgstr "화면 이동"
 
 #: ../vnc.html:108
 msgid "viewport drag"
-msgstr "뷰포트 드래그"
+msgstr "화면 끌기"
 
 #: ../vnc.html:114 ../vnc.html:117 ../vnc.html:120 ../vnc.html:123
 msgid "Active Mouse Button"
@@ -96,7 +96,7 @@ msgstr "왼쪽 마우스 버튼"
 
 #: ../vnc.html:120
 msgid "Middle mousebutton"
-msgstr "중간 마우스 버튼"
+msgstr "가운데 마우스 버튼"
 
 #: ../vnc.html:123
 msgid "Right mousebutton"
@@ -108,15 +108,15 @@ msgstr "키보드"
 
 #: ../vnc.html:126
 msgid "Show Keyboard"
-msgstr "키보드 보이기"
+msgstr "키보드 표시"
 
 #: ../vnc.html:133
 msgid "Extra keys"
-msgstr "기타 키들"
+msgstr "추가 키"
 
 #: ../vnc.html:133
 msgid "Show Extra Keys"
-msgstr "기타 키들 보이기"
+msgstr "추가 키 표시"
 
 #: ../vnc.html:138
 msgid "Ctrl"
@@ -124,7 +124,7 @@ msgstr "Ctrl"
 
 #: ../vnc.html:138
 msgid "Toggle Ctrl"
-msgstr "Ctrl 켜기/끄기"
+msgstr "Ctrl 토클"
 
 #: ../vnc.html:141
 msgid "Alt"
@@ -132,11 +132,11 @@ msgstr "Alt"
 
 #: ../vnc.html:141
 msgid "Toggle Alt"
-msgstr "Alt 켜기/끄기"
+msgstr "Alt 토글"
 
 #: ../vnc.html:144
 msgid "Send Tab"
-msgstr "Tab 보내기"
+msgstr "Tab 전송"
 
 #: ../vnc.html:144
 msgid "Tab"
@@ -148,7 +148,7 @@ msgstr "Esc"
 
 #: ../vnc.html:147
 msgid "Send Escape"
-msgstr "Esc 보내기"
+msgstr "Esc 전송"
 
 #: ../vnc.html:150
 msgid "Ctrl+Alt+Del"
@@ -156,15 +156,15 @@ msgstr "Ctrl+Alt+Del"
 
 #: ../vnc.html:150
 msgid "Send Ctrl-Alt-Del"
-msgstr "Ctrl+Alt+Del 보내기"
+msgstr "Ctrl+Alt+Del 전송"
 
 #: ../vnc.html:158
 msgid "Shutdown/Reboot"
-msgstr "셧다운/리붓"
+msgstr "종료/재시작"
 
 #: ../vnc.html:158
 msgid "Shutdown/Reboot..."
-msgstr "셧다운/리붓..."
+msgstr "종료/재시작..."
 
 #: ../vnc.html:164
 msgid "Power"
@@ -172,15 +172,15 @@ msgstr "전원"
 
 #: ../vnc.html:166
 msgid "Shutdown"
-msgstr "셧다운"
+msgstr "종료"
 
 #: ../vnc.html:167
 msgid "Reboot"
-msgstr "리붓"
+msgstr "재시작"
 
 #: ../vnc.html:168
 msgid "Reset"
-msgstr "리셋"
+msgstr "초기화"
 
 #: ../vnc.html:173 ../vnc.html:179
 msgid "Clipboard"
@@ -208,11 +208,11 @@ msgstr "보기 전용"
 
 #: ../vnc.html:211
 msgid "Clip to Window"
-msgstr "창에 클립"
+msgstr "창에 맞춤"
 
 #: ../vnc.html:214
 msgid "Scaling Mode:"
-msgstr "스케일링 모드:"
+msgstr "크기 조절 모드:"
 
 #: ../vnc.html:216
 msgid "None"
@@ -220,7 +220,7 @@ msgstr "없음"
 
 #: ../vnc.html:217
 msgid "Local Scaling"
-msgstr "로컬 스케일링"
+msgstr "로컬 크기 조절"
 
 #: ../vnc.html:218
 msgid "Remote Resizing"
@@ -232,7 +232,7 @@ msgstr "고급"
 
 #: ../vnc.html:226
 msgid "Repeater ID:"
-msgstr "중계 ID"
+msgstr "Repeater ID:"
 
 #: ../vnc.html:230
 msgid "WebSocket"
@@ -244,7 +244,7 @@ msgstr "암호화"
 
 #: ../vnc.html:236
 msgid "Host:"
-msgstr "호스트:"
+msgstr "서버 주소:"
 
 #: ../vnc.html:240
 msgid "Port:"
@@ -252,7 +252,7 @@ msgstr "포트:"
 
 #: ../vnc.html:244
 msgid "Path:"
-msgstr "위치:"
+msgstr "경로:"
 
 #: ../vnc.html:251
 msgid "Automatic Reconnect"
@@ -260,11 +260,11 @@ msgstr "자동 재연결"
 
 #: ../vnc.html:254
 msgid "Reconnect Delay (ms):"
-msgstr "재연결 지연 시간 (ms)"
+msgstr "재연결 지연 시간 (ms):"
 
 #: ../vnc.html:260
 msgid "Logging:"
-msgstr "로깅"
+msgstr "로그:"
 
 #: ../vnc.html:272
 msgid "Disconnect"
@@ -287,25 +287,25 @@ msgid "Cancel"
 msgstr "취소"
 
 msgid "Credentials are required"
-msgstr "\"자격 증명이 필요합니다\""
+msgstr "자격 증명이 필요합니다"
 
 msgid "Drag"
-msgstr "견인"
+msgstr "드래그"
 
 msgid "Toggle Windows"
-msgstr "\"창 전환\""
+msgstr "창 전환"
 
 msgid "Windows"
 msgstr "창"
 
 msgid "Quality:"
-msgstr "\"품질:\""
+msgstr "품질:"
 
 msgid "Compression level:"
 msgstr "압축 수준:"
 
 msgid "Show Dot when No Cursor"
-msgstr "\"커서가 없을 때 점 표시\""
+msgstr "커서가 없을 때 점 표시"
 
 msgid "Version:"
 msgstr "버전:"
@@ -314,130 +314,130 @@ msgid "Username:"
 msgstr "사용자 이름:"
 
 msgid "Send Credentials"
-msgstr "자격증명 보내기"
+msgstr "자격 증명 전송"
 
 msgid "Keys"
-msgstr "열쇠"
+msgstr "키"
 
 msgid "Game Cursor Mode"
 msgstr "게임 커서 모드"
 
 msgid "Press Esc Key to Exit Pointer Lock Mode"
-msgstr "\"포인터 잠금 모드를 종료하려면 Esc 키를 누르십시오\""
+msgstr "포인터 잠금 모드를 종료하려면 Esc 키를 누르세요"
 
 msgid "Game Mode paused, click on screen to resume Game Mode."
-msgstr "\"게임 모드가 일시 중지되었습니다. 게임 모드를 다시 시작하려면 화면을 클릭하십시오.\""
+msgstr "게임 모드가 일시 중지되었습니다. 화면을 클릭하여 재개하세요"
 
 msgid "Clipboard Up"
-msgstr "클립보드 위로"
+msgstr "클립보드 업"
 
-msgid "Clipboard Down"
-msgstr "클립보드 아래로"
+msgid "CLipboard Down"
+msgstr "클립보드 다운"
 
 msgid "Clipboard Seamless"
-msgstr "\"클립보드 원활한\""
+msgstr "원활한 클립보드"
 
 msgid "Prefer Local Cursor"
-msgstr "\"로컬 커서 선호\""
+msgstr "로컬 커서 선호"
 
 msgid "Translate keyboard shortcuts"
-msgstr "단축키 번역"
+msgstr "키보드 단축키 번역"
 
 msgid "Enable WebRTC UDP Transit"
-msgstr "\"WebRTC UDP 전송 활성화\""
+msgstr "WebRTC UDP 전송 활성화"
 
 msgid "Enable WebP Compression"
-msgstr "\"WebP 압축 활성화\""
+msgstr "WebP 압축 활성화"
 
 msgid "Enable Performance Stats"
-msgstr "\"성능 통계 활성화\""
+msgstr "성능 통계 활성화"
 
 msgid "Enable Pointer Lock"
-msgstr "\"포인터 잠금 활성화\""
+msgstr "포인터 잠금 활성화"
 
 msgid "IME Input Mode"
 msgstr "IME 입력 모드"
 
 msgid "Show Virtual Keyboard Control"
-msgstr "\"가상 키보드 제어 표시\""
+msgstr "가상 키보드 제어 표시"
 
 msgid "Toggle Control Panel via Keystrokes"
-msgstr "\"키 입력을 통한 제어판 전환\""
+msgstr "키 입력으로 제어판 전환"
 
 msgid "Render Native Resolution"
-msgstr "\"기본 해상도 렌더링\""
+msgstr "기본 해상도 렌더링"
 
 msgid "Keyboard Shortcuts"
 msgstr "키보드 단축키"
 
 msgid "Enable KasmVNC Keyboard Shortcuts"
-msgstr "\"KasmVNC 키보드 단축키 활성화\""
+msgstr "KasmVNC 키보드 단축키 활성화"
 
 msgid "1 - Toggle Control Panel"
-msgstr "\"1 - 제어판 전환\""
+msgstr "1 - 제어판 전환"
 
 msgid "2 - Toggle Game Pointer Mode"
-msgstr "\"2 - 게임 포인터 모드 전환\""
+msgstr "2 - 게임 포인터 모드 전환"
 
 msgid "3 - Toggle Pointer Lock"
-msgstr "\"3 - 포인터 잠금 전환\""
+msgstr "3 - 포인터 잠금 전환"
 
 msgid "Stream Quality"
-msgstr "\"스트림 품질\""
+msgstr "스트림 품질"
 
 msgid "Preset Modes:"
 msgstr "사전 설정 모드:"
 
 msgid "Static"
-msgstr "공전"
+msgstr "정적"
 
 msgid "Low"
-msgstr "낮은"
+msgstr "낮음"
 
 msgid "Medium"
-msgstr "중간"
+msgstr "보통"
 
 msgid "High"
-msgstr "높은"
+msgstr "높음"
 
 msgid "Extreme"
-msgstr "\"극심한\""
+msgstr "최고"
 
 msgid "Lossless"
 msgstr "무손실"
 
 msgid "Custom"
-msgstr "관습"
+msgstr "사용자 정의"
 
 msgid "Anti-Aliasing:"
 msgstr "안티 앨리어싱:"
 
 msgid "Auto Dynamic"
-msgstr "오토 다이내믹"
+msgstr "자동 동적"
 
 msgid "Off"
-msgstr "끄다"
+msgstr "끔"
 
 msgid "On"
-msgstr "에"
+msgstr "켬"
 
 msgid "Dynamic Quality Min:"
-msgstr "\"최소 동적 품질:\""
+msgstr "최소 동적 품질:"
 
 msgid "Dynamic Quality Max:"
-msgstr "\"동적 품질 최대:\""
+msgstr "최대 동적 품질:"
 
 msgid "Treat Lossless:"
-msgstr "무손실 치료:"
+msgstr "무손실 처리:"
 
 msgid "Frame Rate:"
-msgstr "\"프레임 속도:\""
+msgstr "프레임 속도:"
 
 msgid "Video JPEG Quality:"
-msgstr "\"비디오 JPEG 품질:\""
+msgstr "비디오 JPEG 품질:"
 
 msgid "Video WEBP Quality:"
-msgstr "\"비디오 WEBP 품질:\""
+msgstr "비디오 WEBP 품질:"
 
 msgid "Video Area:"
 msgstr "비디오 영역:"
@@ -446,7 +446,7 @@ msgid "Video Time:"
 msgstr "비디오 시간:"
 
 msgid "Video Out Time:"
-msgstr "비디오 종료 시간:"
+msgstr "영상 출력 시간:"
 
 msgid "Video Mode Width:"
 msgstr "비디오 모드 너비:"
@@ -455,25 +455,25 @@ msgid "Video Mode Height:"
 msgstr "비디오 모드 높이:"
 
 msgid "Documentation"
-msgstr "선적 서류 비치"
+msgstr "문서"
 
 msgid "Drag Viewport"
-msgstr "드래그 뷰포트"
+msgstr "화면 드래그"
 
 msgid "KasmVNC encountered an error:"
-msgstr "KasmVNC에 오류가 발생했습니다:"
+msgstr "KasmVNC에서 오류가 발생했습니다:"
 
 msgid "Displays"
 msgstr "디스플레이"
 
 msgid "Enable Threaded Decoding"
-msgstr "스레드 디코딩 활성화"
+msgstr "멀티스레드 디코딩 활성화"
 
 msgid "Arrange Displays"
 msgstr "디스플레이 정렬"
 
 msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
-msgstr "드래그 앤 드롭으로 디스플레이를 정렬하면 이전 모니터 오른쪽에 새 모니터가 추가됩니다."
+msgstr "드래그 앤 드롭으로 디스플레이를 정렬할 수 있습니다. 새 모니터는 이전 모니터의 오른쪽에 추가됩니다"
 
 msgid "Add Monitor"
 msgstr "모니터 추가"
@@ -482,7 +482,7 @@ msgid "Auto placement"
 msgstr "자동 배치"
 
 msgid "Identify"
-msgstr "식별하다"
+msgstr "식별하기"
 
 msgid "Done"
 msgstr "완료"
