@@ -41,6 +41,7 @@ import Keyboard from "../core/input/keyboard.js";
 import RFB from "../core/rfb.js";
 import { MouseButtonMapper, XVNC_BUTTONS } from "../core/mousebuttonmapper.js";
 import * as WebUtil from "./webutil.js";
+import { uuidv4 } from '../core/util/strings.js';
 
 const PAGE_TITLE = "KasmVNC";
 
@@ -70,7 +71,8 @@ const UI = {
     selectedMonitor: null,
     refreshRotation: 0,
     currentDisplay: null,
-    displayWindows: ['primary'],
+    displayWindows: new Map([['primary', 'primary']]),
+    registeredWindows: new Map([['primary', 'primary']]),
 
     supportsBroadcastChannel: (typeof BroadcastChannel !== "undefined"),
 
@@ -177,11 +179,11 @@ const UI = {
                 UI.hideKeyboardControls();
             }
         });
-        
-        window.addEventListener("unload", (e) => { 
-            if (UI.rfb) { 
-                UI.disconnect(); 
-            } 
+
+        window.addEventListener("unload", (e) => {
+            if (UI.rfb) {
+                UI.disconnect();
+            }
         });
 
         return Promise.resolve(UI.rfb);
@@ -378,7 +380,7 @@ const UI = {
         .pointerEvents({ holdDuration: 350 })
         .on("hold", (e) => {
             const buttonsEl = document.querySelector(".keyboard-controls");
-    
+
             const isOpen = buttonsEl.classList.contains("is-open");
             buttonsEl.classList.toggle("was-open", isOpen);
             buttonsEl.classList.toggle("is-open", !isOpen);
@@ -630,7 +632,7 @@ const UI = {
             UI.addClickHandle('noVNC_identify_monitors_button', UI._identify);
             UI.addClickHandle('noVNC_addMonitor', UI.addSecondaryMonitor);
             UI.addClickHandle('noVNC_refreshMonitors', UI.displaysRefresh);
-            
+
         }
     },
 
@@ -657,7 +659,7 @@ const UI = {
     isControlPanelItemClick(e) {
         if (!(e && e.target && e.target.classList && e.target.parentNode &&
             (
-                e.target.classList.contains('noVNC_button') && e.target.parentNode.id !== 'noVNC_modifiers' || 
+                e.target.classList.contains('noVNC_button') && e.target.parentNode.id !== 'noVNC_modifiers' ||
                 e.target.classList.contains('noVNC_button_div') ||
                 e.target.classList.contains('noVNC_heading')
             )
@@ -677,7 +679,7 @@ const UI = {
         document.documentElement.classList.remove("noVNC_disconnected");
 
         const transitionElem = document.getElementById("noVNC_transition_text");
-        if (WebUtil.isInsideKasmVDI())         
+        if (WebUtil.isInsideKasmVDI())
         {
             parent.postMessage({ action: 'connection_state', value: state}, '*' );
         }
@@ -753,7 +755,7 @@ const UI = {
             document.getElementById("noVNC_connection_stats").style.visibility = "hidden";
             UI.statsInterval = null;
         }
-        
+
     },
 
     threading() {
@@ -1459,10 +1461,10 @@ const UI = {
         UI.rfb = new RFB(document.getElementById('noVNC_container'),
                         document.getElementById('noVNC_keyboardinput'),
                         url,
-                        { 
+                        {
                             shared: UI.getSetting('shared'),
                             repeaterID: UI.getSetting('repeaterID'),
-                            credentials: { password: password } 
+                            credentials: { password: password }
                         },
                         true );
         UI.rfb.addEventListener("connect", UI.connectFinished);
@@ -1521,9 +1523,9 @@ const UI = {
                 .catch(() => {});
         }
         // KASM-960 workaround, disable seamless on Safari
-        if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) 
-        { 
-            UI.rfb.clipboardSeamless = false; 
+        if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent))
+        {
+            UI.rfb.clipboardSeamless = false;
         }
         UI.rfb.preferLocalCursor = UI.getSetting('prefer_local_cursor');
         UI.rfb.enableWebP = UI.getSetting('enable_webp');
@@ -1540,7 +1542,7 @@ const UI = {
                 window.attachEvent('onload', WindowLoad);
                 window.attachEvent('message', UI.receiveMessage);
             }
-            if (UI.rfb.clipboardDown){            
+            if (UI.rfb.clipboardDown){
                 UI.rfb.addEventListener("clipboard", UI.clipboardRx);
             }
             UI.rfb.addEventListener("disconnect", UI.disconnectedRx);
@@ -1553,7 +1555,7 @@ const UI = {
             UI._sessionTimeoutInterval = setInterval(function() {
                if (UI.rfb) {
                     const timeSinceLastActivityInS = (Date.now() - UI.rfb.lastActiveAt) / 1000;
-                    let idleDisconnectInS = 1200; //20 minute default 
+                    let idleDisconnectInS = 1200; //20 minute default
                     if (Number.isFinite(parseFloat(UI.rfb.idleDisconnect))) {
                         idleDisconnectInS = parseFloat(UI.rfb.idleDisconnect) * 60;
                     }
@@ -2009,8 +2011,9 @@ const UI = {
     },
 
     async addSecondaryMonitor() {
-        let new_display_path = window.location.pathname.replace(/[^/]*$/, '')
-        let new_display_url = `${window.location.protocol}//${window.location.host}${new_display_path}screen.html`;
+        let new_display_path = window.location.pathname.replace(/[^/]*$/, '');
+        const windowId = uuidv4();
+        let new_display_url = `${window.location.protocol}//${window.location.host}${new_display_path}screen.html?windowId=${windowId}`;
 
         const auto_placement = document.getElementById('noVNC_auto_placement').checked
         if (auto_placement && 'getScreenDetails' in window) {
@@ -2020,11 +2023,11 @@ const UI = {
                 permission = (state === 'granted' || state === 'prompt');
                 if (permission && window.screen.isExtended) {
                     const details = await window.getScreenDetails()
-                    const current = UI.increaseCurrentDisplay(details) 
+                    const current = UI.increaseCurrentDisplay(details)
                     let screen = details.screens[current]
                     const options = 'left='+screen.availLeft+',top='+screen.availTop+',width='+screen.availWidth+',height='+screen.availHeight+',fullscreen'
                     let newdisplay = window.open(new_display_url, '_blank', options);
-                    UI.displayWindows.push(newdisplay);
+                    UI.displayWindows.set(windowId, newdisplay);
                     return;
                 }
             } catch (e) {
@@ -2032,17 +2035,19 @@ const UI = {
             // Nothing.
             }
         }
-        
+
         Log.Debug(`Opening a secondary display ${new_display_url}`)
         let newdisplay = window.open(new_display_url, '_blank', 'toolbar=0,location=0,menubar=0');
-        UI.displayWindows.push(newdisplay);
+        if (newdisplay) {
+            UI.displayWindows.set(windowId, newdisplay);
+        }
     },
 
     initMonitors(screenPlan) {
         const { scale } = UI.multiMonitorSettings()
         let monitors = []
         let showNativeResolution = false
-        let num = 1
+        let num = 1;
         screenPlan.screens.forEach(screen => {
             if (parseFloat(screen.pixelRatio) != 1) {
                 showNativeResolution = true
@@ -2078,7 +2083,7 @@ const UI = {
     },
 
     updateMonitors(screenPlan) {
-        UI.initMonitors(screenPlan) 
+        UI.initMonitors(screenPlan)
         UI.recenter()
         UI.draw()
     },
@@ -2132,7 +2137,7 @@ const UI = {
                 prev = monitors[i]
             }
         }
-    },  
+    },
 
     rect(ctx, x, y, w, h) {
         ctx.beginPath();
@@ -2223,7 +2228,9 @@ const UI = {
             serverWidth: Math.round(width * scale),
             screens
         }
-        UI.rfb.applyScreenPlan(screenPlan);
+        if (UI.rfb) {
+            UI.rfb.applyScreenPlan(screenPlan);
+        }
     },
 
 
@@ -2238,7 +2245,7 @@ const UI = {
         let dragok = false
         let startX;
         let startY;
-        
+
         offsetX = bb.left
         offsetY = bb.top
 
@@ -2306,7 +2313,7 @@ const UI = {
                 var dx = mx - startX;
                 var dy = my - startY;
 
-                // move each rect that isDragging 
+                // move each rect that isDragging
                 // by the distance the mouse has moved
                 // since the last mousemove
                 for (var i = 0; i < monitors.length; i++) {
@@ -2910,7 +2917,7 @@ const UI = {
             UI.showControlInput("noVNC_keyboard_button");
             UI.showControlInput("noVNC_toggle_extra_keys_button");
             UI.showControlInput("noVNC_clipboard_button");
-            UI.showControlInput("noVNC_game_mode_button"); 
+            UI.showControlInput("noVNC_game_mode_button");
         }
     },
 
@@ -2939,7 +2946,7 @@ const UI = {
             UI.closeControlbar();
             UI.showStatus('Press Esc Key to Exit Pointer Lock Mode', 'warn', 5000, true);
         } else {
-            //If in game mode 
+            //If in game mode
             if (UI.rfb.pointerRelative) {
                 UI.showStatus('Game Mode paused, click on screen to resume Game Mode.', 'warn', 5000, true);
             } else {
@@ -2982,7 +2989,7 @@ const UI = {
 
     screenRegistered(e) {
         console.log('screen registered')
-        
+
         // Get the current screen plan
         // When a new display is added, it is defaulted to be placed to the far right relative to existing displays and to the top
         if (UI.rfb) {
@@ -2999,7 +3006,7 @@ const UI = {
             UI.updateMonitors(screenPlan)
             UI._identify(UI.monitors)
         }
-        
+
     },
 
     //Helper to add options to dropdown.
