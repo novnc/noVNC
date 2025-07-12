@@ -135,8 +135,9 @@ export default class Display {
 
         this.onflush = () => {  }; // A flush request has finished
 
+        this._broadcastChannel = new BroadcastChannel(`channel_${this.screenID}`);
         if (!this._isPrimaryDisplay) {
-            window.addEventListener('message', this._handleSecondaryDisplayMessage.bind(this));
+            this._broadcastChannel.addEventListener('message', this._handleSecondaryDisplayMessage.bind(this));
         }
 
         Log.Debug("<< Display.constructor");
@@ -432,7 +433,7 @@ export default class Display {
                 pixelRatio: pixelRatio,
                 containerHeight: containerHeight,
                 containerWidth: containerWidth,
-                channel: UI.displayWindows.get(windowId),
+                channel: new BroadcastChannel(`channel_${screenID}`),
                 scale: scale,
                 x2: x + serverWidth,
                 y2: serverHeight
@@ -747,11 +748,8 @@ export default class Display {
             return;
         }
 
-        // Use threaded image decoder
-        if ((typeof ImageDecoder !== 'undefined') && (this._threading)) {
-            let imageDecoder = new ImageDecoder({ data: arr, type: mime });
-            let rect = {
-                'type': 'vid',
+        let rect = {
+                'type': 'img',
                 'img': null,
                 'x': x,
                 'y': y,
@@ -759,28 +757,43 @@ export default class Display {
                 'height': height,
                 'frame_id': frame_id,
                 'mime': mime
-            }
-            this._processRectScreens(rect);
-            imageDecoder.decode().then(this._handleVidChunk.bind(null,[rect,this,imageDecoder]));
-            return;
-        }
-
-        const blob = new Blob([arr], { type: mime });
-        const rect = {
-            'type': 'bitmap',
-            'img': null,
-            'x': x,
-            'y': y,
-            'width': width,
-            'height': height,
-            'frame_id': frame_id,
-            'mime': mime
         };
+
         this._processRectScreens(rect);
-        createImageBitmap(blob).then((bitmapImg) => {
-            rect.img = bitmapImg;
+
+        // Use threaded image decoder
+        if (!rect.inSecondary) {
+            if ((typeof ImageDecoder !== 'undefined') && (this._threading)) {
+                let imageDecoder = new ImageDecoder({data: arr, type: mime});
+                rect.type = 'vid'
+                imageDecoder.decode().then(this._handleVidChunk.bind(null, [rect, this, imageDecoder]));
+            } else {
+                const blob = new Blob([arr], {type: mime});
+
+                createImageBitmap(blob).then((bitmapImg) => {
+                    rect.type = 'bitmap';
+                    rect.img = bitmapImg;
+                    this._asyncRenderQPush(rect);
+                });
+            }
+        } else {
+            let src = "data: " + mime + ";base64," + Base64.encode(arr);
+
+            if (rect.inPrimary) {
+                const img = new Image();
+                rect.img = img;
+                rect.type = 'img';
+                img.src = src;
+            } else {
+                rect.type = "_img";
+            }
+
+            if (rect.inSecondary) {
+                rect.src = src;
+            }
+
             this._asyncRenderQPush(rect);
-        });
+        }
     }
 
     transparentRect(x, y, width, height, img, frame_id, hashId) {
@@ -1403,7 +1416,6 @@ export default class Display {
     }
 
     _processRectScreens(rect) {
-
         //find which screen this rect belongs to and adjust its x and y to be relative to the destination
         let indexes = [];
         rect.inPrimary = false;
