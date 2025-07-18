@@ -657,17 +657,12 @@ const UI = {
  * ------v------*/
     // Ignore clicks that are propogated from child elements in sub panels
     isControlPanelItemClick(e) {
-        if (!(e && e.target && e.target.classList && e.target.parentNode &&
-            (
-                e.target.classList.contains('noVNC_button') && e.target.parentNode.id !== 'noVNC_modifiers' ||
-                e.target.classList.contains('noVNC_button_div') ||
-                e.target.classList.contains('noVNC_heading')
-            )
-            )) {
+        if (!e?.target?.classList || !e?.target?.parentNode)
             return false;
-        }
 
-        return true;
+        return e.target.classList.contains('noVNC_button') && e.target.parentNode?.id !== 'noVNC_modifiers' ||
+                e.target.classList.contains('noVNC_button_div') ||
+                e.target.classList.contains('noVNC_heading');
     },
 
     // Disable/enable controls depending on connection state
@@ -1417,6 +1412,7 @@ const UI = {
  * ------v------*/
 
     connect(event, password) {
+        Log.Debug("UI.connect");
 
         // Ignore when rfb already exists
         if (typeof UI.rfb !== 'undefined') {
@@ -1711,6 +1707,7 @@ const UI = {
     //receive message from parent window
     receiveMessage(event) {
         if (event.data && event.data.action) {
+            Log.Debug("Received message from parent window: " + event.data.action);
             switch (event.data.action) {
                 case 'clipboardsnd':
                     if (UI.rfb && UI.rfb.clipboardUp) {

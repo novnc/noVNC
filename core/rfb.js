@@ -399,6 +399,7 @@ export default class RFB extends EventTargetMixin {
 
     get viewOnly() { return this._viewOnly; }
     set viewOnly(viewOnly) {
+        Log.Debug("Setting viewOnly to " + viewOnly);
         this._viewOnly = viewOnly;
 
         if (this._rfbConnectionState === "connecting" ||
@@ -986,7 +987,6 @@ export default class RFB extends EventTargetMixin {
             if (!keysym) {
                 return;
             }
-            Log.Info("Sending keysym (" + (down ? "down" : "up") + "): " + keysym);
             if (this._isPrimaryDisplay) {
                 RFB.messages.keyEvent(this._sock, keysym, down ? 1 : 0);
             } else {

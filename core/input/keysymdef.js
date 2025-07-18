@@ -682,7 +682,7 @@ export default {
             return keysym;
         }
 
-        // General mapping as final fallback
+        // General mapping as the final fallback
         return 0x01000000 | u;
     },
 };
