@@ -663,7 +663,7 @@ export default class Display {
     * This must be called when switching between transit modes tcp/udp
     */
     clear() {
-       this._clearAsyncQueue();
+        this._clearAsyncQueue();
     }
 
     /*
@@ -672,6 +672,9 @@ export default class Display {
     dispose() {
         clearInterval(this._frameStatsInterval);
         this.clear();
+        if (this._targetCtx && this._target) {
+            this._targetCtx.clearRect(0,0, this._target.width, this._target.height);
+        }
     }
 
     fillRect(x, y, width, height, color, frame_id, fromQueue) {
