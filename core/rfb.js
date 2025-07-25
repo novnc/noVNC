@@ -1863,6 +1863,8 @@ export default class RFB extends EventTargetMixin {
                         RFB.messages.pointerEvent(this._sock, this._mousePos.x, this._mousePos.y, this._mouseButtonMask);
                         Log.Debug('Simulated Left Click on secondary display.');
                     }
+
+                    this._setLastActive();
                     break;
                 case 'mousedown':
                     coords = this._display.getServerRelativeCoordinates(event.data.screenIndex, event.data.args[0], event.data.args[1]);
@@ -1870,6 +1872,7 @@ export default class RFB extends EventTargetMixin {
                     this._mousePos = { 'x': coords[0], 'y': coords[1] };
                     this._mouseButtonMask |= event.data.args[2];
                     RFB.messages.pointerEvent(this._sock, this._mousePos.x, this._mousePos.y, this._mouseButtonMask);
+                    this._setLastActive();
                     break;
                 case 'mouseup':
                     coords = this._display.getServerRelativeCoordinates(event.data.screenIndex, event.data.args[0], event.data.args[1]);
@@ -1877,15 +1880,18 @@ export default class RFB extends EventTargetMixin {
                     this._mousePos = { 'x': coords[0], 'y': coords[1] };
                     this._mouseButtonMask &= ~event.data.args[2];
                     RFB.messages.pointerEvent(this._sock, this._mousePos.x, this._mousePos.y, this._mouseButtonMask);
+                    this._setLastActive();
                     break;
                 case 'scroll':
                     coords = this._display.getServerRelativeCoordinates(event.data.screenIndex, event.data.args[0], event.data.args[1]);
                     this._mouseLastScreenIndex = event.data.screenIndex;
                     this._mousePos = { 'x': coords[0], 'y': coords[1] };
                     RFB.messages.pointerEvent(this._sock, this._mousePos.x, this._mousePos.y, 0, event.data.args[2], event.data.args[3]);
+                    this._setLastActive();
                     break;
                 case 'keyEvent':
                     RFB.messages.keyEvent(this._sock, ...event.data.args);
+                    this._setLastActive();
                     break;
                 case 'sendBinaryClipboard':
                     RFB.messages.sendBinaryClipboard(this._sock, ...event.data.args);
