@@ -1165,13 +1165,17 @@ const UI = {
     getSetting(name) {
         const ctrl = document.getElementById('noVNC_setting_' + name);
         let val = WebUtil.readSetting(name);
-        if (typeof val !== 'undefined' && val !== null && ctrl.type === 'checkbox') {
-            if (val.toString().toLowerCase() in {'0': 1, 'no': 1, 'false': 1}) {
+
+        if (val != null && ctrl.type === 'checkbox') {
+            const str = String(val).toLowerCase();
+            const falseStrings = [ '0', 'no', 'false'];
+            if (falseStrings.includes(str)) {
                 val = false;
             } else {
                 val = true;
             }
         }
+
         return val;
     },
 
