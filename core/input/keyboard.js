@@ -18,7 +18,7 @@ import * as browser from "../util/browser.js";
 
 const thresholdTime = 16;
 export default class Keyboard {
-    constructor(screenInput, touchInput) {
+    constructor(screenInput, touchInput, keyboardInput) {
         this._screenInput = screenInput;
         this._touchInput = touchInput;
 
@@ -28,6 +28,17 @@ export default class Keyboard {
 
         this._rfbKeyQueue = [];
         this._lastSendTime = 0;
+
+        this._layoutMap = null;
+
+        if (keyboardInput?.getLayoutMap) {
+            keyboardInput.getLayoutMap().then((map) => {
+                this._layoutMap = map;
+                Log.Debug("Loaded keyboard layout map");
+            }).catch((err) => {
+                Log.Error("Failed to get layout map:", err);
+            });
+        }
 
         // keep these here so we can refer to them later
         this._eventHandlers = {
@@ -46,7 +57,6 @@ export default class Keyboard {
         this._enableIME = false;
         this._imeStarted = false;
         this._lastKeyboardInput = null;
-        this._defaultKeyboardInputLen = 100;
         this._keyboardInputReset();
         this._translateShortcuts = true;
     }
@@ -234,7 +244,7 @@ export default class Keyboard {
             Log.Debug("Non-IME input change, sending new characters");
             const newValue = e.data;
 
-            for (let i = 0; i < newValue.length; i++) {
+            for (let i = 0; i < newValue?.length; i++) {
                 this._sendKeyStroke(keysyms.lookup(newValue.charCodeAt(i)), 'Unidentified');
             }
 
@@ -259,6 +269,18 @@ export default class Keyboard {
         let keysym = KeyboardUtil.getKeysym(e);
         this.clearKeysDown(e);
         Log.Debug("Key Down: " + e.keyCode + " code: " + code + " keysym: " + keysym);
+
+        if (e.ctrlKey && !e.metaKey && !e.altKey) {
+            const layoutChar = this._getLayoutChar(code);
+            if (layoutChar?.length === 1) {
+                const charCode = layoutChar.charCodeAt(0);
+                const layoutKeysym = keysyms.lookup(charCode);
+                if (layoutKeysym) {
+                    keysym = layoutKeysym;
+                    Log.Debug(`Remapped keysym for Ctrl+: ${layoutChar} (${layoutKeysym})`);
+                }
+            }
+        }
 
         // Windows doesn't have a proper AltGr, but handles it using
         // fake Ctrl+Alt. However the remote end might not be Windows,
@@ -291,8 +313,7 @@ export default class Keyboard {
                 // If it's a virtual keyboard then it should be
                 // sufficient to just send press and release right
                 // after each other
-                this._sendKeyEvent(keysym, code, true);
-                this._sendKeyEvent(keysym, code, false);
+                this._sendKeyStroke(keysym, code);
             }
 
             stopEvent(e);
@@ -346,8 +367,7 @@ export default class Keyboard {
         // which toggles on each press, but not on release. So pretend
         // it was a quick press and release of the button.
         if ((browser.isMac() || browser.isIOS()) && (code === 'CapsLock')) {
-            this._sendKeyEvent(KeyTable.XK_Caps_Lock, 'CapsLock', true);
-            this._sendKeyEvent(KeyTable.XK_Caps_Lock, 'CapsLock', false);
+            this._sendKeyStroke(KeyTable.XK_Caps_Lock, 'CapsLock');
             stopEvent(e);
             return;
         }
@@ -360,8 +380,7 @@ export default class Keyboard {
                             KeyTable.XK_Hiragana,
                             KeyTable.XK_Romaji ];
         if (browser.isWindows() && jpBadKeys.includes(keysym)) {
-            this._sendKeyEvent(keysym, code, true);
-            this._sendKeyEvent(keysym, code, false);
+            this._sendKeyStroke(keysym, code);
             stopEvent(e);
             return;
         }
@@ -400,8 +419,7 @@ export default class Keyboard {
 
         // See comment in _handleKeyDown()
         if ((browser.isMac() || browser.isIOS()) && (code === 'CapsLock')) {
-            this._sendKeyEvent(KeyTable.XK_Caps_Lock, 'CapsLock', true);
-            this._sendKeyEvent(KeyTable.XK_Caps_Lock, 'CapsLock', false);
+            this._sendKeyStroke(KeyTable.XK_Caps_Lock, 'CapsLock');
             return;
         }
 
@@ -452,6 +470,13 @@ export default class Keyboard {
         //Firefox does not seem to fire key events for IME interaction but Chrome does
         //TODO: potentially skip this for Firefox browsers, needs more testing with different IME types
         return e.keyCode in imekeys;
+    }
+
+    _getLayoutChar(code) {
+        if (this._layoutMap?.get(code)) {
+            return this._layoutMap.get(code);
+        }
+        return null;
     }
 
     // ===== PUBLIC METHODS =====

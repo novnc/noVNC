@@ -296,7 +296,7 @@ export default class RFB extends EventTargetMixin {
         this._decoders[encodings.encodingTightPNG] = new TightPNGDecoder();
         this._decoders[encodings.encodingUDP] = new UDPDecoder();
 
-        this._keyboard = new Keyboard(this._canvas, touchInput);
+        this._keyboard = new Keyboard(this._canvas, touchInput, navigator.keyboard);
         this._keyboard.onkeyevent = this._handleKeyEvent.bind(this);
 
         this._gestures = new GestureHandler();
