@@ -132,12 +132,18 @@ export function setSetting(name, value) {
 // No days means only for this browser session
 export function writeSetting(name, value) {
     "use strict";
-    if (settings[name] === value) return;
-    settings[name] = value;
-    if (window.chrome && window.chrome.storage) {
-        window.chrome.storage.sync.set(settings);
-    } else {
-        localStorage.setItem(name, value);
+    if (settings[name] !== value) {
+        settings[name] = value;
+    }
+
+    try {
+        if (window.chrome?.storage) {
+            window.chrome.storage.sync.set({ [name]: value });
+        } else {
+            localStorage.setItem(name, value);
+        }
+    } catch (e) {
+        console.log("Failed to write setting: " + name + " = " + value);
     }
 }
 
