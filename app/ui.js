@@ -45,7 +45,7 @@ const UI = {
     inhibitReconnect: true,
     reconnectCallback: null,
     reconnectPassword: null,
-    lastTextCopiedFromTerminal: null,
+    lastCopiedTextFromTerminal: null,
 
     async start(options={}) {
         UI.customSettings = options.settings || {};
