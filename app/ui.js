@@ -45,6 +45,7 @@ const UI = {
     inhibitReconnect: true,
     reconnectCallback: null,
     reconnectPassword: null,
+    lastTextCopiedFromTerminal: null,
 
     async start(options={}) {
         UI.customSettings = options.settings || {};
@@ -996,8 +997,14 @@ const UI = {
 
     clipboardReceive(e) {
         Log.Debug(">> UI.clipboardReceive: " + e.detail.text.substr(0, 40) + "...");
-        document.getElementById('noVNC_clipboard_text').value = e.detail.text;
-        Log.Debug("<< UI.clipboardReceive");
+        const clipboard = document.getElementById('noVNC_clipboard_text');
+        if(this.lastCopiedTextFromTerminal !== e.detail.text) {
+            clipboard.value += (clipboard.value ? "\n" : "") + e.detail.text;
+            Log.Debug("<< UI.clipboardReceive");
+            this.lastCopiedTextFromTerminal = e.detail.text;
+        }else {
+            Log.Debug("<< UI.clipboardReceive, no change");
+        }
     },
 
     clipboardSend() {
