@@ -1458,6 +1458,9 @@ const UI = {
         }
         url += '/' + path;
 
+        UI.monitors = [];
+        UI.sortedMonitors = [];
+        UI.showControlInput('noVNC_displays_button')
         UI.rfb = new RFB(document.getElementById('noVNC_container'),
                         document.getElementById('noVNC_keyboardinput'),
                         url,
@@ -1604,6 +1607,7 @@ const UI = {
         UI.updateVisualState('disconnecting');
 
         clearInterval(UI._sessionTimeoutInterval);
+        UI.hideControlInput('noVNC_displays_button');
     },
 
     reconnect() {
@@ -1657,6 +1661,8 @@ const UI = {
         UI.connected = false;
 
         UI.rfb = undefined;
+        UI.monitors = [];
+        UI.sortedMonitors = [];
 
         if (!e.detail.clean) {
             UI.updateVisualState('disconnected');
@@ -1969,11 +1975,13 @@ const UI = {
 
     openDisplays() {
         document.getElementById('noVNC_displays').classList.add("noVNC_open");
-        if (UI.monitors.length < 1 ) {
+        if (UI.monitors.length < 1  && UI.rfb) {
             let screenPlan = UI.rfb.getScreenPlan();
-            UI.initMonitors(screenPlan)
+            UI.initMonitors(screenPlan);
         }
-        UI.displayMonitors()
+        if (UI.monitors.length > 0) {
+            UI.displayMonitors()
+        }
     },
 
     closeDisplays() {
@@ -2106,6 +2114,9 @@ const UI = {
     recenter() {
         const monitors = UI.sortedMonitors
         UI.removeSpaces()
+        if (!monitors.length) {
+            return;
+        }
         const { startLeft, startTop } = UI.getSizes(monitors)
 
         for (var i = 0; i < monitors.length; i++) {
@@ -2183,11 +2194,12 @@ const UI = {
     },
 
     getSizes(monitors) {
-        const { canvasWidth, canvasHeight } = UI.multiMonitorSettings()
-        let top = monitors[0].y
-        let left = monitors[0].x
-        let width = monitors[0].w
-        let height = monitors[0].h
+        const { canvasWidth, canvasHeight } = UI.multiMonitorSettings();
+
+        let top = monitors[0].y;
+        let left = monitors[0].x;
+        let width = monitors[0].w;
+        let height = monitors[0].h;
         for (var i = 0; i < monitors.length; i++) {
             var m = monitors[i];
             if (m.x < left) {
@@ -3017,12 +3029,12 @@ const UI = {
         UI.sendMessage('sharedSessionUserJoin', e.detail)
 
     },
-    
+
     sharedSessionUserLeft(e) {
         Log.Info('shared session user left: ' + e.detail)
         UI.sendMessage('sharedSessionUserLeft', e.detail)
     },
-    
+
     //Helper to add options to dropdown.
     addOption(selectbox, text, value) {
         const optn = document.createElement("OPTION");
