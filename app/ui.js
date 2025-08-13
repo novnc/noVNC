@@ -1566,7 +1566,13 @@ const UI = {
                     }
 
                     if (timeSinceLastActivityInS > idleDisconnectInS) {
+                        Log.Warn("Idle Disconnect reached, disconnecting rfb session...");
                         parent.postMessage({ action: 'idle_session_timeout', value: 'Idle session timeout exceeded'}, '*' );
+                        
+                        // in some cases the intra-frame message could be blocked, fall back to navigating to a disconnect page.
+                        setTimeout(function() {
+                            window.location.replace('/disconnected.html');
+                        }, 10000);
                     } else {
                         //send keep-alive
                         UI.rfb.sendKey(1, null, false);
