@@ -1571,7 +1571,7 @@ const UI = {
                         
                         // in some cases the intra-frame message could be blocked, fall back to navigating to a disconnect page.
                         setTimeout(function() {
-                            window.location.replace('/disconnected.html');
+                            window.location.replace('disconnected.html');
                         }, 10000);
                     } else {
                         //send keep-alive

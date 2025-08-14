@@ -13,11 +13,11 @@ export default defineConfig({
   plugins: [
     viteCommonjs(),
     envCompatible(),
-    //ViteMinifyPlugin(),
+    ViteMinifyPlugin(),
     ViteRestart({restart: ['core/**', 'app/**','kasmvnc-version.txt']}),
   ],
   build: {
-    sourcemap: true,
+    sourcemap: false,
     rollupOptions: {
       input: {
         main: './index.html',
