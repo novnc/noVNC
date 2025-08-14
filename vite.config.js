@@ -17,6 +17,7 @@ export default defineConfig({
     ViteRestart({restart: ['core/**', 'app/**','kasmvnc-version.txt']}),
   ],
   build: {
+    sourcemap: false,
     rollupOptions: {
       input: {
         main: './index.html',
