@@ -21,6 +21,7 @@ import Inflator from "./inflator.js";
 import Deflator from "./deflator.js";
 import Keyboard from "./input/keyboard.js";
 import initializePrinterRelay from "./output/printer.js";
+import initializeSmartcardRelay from "./output/smartcard.js";
 import GestureHandler from "./input/gesturehandler.js";
 import Cursor from "./util/cursor.js";
 import Websock from "./websock.js";
@@ -3102,6 +3103,7 @@ export default class RFB extends EventTargetMixin {
 
         //Register pipe based extensions
         initializePrinterRelay(this);
+        initializeSmartcardRelay(this);
 
         return true;
     }
