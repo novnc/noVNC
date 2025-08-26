@@ -28,6 +28,7 @@ const UI = {
 
     connected: false,
     desktopName: "",
+    wakelock: null,
 
     statusTimeout: null,
     hideKeyboardTimeout: null,
@@ -189,6 +190,7 @@ const UI = {
         UI.initSetting('repeaterID', '');
         UI.initSetting('reconnect', false);
         UI.initSetting('reconnect_delay', 5000);
+        UI.initSetting('use_wakelock', false);
     },
     // Adds a link to the label elements on the corresponding input elements
     setupSettingLabels() {
@@ -1154,6 +1156,10 @@ const UI = {
         UI.showStatus(msg);
         UI.updateVisualState('connected');
 
+        if (UI.getSetting('use_wakelock')) {
+            UI.wakelockAcquire();
+        }
+
         // Do this last because it can only be used on rendered elements
         UI.rfb.focus();
     },
@@ -1166,6 +1172,11 @@ const UI = {
         // the server, we need to do it here as well since
         // UI.disconnect() won't be used in those cases.
         UI.connected = false;
+
+        if (UI.wakelock !== null) {
+            UI.wakelock.release();
+            UI.wakelock = null;
+        }
 
         UI.rfb = undefined;
 
@@ -1794,6 +1805,36 @@ const UI = {
         optn.value = value;
         selectbox.options.add(optn);
     },
+
+    wakelockAcquire() {
+        if (!("wakeLock" in navigator)) {
+            Log.Warn("wakelock api not supported. Is this page served by https?");
+            return;
+        }
+        navigator.wakeLock.request("screen").then((wakelock) => {
+            UI.wakelock = wakelock;
+            Log.Info("acquired wakelock successfully.");
+
+            wakelock.addEventListener("release", UI.wakelockReleased);
+        }).catch(err => Log.Error("Failed to acquire wakelock: " + err));
+    },
+
+    wakelockReleased(e) {
+        if (UI.wakelock !== null && document.visibilityState !== "visible") {
+            Log.Warn("Wakelock released due to document becoming hidden, trying to reacquire");
+            const visibilityListener = () => {
+                Log.Debug("Wakelock visibility listener state change: " + document.visibilityState);
+                if (document.visibilityState === "visible") {
+                    UI.wakelockAcquire();
+                    document.removeEventListener("visibilitychange", visibilityListener);
+                }
+            };
+            document.addEventListener("visibilitychange", visibilityListener);
+        } else {
+            Log.Debug("Wakelock released, likely as part of disconnecting.");
+        }
+    },
+
 
 /* ------^-------
  *    /MISC
