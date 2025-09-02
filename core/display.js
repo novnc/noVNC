@@ -1335,6 +1335,7 @@ export default class Display {
                                 }
                                 break;
                             case 'img':
+                            case '_img':
                                 secondaryScreenRects++;
                                 if (this._screens[screenLocation.screenIndex].channel) {
                                     this._screens[screenLocation.screenIndex].channel.postMessage({
