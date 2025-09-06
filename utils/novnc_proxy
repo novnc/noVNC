@@ -132,6 +132,14 @@ if [ -z "${HOST}" ]; then
     fi
 fi
 
+# Check if (cert | key) & self-sign are set, as they are incompatible
+if [ -n "$CERT" ] || [ -n "$KEY" ] && [ -n "$SELF_SIGN" ]; then
+    echo "Arguments --cert and --key and incompatible with --self-sign"
+    echo ""
+    usage
+    exit 1
+fi
+
 trap "cleanup" TERM QUIT INT EXIT
 
 # Find vnc.html
@@ -153,14 +161,25 @@ fi
 
 # Create self-signed certificates
 if [ -n "${SELF_SIGN}" ]; then
-	if [ ! -f $(pwd)/self.pem ]; then
-		echo "Generating Certificate for: ${SELF_SIGN}"
-		openssl req -x509 -newkey rsa:4096 -keyout key.pem -out self.pem -sha256 -days 3650 -nodes -subj "/C=XX/ST=NoVNC/L=NoVNC/O=NoVNC/OU=NoVNC/CN=${SELF_SIGN}"
-	fi
+    # Check if OpenSSL is installed
+    which openssl > /dev/null
+    if [ $? != 0 ]; then
+        echo "Unable to find OpenSSL, please ensure you have OpenSSL installed and available in \$PATH"
+        exit 1
+    fi
+    # Check that the file doesn't already exist
+	if [ -f $(pwd)/self.pem ]; then
+        read -p "$(pwd)/self.pem aleady exists, overwrite? (Y/N) " overwrite
+        if [ "$overwrite" != "Y" ]; then
+            echo "Not overwriting $(pwd)/self.pem"
+            exit 1
+        fi
+    fi
+	echo "Generating Certificate for: ${SELF_SIGN}"
+	openssl req -x509 -newkey rsa:4096 -keyout key.pem -out self.pem -sha256 -days 3650 -nodes -subj "/C=XX/ST=NoVNC/L=NoVNC/O=NoVNC/OU=NoVNC/CN=${SELF_SIGN}"
+
 	CERT=$(pwd)/self.pem
 	KEY=$(pwd)/key.pem
-	echo "Forcing SSL"
-	SSLONLY="--ssl-only"
 fi
 
 # Find self.pem
