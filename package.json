@@ -40,7 +40,7 @@
     "@babel/preset-env": "latest",
     "babel-plugin-import-redirect": "latest",
     "browserify": "latest",
-    "chai": "latest",
+    "chai": "<6.0.0",
     "commander": "latest",
     "eslint": "latest",
     "fs-extra": "latest",
