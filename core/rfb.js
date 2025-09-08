@@ -1111,9 +1111,11 @@ export default class RFB extends EventTargetMixin {
 
         let bmask = RFB._convertButtonMask(ev.buttons);
 
-        let down = ev.type == 'mousedown';
+        let down = false;
         switch (ev.type) {
             case 'mousedown':
+                down = true;
+            // eslint-disable-next-line no-fallthrough
             case 'mouseup':
                 if (this.dragViewport) {
                     if (down && !this._viewportDragging) {
