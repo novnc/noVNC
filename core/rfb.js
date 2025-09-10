@@ -173,6 +173,10 @@ export default class RFB extends EventTargetMixin {
         this._resizeTimeout = null;     // resize rate limiting
         this._mouseMoveTimer = null;
 
+        this._incfbureqDelay = 0;       // delay incremental FBU requests,
+        this._incfbureqTimer = false;   // disabled until first FBU
+        this._incfbureq = null;
+
         // Decoder states
         this._decoders = {};
 
@@ -411,6 +415,18 @@ export default class RFB extends EventTargetMixin {
         if (this._rfbConnectionState === 'connected') {
             this._sendEncodings();
         }
+    }
+
+    get incfbureqDelay() {
+        return this._incfbureqDelay;
+    }
+    set incfbureqDelay(delay) {
+        if (delay < this._incfbureqDelay && this._incfbureq ) {
+            clearTimeout(this._incfbureqTimer);
+            typeof this._incfbureq === 'function' && (this._incfbureq());
+        }
+        this._incfbureq = null;
+        this._incfbureqDelay = delay;
     }
 
     // ===== PUBLIC METHODS =====
@@ -2570,7 +2586,8 @@ export default class RFB extends EventTargetMixin {
                 ret = this._framebufferUpdate();
                 if (ret && !this._enabledContinuousUpdates) {
                     RFB.messages.fbUpdateRequest(this._sock, true, 0, 0,
-                                                 this._fbWidth, this._fbHeight);
+                                                 this._fbWidth, this._fbHeight,
+                                                 { rfb: this, delay: this._incfbureqDelay });
                 }
                 return ret;
 
@@ -2980,6 +2997,9 @@ export default class RFB extends EventTargetMixin {
                        this._FBU.encoding + ")");
             return false;
         }
+        if (this._incfbureqTimer === false) {
+            this._incfbureqTimer = null;
+        }
 
         try {
             return decoder.decodeRect(this._FBU.x, this._FBU.y,
@@ -3362,7 +3382,25 @@ RFB.messages = {
         sock.flush();
     },
 
-    fbUpdateRequest(sock, incremental, x, y, w, h) {
+    fbUpdateRequest(sock, incremental, x, y, w, h, { rfb, delay } = {}) {
+        if (incremental && delay !== 0 && rfb?._incfbureqTimer !== false ) {
+            if (delay !== undefined) {
+                if (rfb._incfbureqTimer === null) {
+                    // save bound function for calling in incfbureqDelay setter
+                    // if value is changed while request is delayed
+                    rfb._incfbureq = RFB.messages.fbUpdateRequest.bind(
+                        null,
+                        sock, incremental, x, y, w, h,
+                        { rfb, delay: undefined }
+                    );
+                    rfb._incfbureqTimer = setTimeout(rfb._incfbureq, delay);
+                }
+                return;
+            } else {
+                rfb._incfbureq = null;
+                rfb._incfbureqTimer = null;
+            }
+        }
         if (typeof(x) === "undefined") { x = 0; }
         if (typeof(y) === "undefined") { y = 0; }
 
