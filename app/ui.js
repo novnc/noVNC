@@ -16,6 +16,7 @@ import KeyTable from "../core/input/keysym.js";
 import keysyms from "../core/input/keysymdef.js";
 import Keyboard from "../core/input/keyboard.js";
 import RFB from "../core/rfb.js";
+import WakeLockManager from './wakelock.js';
 import * as WebUtil from "./webutil.js";
 
 const PAGE_TITLE = "noVNC";
@@ -45,6 +46,8 @@ const UI = {
     inhibitReconnect: true,
     reconnectCallback: null,
     reconnectPassword: null,
+
+    wakeLockManager: new WakeLockManager(),
 
     async start(options={}) {
         UI.customSettings = options.settings || {};
@@ -189,6 +192,7 @@ const UI = {
         UI.initSetting('repeaterID', '');
         UI.initSetting('reconnect', false);
         UI.initSetting('reconnect_delay', 5000);
+        UI.initSetting('keep_device_awake', false);
     },
     // Adds a link to the label elements on the corresponding input elements
     setupSettingLabels() {
@@ -371,6 +375,8 @@ const UI = {
         UI.addSettingChangeHandler('view_only', UI.updateViewOnly);
         UI.addSettingChangeHandler('show_dot');
         UI.addSettingChangeHandler('show_dot', UI.updateShowDotCursor);
+        UI.addSettingChangeHandler('keep_device_awake');
+        UI.addSettingChangeHandler('keep_device_awake', UI.updateRequestWakelock);
         UI.addSettingChangeHandler('host');
         UI.addSettingChangeHandler('port');
         UI.addSettingChangeHandler('path');
@@ -1072,6 +1078,10 @@ const UI = {
             url.protocol = (window.location.protocol === "https:") ? 'wss:' : 'ws:';
         }
 
+        if (UI.getSetting('keep_device_awake')) {
+            UI.wakeLockManager.acquire();
+        }
+
         try {
             UI.rfb = new RFB(document.getElementById('noVNC_container'),
                              url.href,
@@ -1171,6 +1181,7 @@ const UI = {
         UI.connected = false;
 
         UI.rfb = undefined;
+        UI.wakeLockManager.release();
 
         if (!e.detail.clean) {
             UI.updateVisualState('disconnected');
@@ -1818,6 +1829,16 @@ const UI = {
         // Display the desktop name in the document title
         document.title = e.detail.name + " - " + PAGE_TITLE;
     },
+
+    updateRequestWakelock() {
+        if (!UI.rfb) return;
+        if (UI.getSetting('keep_device_awake')) {
+            UI.wakeLockManager.acquire();
+        } else {
+            UI.wakeLockManager.release();
+        }
+    },
+
 
     bell(e) {
         if (UI.getSetting('bell') === 'on') {
