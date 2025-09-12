@@ -87,6 +87,15 @@ const extendedClipboardActionPeek    = 1 << 26;
 const extendedClipboardActionNotify  = 1 << 27;
 const extendedClipboardActionProvide = 1 << 28;
 
+// [GEOMETRY SPECIFICATIONS](https://www.x.org/releases/X11R7.7/doc/man/man7/X.7.xhtml#heading7)
+const geometryRegExp = new RegExp([
+    '^',
+    '(?<width>0|[1-9][0-9]*)', 'x', '(?<height>0|[1-9][0-9]*)',
+    '(?:', '[+](?<left>0|[1-9][0-9]*)', '|', '[-](?<right>0|[1-9][0-9]*)', ')',
+    '(?:', '[+](?<top>0|[1-9][0-9]*)',  '|', '[-](?<bottom>0|[1-9][0-9]*)', ')',
+    '$',
+].join(''));
+
 export default class RFB extends EventTargetMixin {
     constructor(target, urlOrChannel, options) {
         if (!target) {
@@ -136,6 +145,19 @@ export default class RFB extends EventTargetMixin {
 
         this._fbWidth = 0;
         this._fbHeight = 0;
+        this._cropRect = {
+            geometry: undefined,
+            width: 0,
+            height: 0,
+            left: 0,
+            right: undefined,
+            top: 0,
+            bottom: undefined,
+            // we keep a redundant copy of fbWidth and fbHeight here
+            // to avoid conflicts with existing code
+            fbWidth: undefined,
+            fbHeight: undefined,
+        };
 
         this._fbName = "";
 
@@ -353,6 +375,45 @@ export default class RFB extends EventTargetMixin {
         this._updateScale();
         if (!scale && this._clipViewport) {
             this._updateClip();
+        }
+    }
+
+    get cropRect() {
+        const { width, height, left, right, top, bottom, fbWidth, fbHeight } = this._cropRect;
+        return `${width}x${height}${
+            !right ? `+${left}` : `-${right}`
+        }${
+            !bottom ? `+${top}` : `-${bottom}`
+        }${
+            width === fbWidth && height === fbHeight ? '' : ` (${fbWidth}x${fbHeight})`
+        }`;
+    }
+    set cropRect(geometry) {
+        const rect = Object.assign( this._cropRect, { geometry } );
+        const { fbWidth, fbHeight } = rect;
+        if (geometry && (geometry = geometry.match(geometryRegExp)?.groups)) {
+            Object.assign(rect, Object.fromEntries(
+                Object.entries(geometry).map(([k, v]) => ([k, v === undefined ? undefined : +v]))
+            ));
+        } else { // empty or invalid geometry
+            Object.assign(rect, {
+                width: 0,
+                height: 0,
+                left: 0,
+                right: undefined,
+                top: 0,
+                bottom: undefined,
+            });
+        }
+        const { width, height, left, top } = this._updateCropRect(fbWidth, fbHeight);
+        if (width && height) {
+            this._resize(width, height);
+            if (this._rfbConnectionState === 'connected') {
+                RFB.messages.fbUpdateRequest(this._sock, false, left, top, width, height);
+                this.dispatchEvent(new CustomEvent('croprectchanged', {
+                    detail: this.cropRect,
+                }));
+            }
         }
     }
 
@@ -781,6 +842,35 @@ export default class RFB extends EventTargetMixin {
             this._display.autoscale(size.w, size.h);
         }
         this._fixScrollbars();
+    }
+
+    _updateCropRect(fbWidth, fbHeight) {
+        const rect = this._cropRect;
+        const { fbWidth: prevFbWidth, fbHeight: prevFbHeight, geometry } = rect;
+        let { width, height, left, right, top, bottom } = Object.assign(rect, { fbWidth, fbHeight });
+        function compute(width, left, right, maxWidth) {
+            if (width === 0 || width > maxWidth) { width = maxWidth; }
+            if (right === undefined) {
+                if (left + width > maxWidth) {
+                    left = maxWidth - width;
+                }
+            } else {
+                if (right + width > maxWidth) {
+                    right = 0;
+                    left = 0;
+                } else {
+                    left = maxWidth - (right + width);
+                }
+            }
+            return [ width, left, right ];
+        }
+        [ width, left, right ] = compute(width, left, right, fbWidth);
+        [ height, top, bottom ] = compute(height, top, bottom, fbHeight);
+        Object.assign(rect, { width, height, left, right, top, bottom });
+        if (prevFbWidth !== fbWidth || prevFbHeight !== fbHeight) {
+            this.cropRect = geometry;
+        }
+        return rect;
     }
 
     // Requests a change of remote desktop size. This message is an extension
@@ -2141,8 +2231,9 @@ export default class RFB extends EventTargetMixin {
         if (this._sock.rQwait("server initialization", 24)) { return false; }
 
         /* Screen size */
-        const width = this._sock.rQshift16();
-        const height = this._sock.rQshift16();
+        const fbWidth = this._sock.rQshift16();
+        const fbHeight = this._sock.rQshift16();
+        const { width, height, left, top } = this._updateCropRect(fbWidth, fbHeight);
 
         /* PIXEL_FORMAT */
         const bpp         = this._sock.rQshift8();
@@ -2219,7 +2310,7 @@ export default class RFB extends EventTargetMixin {
 
         RFB.messages.pixelFormat(this._sock, this._fbDepth, true);
         this._sendEncodings();
-        RFB.messages.fbUpdateRequest(this._sock, false, 0, 0, this._fbWidth, this._fbHeight);
+        RFB.messages.fbUpdateRequest(this._sock, false, left, top, width, height);
 
         this._updateConnectionState('connected');
         return true;
@@ -2569,8 +2660,8 @@ export default class RFB extends EventTargetMixin {
             case 0:  // FramebufferUpdate
                 ret = this._framebufferUpdate();
                 if (ret && !this._enabledContinuousUpdates) {
-                    RFB.messages.fbUpdateRequest(this._sock, true, 0, 0,
-                                                 this._fbWidth, this._fbHeight);
+                    const { left, top, width, height } = this._cropRect;
+                    RFB.messages.fbUpdateRequest(this._sock, true, left, top, width, height);
                 }
                 return ret;
 
@@ -2641,8 +2732,9 @@ export default class RFB extends EventTargetMixin {
                 if (this._sock.rQwait("rect header", 12)) { return false; }
                 /* New FramebufferUpdate */
 
-                this._FBU.x = this._sock.rQshift16();
-                this._FBU.y = this._sock.rQshift16();
+                const { left: offsetX, top: offsetY } = this._cropRect;
+                this._FBU.x = this._sock.rQshift16() - offsetX;
+                this._FBU.y = this._sock.rQshift16() - offsetY;
                 this._FBU.width = this._sock.rQshift16();
                 this._FBU.height = this._sock.rQshift16();
                 this._FBU.encoding = this._sock.rQshift32();
@@ -2683,7 +2775,7 @@ export default class RFB extends EventTargetMixin {
                 return this._handleDesktopName();
 
             case encodings.pseudoEncodingDesktopSize:
-                this._resize(this._FBU.width, this._FBU.height);
+                this._updateCropRect(this._FBU.width, this._FBU.height);
                 return true;
 
             case encodings.pseudoEncodingExtendedDesktopSize:
@@ -2994,9 +3086,9 @@ export default class RFB extends EventTargetMixin {
 
     _updateContinuousUpdates() {
         if (!this._enabledContinuousUpdates) { return; }
-
-        RFB.messages.enableContinuousUpdates(this._sock, true, 0, 0,
-                                             this._fbWidth, this._fbHeight);
+        // TODO: test required
+        const { left, top, width, height } = this._cropRect;
+        RFB.messages.enableContinuousUpdates(this._sock, true, left, top, width, height);
     }
 
     // Handle resize-messages from the server
