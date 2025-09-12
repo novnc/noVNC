@@ -19,7 +19,7 @@ const _STATES = {
      * Can transition to:
      *  - AWAITING_VISIBLE: `acquire` called when document is hidden.
      *  - ACQUIRING: `acquire` called.
-     *  - RELEASED: `acquired` called when the api is not available.
+     *  - ERROR: `acquired` called when the api is not available.
      */
     RELEASED: 'released',
     /* Wake lock requested, waiting for browser.
@@ -27,7 +27,7 @@ const _STATES = {
      * Can transition to:
      *  - ACQUIRED: success
      *  - ACQUIRING_WANT_RELEASE: `release` called while waiting
-     *  - RELEASED: On error
+     *  - ERROR
      */
     ACQUIRING: 'acquiring',
     /* Wake lock requested, release called, still waiting for browser.
@@ -51,6 +51,12 @@ const _STATES = {
      *  - RELEASED: when release is called.
      */
     AWAITING_VISIBLE: 'awaiting_visible',
+    /* An error has occurred.
+     *
+     * Can transition to:
+     *  - RELEASED: will happen immediately.
+     */
+    ERROR: 'error',
 };
 
 export default class WakeLockManager {
@@ -77,6 +83,7 @@ export default class WakeLockManager {
             case _STATES.ACQUIRING:
             case _STATES.ACQUIRED:
                 break;
+            case _STATES.ERROR:
             case _STATES.RELEASED:
                 if (document.hidden) {
                     // We can not acquire the wakelock while the document is
@@ -92,6 +99,7 @@ export default class WakeLockManager {
 
     release() {
         switch (this._state) {
+            case _STATES.ERROR:
             case _STATES.RELEASED:
             case _STATES.ACQUIRING_WANT_RELEASE:
                 break;
@@ -132,6 +140,7 @@ export default class WakeLockManager {
     _acquireWakelockNow() {
         if (!("wakeLock" in navigator)) {
             Log.Warn("Unable to request wakeLock, Browser does not have wakeLock api");
+            this._transitionTo(_STATES.ERROR);
             this._transitionTo(_STATES.RELEASED);
             return;
         }
@@ -139,6 +148,7 @@ export default class WakeLockManager {
             .then(this._eventHandlers.wakelockAcquired)
             .catch((err) => {
                 Log.Warn("Error occurred while acquiring wakelock: " + err);
+                this._transitionTo(_STATES.ERROR);
                 this._transitionTo(_STATES.RELEASED);
             });
         this._transitionTo(_STATES.ACQUIRING);
@@ -148,7 +158,7 @@ export default class WakeLockManager {
     _wakelockAcquired(wakelock) {
         if (this._state === _STATES.ACQUIRING_WANT_RELEASE) {
             // We were requested to release the wakelock while we were trying to
-            // acquire it. Now that we have acquired it, immediatly release it.
+            // acquire it. Now that we have acquired it, immediately release it.
             wakelock.release();
             this._transitionTo(_STATES.RELEASED);
             return;
