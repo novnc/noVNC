@@ -59,8 +59,18 @@ const _STATES = {
     ERROR: 'error',
 };
 
-export default class WakeLockManager {
+class TestOnlyWakeLockManagerStateChangeEvent extends Event {
+    constructor(oldState, newState) {
+        super("testOnlyStateChange");
+        this.oldState = oldState;
+        this.newState = newState;
+    }
+}
+
+export default class WakeLockManager extends EventTarget {
     constructor() {
+        super();
+
         this._state = _STATES.RELEASED;
         this._wakelock = null;
 
@@ -130,6 +140,7 @@ export default class WakeLockManager {
         let oldState = this._state;
         Log.Debug(`WakelockManager transitioning ${oldState} -> ${newState}`);
         this._state = newState;
+        this.dispatchEvent(new TestOnlyWakeLockManagerStateChangeEvent(oldState, newState));
     }
 
     _awaitVisible() {
