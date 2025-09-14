@@ -3088,7 +3088,7 @@ export default class RFB extends EventTargetMixin {
                             image.w, image.h
         );
         if (this._dragViewport && this._showDragCursor) {
-            this._cursor.setLocalCursor('grab');
+            this._cursor.setLocalCursor(this._viewportDragging ? 'grabbing' : 'grab');
         } else if (this._showLocalCursor) {
             this._cursor.setLocalCursor('default');
         } else {
