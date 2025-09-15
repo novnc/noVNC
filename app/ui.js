@@ -189,6 +189,7 @@ const UI = {
         UI.initSetting('repeaterID', '');
         UI.initSetting('reconnect', false);
         UI.initSetting('reconnect_delay', 5000);
+        UI.initSetting('incfbureq_delay', 0);
     },
     // Adds a link to the label elements on the corresponding input elements
     setupSettingLabels() {
@@ -379,6 +380,8 @@ const UI = {
         UI.addSettingChangeHandler('logging', UI.updateLogging);
         UI.addSettingChangeHandler('reconnect');
         UI.addSettingChangeHandler('reconnect_delay');
+        UI.addSettingChangeHandler('incfbureq_delay');
+        UI.addSettingChangeHandler('incfbureq_delay', UI.updateIncrementalFBUpdateReqDelay);
     },
 
     addFullscreenHandlers() {
@@ -892,6 +895,7 @@ const UI = {
         UI.updateSetting('logging');
         UI.updateSetting('reconnect');
         UI.updateSetting('reconnect_delay');
+        UI.updateSetting('incfbureq_delay');
 
         document.getElementById('noVNC_settings')
             .classList.add("noVNC_open");
@@ -1100,6 +1104,7 @@ const UI = {
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
         UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
         UI.rfb.compressionLevel = parseInt(UI.getSetting('compression'));
+        UI.rfb.incfbureqDelay = parseInt(UI.getSetting('incfbureq_delay'));
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
 
         UI.updateViewOnly(); // requires UI.rfb
@@ -1761,6 +1766,10 @@ const UI = {
 
     updateLogging() {
         WebUtil.initLogging(UI.getSetting('logging'));
+    },
+
+    updateIncrementalFBUpdateReqDelay() {
+        UI.connected && (UI.rfb.incfbureqDelay = parseInt(UI.getSetting('incfbureq_delay')));
     },
 
     updateDesktopName(e) {
