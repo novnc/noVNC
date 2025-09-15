@@ -290,12 +290,12 @@ export default class RFB extends EventTargetMixin {
 
         // ===== PROPERTIES =====
 
-        this.dragViewport = false;
         this.focusOnClick = true;
 
         this._viewOnly = false;
         this._clipViewport = false;
         this._clippingViewport = false;
+        this._dragViewport = false;
         this._scaleViewport = false;
         this._resizeSession = false;
 
@@ -340,6 +340,11 @@ export default class RFB extends EventTargetMixin {
     set clipViewport(viewport) {
         this._clipViewport = viewport;
         this._updateClip();
+    }
+
+    get dragViewport() { return this._dragViewport; }
+    set dragViewport(dragViewport) {
+        this._dragViewport = dragViewport;
     }
 
     get scaleViewport() { return this._scaleViewport; }
@@ -1115,7 +1120,7 @@ export default class RFB extends EventTargetMixin {
         switch (ev.type) {
             case 'mousedown':
             case 'mouseup':
-                if (this.dragViewport) {
+                if (this._dragViewport) {
                     if (down && !this._viewportDragging) {
                         this._viewportDragging = true;
                         this._viewportDragPos = {'x': pos.x, 'y': pos.y};
@@ -1334,7 +1339,7 @@ export default class RFB extends EventTargetMixin {
                         this._handleTapEvent(ev, 0x2);
                         break;
                     case 'drag':
-                        if (this.dragViewport) {
+                        if (this._dragViewport) {
                             this._viewportHasMoved = false;
                             this._viewportDragging = true;
                             this._viewportDragPos = {'x': pos.x, 'y': pos.y};
@@ -1344,7 +1349,7 @@ export default class RFB extends EventTargetMixin {
                         }
                         break;
                     case 'longpress':
-                        if (this.dragViewport) {
+                        if (this._dragViewport) {
                             // If dragViewport is true, we need to wait to see
                             // if we have dragged outside the threshold before
                             // sending any events to the server.
@@ -1376,7 +1381,7 @@ export default class RFB extends EventTargetMixin {
                         break;
                     case 'drag':
                     case 'longpress':
-                        if (this.dragViewport) {
+                        if (this._dragViewport) {
                             this._viewportDragging = true;
                             const deltaX = this._viewportDragPos.x - pos.x;
                             const deltaY = this._viewportDragPos.y - pos.y;
@@ -1451,7 +1456,7 @@ export default class RFB extends EventTargetMixin {
                     case 'twodrag':
                         break;
                     case 'drag':
-                        if (this.dragViewport) {
+                        if (this._dragViewport) {
                             this._viewportDragging = false;
                         } else {
                             this._fakeMouseMove(ev, pos.x, pos.y);
@@ -1465,7 +1470,7 @@ export default class RFB extends EventTargetMixin {
                             break;
                         }
 
-                        if (this.dragViewport && !this._viewportHasMoved) {
+                        if (this._dragViewport && !this._viewportHasMoved) {
                             this._fakeMouseMove(ev, pos.x, pos.y);
                             // If dragViewport is true, we need to wait to see
                             // if we have dragged outside the threshold before
