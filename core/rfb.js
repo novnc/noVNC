@@ -88,11 +88,14 @@ const extendedClipboardActionNotify  = 1 << 27;
 const extendedClipboardActionProvide = 1 << 28;
 
 // [GEOMETRY SPECIFICATIONS](https://www.x.org/releases/X11R7.7/doc/man/man7/X.7.xhtml#heading7)
+// [X0VNCSERVER −Geometry](https://tigervnc.org/doc/x0vncserver.html#:~:text=is%2060.-,%E2%88%92Geometry%20geometry)
 const geometryRegExp = new RegExp([
     '^',
     '(?<width>0|[1-9][0-9]*)', 'x', '(?<height>0|[1-9][0-9]*)',
+    '(?:',
     '(?:', '[+](?<left>0|[1-9][0-9]*)', '|', '[-](?<right>0|[1-9][0-9]*)', ')',
     '(?:', '[+](?<top>0|[1-9][0-9]*)',  '|', '[-](?<bottom>0|[1-9][0-9]*)', ')',
+    ')?',
     '$',
 ].join(''));
 
@@ -851,6 +854,7 @@ export default class RFB extends EventTargetMixin {
         function compute(width, left, right, maxWidth) {
             if (width === 0 || width > maxWidth) { width = maxWidth; }
             if (right === undefined) {
+                left ??= 0;
                 if (left + width > maxWidth) {
                     left = maxWidth - width;
                 }
