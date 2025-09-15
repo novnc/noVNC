@@ -580,7 +580,7 @@ describe('Gesture handler', function () {
             touchStart(1, 50.0, 40.0);
             touchStart(2, 60.0, 40.0);
             touchMove(1, 80.0, 40.0);
-            touchMove(2, 110.0, 40.0);
+            touchMove(2, 90.0, 40.0);
 
             expect(gestures).to.not.have.been.called;
 
@@ -601,7 +601,7 @@ describe('Gesture handler', function () {
                               detail: { type: 'twodrag',
                                         clientX: 55.0,
                                         clientY: 40.0,
-                                        magnitudeX: 40.0,
+                                        magnitudeX: 30.0,
                                         magnitudeY: 0.0 } }));
         });
 
@@ -609,7 +609,7 @@ describe('Gesture handler', function () {
             touchStart(1, 40.0, 40.0);
             touchStart(2, 40.0, 60.0);
             touchMove(2, 40.0, 80.0);
-            touchMove(1, 40.0, 100.0);
+            touchMove(1, 40.0, 80.0);
 
             expect(gestures).to.not.have.been.called;
 
@@ -631,14 +631,14 @@ describe('Gesture handler', function () {
                                         clientX: 40.0,
                                         clientY: 50.0,
                                         magnitudeX: 0.0,
-                                        magnitudeY: 40.0 } }));
+                                        magnitudeY: 30.0 } }));
         });
 
         it('should handle slow diagonal two finger drag', function () {
             touchStart(1, 50.0, 40.0);
             touchStart(2, 40.0, 60.0);
             touchMove(1, 70.0, 60.0);
-            touchMove(2, 90.0, 110.0);
+            touchMove(2, 60.0, 80.0);
 
             expect(gestures).to.not.have.been.called;
 
@@ -659,8 +659,8 @@ describe('Gesture handler', function () {
                               detail: { type: 'twodrag',
                                         clientX: 45.0,
                                         clientY: 50.0,
-                                        magnitudeX: 35.0,
-                                        magnitudeY: 35.0 } }));
+                                        magnitudeX: 20.0,
+                                        magnitudeY: 20.0 } }));
         });
 
         it('should ignore too slow two finger drag', function () {
@@ -783,7 +783,7 @@ describe('Gesture handler', function () {
         it('should handle pinching inwards slowly', function () {
             touchStart(1, 0.0, 0.0);
             touchStart(2, 130.0, 130.0);
-            touchMove(1, 50.0, 40.0);
+            touchMove(1, 30.0, 20.0);
             touchMove(2, 100.0, 130.0);
 
             expect(gestures).to.not.have.been.called;
@@ -805,14 +805,76 @@ describe('Gesture handler', function () {
                               detail: { type: 'pinch',
                                         clientX: 65.0,
                                         clientY: 65.0,
-                                        magnitudeX: 50.0,
-                                        magnitudeY: 90.0 } }));
+                                        magnitudeX: 70.0,
+                                        magnitudeY: 110.0 } }));
+        });
+
+        it('should handle second pinch afterwards', function () {
+            touchStart(1, 0.0, 0.0);
+            touchStart(2, 130.0, 130.0);
+            touchMove(1, 30.0, 20.0);
+            touchMove(2, 100.0, 130.0);
+
+            expect(gestures).to.not.have.been.called;
+
+            clock.tick(60);
+
+            expect(gestures).to.have.been.calledTwice;
+
+            expect(gestures.firstCall).to.have.been.calledWith(
+                sinon.match({ type: 'gesturestart',
+                              detail: { type: 'pinch',
+                                        clientX: 65.0,
+                                        clientY: 65.0,
+                                        magnitudeX: 130.0,
+                                        magnitudeY: 130.0 } }));
+
+            expect(gestures.secondCall).to.have.been.calledWith(
+                sinon.match({ type: 'gesturemove',
+                              detail: { type: 'pinch',
+                                        clientX: 65.0,
+                                        clientY: 65.0,
+                                        magnitudeX: 70.0,
+                                        magnitudeY: 110.0 } }));
+
+            touchEnd(1);
+            touchEnd(2);
+
+            gestures.resetHistory();
+
+            touchStart(3, 0.0, 0.0);
+            touchStart(4, 130.0, 130.0);
+            touchMove(3, 30.0, 20.0);
+            touchMove(4, 100.0, 130.0);
+
+            expect(gestures).to.not.have.been.called;
+
+            clock.tick(60);
+
+            expect(gestures).to.have.been.calledTwice;
+
+            expect(gestures.firstCall).to.have.been.calledWith(
+                sinon.match({ type: 'gesturestart',
+                              detail: { type: 'pinch',
+                                        clientX: 65.0,
+                                        clientY: 65.0,
+                                        magnitudeX: 130.0,
+                                        magnitudeY: 130.0 } }));
+
+            expect(gestures.secondCall).to.have.been.calledWith(
+                sinon.match({ type: 'gesturemove',
+                              detail: { type: 'pinch',
+                                        clientX: 65.0,
+                                        clientY: 65.0,
+                                        magnitudeX: 70.0,
+                                        magnitudeY: 110.0 } }));
+
         });
 
         it('should handle pinching outwards slowly', function () {
             touchStart(1, 100.0, 130.0);
             touchStart(2, 110.0, 130.0);
-            touchMove(2, 200.0, 130.0);
+            touchMove(2, 130.0, 130.0);
 
             expect(gestures).to.not.have.been.called;
 
@@ -833,7 +895,7 @@ describe('Gesture handler', function () {
                               detail: { type: 'pinch',
                                         clientX: 105.0,
                                         clientY: 130.0,
-                                        magnitudeX: 100.0,
+                                        magnitudeX: 30.0,
                                         magnitudeY: 0.0 } }));
         });
 
