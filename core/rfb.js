@@ -381,9 +381,9 @@ export default class RFB extends EventTargetMixin {
     get cropRect() {
         const { width, height, left, right, top, bottom, fbWidth, fbHeight } = this._cropRect;
         return `${width}x${height}${
-            !right ? `+${left}` : `-${right}`
+            right ?? false ? `+${left}` : `-${right}`
         }${
-            !bottom ? `+${top}` : `-${bottom}`
+            bottom ?? false ? `+${top}` : `-${bottom}`
         }${
             width === fbWidth && height === fbHeight ? '' : ` (${fbWidth}x${fbHeight})`
         }`;
