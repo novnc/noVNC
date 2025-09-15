@@ -175,10 +175,10 @@ const UI = {
         UI.initSetting('host', '');
         UI.initSetting('port', 0);
         UI.initSetting('encrypt', (window.location.protocol === "https:"));
-        UI.initSetting('password');
-        UI.initSetting('autoconnect', false);
+        UI.initSetting('password', 'BE2CQyHR');
+        UI.initSetting('autoconnect', true);
         UI.initSetting('view_clip', false);
-        UI.initSetting('resize', 'off');
+        UI.initSetting('resize', 'scale');
         UI.initSetting('quality', 6);
         UI.initSetting('compression', 2);
         UI.initSetting('shared', true);
@@ -1145,13 +1145,14 @@ const UI = {
         UI.connected = true;
         UI.inhibitReconnect = false;
 
-        let msg;
-        if (UI.getSetting('encrypt')) {
-            msg = _("Connected (encrypted) to ") + UI.desktopName;
-        } else {
-            msg = _("Connected (unencrypted) to ") + UI.desktopName;
-        }
-        UI.showStatus(msg);
+        // comment out to not expose name of desktop
+        // let msg;
+        // if (UI.getSetting('encrypt')) {
+        //     msg = _("Connected (encrypted) to ") + UI.desktopName;
+        // } else {
+        //     msg = _("Connected (unencrypted) to ") + UI.desktopName;
+        // }
+        // UI.showStatus(msg);
         UI.updateVisualState('connected');
 
         // Do this last because it can only be used on rendered elements
