@@ -1,6 +1,55 @@
 import { isMac, isWindows, isIOS, isAndroid, isChromeOS,
          isSafari, isFirefox, isChrome, isChromium, isOpera, isEdge,
-         isGecko, isWebKit, isBlink } from '../core/util/browser.js';
+         isGecko, isWebKit, isBlink,
+         isAsyncClipboardAvailable } from '../core/util/browser.js';
+
+describe('Async clipboard', function () {
+    "use strict";
+
+    beforeEach(function () {
+        sinon.stub(navigator.permissions, "query").resolves({ state: "granted" });
+    });
+
+    afterEach(function () {
+        sinon.restore();
+    });
+
+    it("is available when API present and permissions granted", async function () {
+        navigator.permissions.query.resolves({ state: "granted" });
+        const result = await isAsyncClipboardAvailable();
+        expect(result).to.be.true;
+    });
+
+    it("is available when API present and permissions yield 'prompt'", async function () {
+        navigator.permissions.query.resolves({ state: "prompt" });
+        const result = await isAsyncClipboardAvailable();
+        expect(result).to.be.true;
+    });
+
+    it("is unavailable when permissions denied", async function () {
+        navigator.permissions.query.resolves({ state: "denied" });
+        const result = await isAsyncClipboardAvailable();
+        expect(result).to.be.false;
+    });
+
+    it("is unavailable when permissions API fails", async function () {
+        navigator.permissions.query.rejects(new Error("fail"));
+        const result = await isAsyncClipboardAvailable();
+        expect(result).to.be.false;
+    });
+
+    it("is unavailable when write text API missing", async function () {
+        sinon.stub(navigator.clipboard, "writeText").value(undefined);
+        const result = await isAsyncClipboardAvailable();
+        expect(result).to.be.false;
+    });
+
+    it("is unavailable when read text API missing", async function () {
+        sinon.stub(navigator.clipboard, "readText").value(undefined);
+        const result = await isAsyncClipboardAvailable();
+        expect(result).to.be.false;
+    });
+});
 
 describe('OS detection', function () {
     let origNavigator;
