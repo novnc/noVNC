@@ -345,7 +345,6 @@ export default class RFB extends EventTargetMixin {
     get dragViewport() { return this._dragViewport; }
     set dragViewport(dragViewport) {
         this._dragViewport = dragViewport;
-        this._refreshCursor();
     }
 
     get scaleViewport() { return this._scaleViewport; }
@@ -1124,7 +1123,6 @@ export default class RFB extends EventTargetMixin {
             // eslint-disable-next-line no-fallthrough
             case 'mouseup':
                 if (this._dragViewport) {
-                    this._cursor.setLocalCursor(down ? 'grabbing' : 'grab');
                     if (down && !this._viewportDragging) {
                         this._viewportDragging = true;
                         this._viewportDragPos = {'x': pos.x, 'y': pos.y};
@@ -3041,7 +3039,7 @@ export default class RFB extends EventTargetMixin {
 
     _shouldShowDotCursor() {
         // Called when this._cursorImage is updated
-        if (!this._showDotCursor || this._dragViewport) {
+        if (!this._showDotCursor) {
             // User does not want to see the dot, so...
             return false;
         }
@@ -3071,11 +3069,6 @@ export default class RFB extends EventTargetMixin {
                             image.hotx, image.hoty,
                             image.w, image.h
         );
-        if (this._dragViewport) {
-            this._cursor.setLocalCursor(this._viewportDragging ? 'grabbing' : 'grab');
-        } else {
-            this._cursor.setLocalCursor('none');
-        }
     }
 
     static genDES(password, challenge) {
