@@ -106,17 +106,13 @@ export default class Cursor {
     }
 
     clear() {
-        this.setLocalCursor('none');
+        this._target.style.cursor = 'none';
         this._canvas.width = 0;
         this._canvas.height = 0;
         this._position.x = this._position.x + this._hotSpot.x;
         this._position.y = this._position.y + this._hotSpot.y;
         this._hotSpot.x = 0;
         this._hotSpot.y = 0;
-    }
-
-    setLocalCursor(cursor) {
-        this._target.style.cursor = cursor;
     }
 
     // Mouse events might be emulated, this allows
