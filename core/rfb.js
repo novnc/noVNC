@@ -323,8 +323,10 @@ export default class RFB extends EventTargetMixin {
             this._rfbConnectionState === "connected") {
             if (viewOnly) {
                 this._keyboard.ungrab();
+                this._refreshCursor();
             } else {
                 this._keyboard.grab();
+                this._refreshCursor();
             }
         }
     }
@@ -353,6 +355,7 @@ export default class RFB extends EventTargetMixin {
     get dragViewport() { return this._dragViewport; }
     set dragViewport(dragViewport) {
         this._dragViewport = dragViewport;
+        this._refreshCursor();
     }
 
     get scaleViewport() { return this._scaleViewport; }
@@ -399,6 +402,11 @@ export default class RFB extends EventTargetMixin {
         dragCursor && (this._localCursors.drag = dragCursor);
         draggingCursor && (this._localCursors.dragging = draggingCursor);
         emptyCursor && (this._localCursors.empty = emptyCursor);
+        this._cursor.detach();
+        this._cursor.attach(this._canvas, {
+            showLocalCursor: this._showLocalCursor,
+        });
+        this._refreshCursor();
     }
 
     get background() { return this._screen.style.background; }
@@ -605,7 +613,9 @@ export default class RFB extends EventTargetMixin {
 
         this._gestures.attach(this._canvas);
 
-        this._cursor.attach(this._canvas);
+        this._cursor.attach(this._canvas, {
+            showLocalCursor: this._showLocalCursor
+        });
         this._refreshCursor();
 
         // Monitor size changes of the screen element
@@ -1154,6 +1164,11 @@ export default class RFB extends EventTargetMixin {
                         this._viewportDragPos = {'x': pos.x, 'y': pos.y};
                         this._viewportHasMoved = false;
 
+                        if (this._showLocalCursor) {
+                            this._refreshCursor();
+                            this._cursor.detach();
+                        }
+
                         this._flushMouseMoveTimer(pos.x, pos.y);
 
                         // Skip sending mouse events, instead save the current
@@ -1162,6 +1177,13 @@ export default class RFB extends EventTargetMixin {
                         break;
                     } else {
                         this._viewportDragging = false;
+
+                        if (this._showLocalCursor) {
+                            this._cursor.attach(this._canvas, {
+                                showLocalCursor: this._showLocalCursor,
+                            });
+                            this._refreshCursor();
+                        }
 
                         // If we actually performed a drag then we are done
                         // here and should not send any mouse events
