@@ -19,17 +19,16 @@ export default class Cursor {
 
         this._canvas = document.createElement('canvas');
 
-        if (useFallback) {
-            this._canvas.style.position = 'fixed';
-            this._canvas.style.zIndex = '65535';
-            this._canvas.style.pointerEvents = 'none';
-            // Safari on iOS can select the cursor image
-            // https://bugs.webkit.org/show_bug.cgi?id=249223
-            this._canvas.style.userSelect = 'none';
-            this._canvas.style.WebkitUserSelect = 'none';
-            // Can't use "display" because of Firefox bug #1445997
-            this._canvas.style.visibility = 'hidden';
-        }
+        // always initalize canvas.style in case of showing local cursors
+        this._canvas.style.position = 'fixed';
+        this._canvas.style.zIndex = '65535';
+        this._canvas.style.pointerEvents = 'none';
+        // Safari on iOS can select the cursor image
+        // https://bugs.webkit.org/show_bug.cgi?id=249223
+        this._canvas.style.userSelect = 'none';
+        this._canvas.style.WebkitUserSelect = 'none';
+        // Can't use "display" because of Firefox bug #1445997
+        this._canvas.style.visibility = 'hidden';
 
         this._position = { x: 0, y: 0 };
         this._hotSpot = { x: 0, y: 0 };
