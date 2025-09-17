@@ -1103,6 +1103,11 @@ const UI = {
         UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
         UI.rfb.compressionLevel = parseInt(UI.getSetting('compression'));
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
+        UI.rfb.showLocalCursor = {
+            drag: 'grab',
+            dragging: 'grabbing',
+            empty: 'default',
+        };
 
         UI.updateViewOnly(); // requires UI.rfb
     },
