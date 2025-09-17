@@ -3087,9 +3087,19 @@ export default class RFB extends EventTargetMixin {
 
     _shouldShowDotCursor() {
         // Called when this._cursorImage is updated
-        if (!this._showDotCursor) {
-            // User does not want to see the dot, so...
+        if (!this._showDotCursor && !(this._showLocalCursor && this._localCursors.empty)) {
+            // User does not want to see the dot or has no local cursor, so...
             return false;
+        }
+        if (this._showLocalCursor) {
+            // Do not show the dot in states with a local cursor
+            if (this._viewportDragging) {
+                if (this._localCursors.dragging) { return false; }
+            } else if (this._dragViewport) {
+                if (this._localCursors.drag) { return false; }
+            } else if (this._viewOnly) {
+                if (this._localCursors.viewOnly) { return false; }
+            }
         }
 
         // The dot should not be shown if the cursor is already visible,
@@ -3112,10 +3122,38 @@ export default class RFB extends EventTargetMixin {
             this._rfbConnectionState !== "connected") {
             return;
         }
+        if (this._showLocalCursor) {
+            this._refreshCursorWithLocalCursors();
+            return;
+        }
         const image = this._shouldShowDotCursor() ? RFB.cursors.dot : this._cursorImage;
         this._cursor.change(image.rgbaPixels,
                             image.hotx, image.hoty,
                             image.w, image.h
+        );
+    }
+
+    _refreshCursorWithLocalCursors() {
+        let image = this._cursorImage;
+        let localCursor; // = 'none';
+        if (this._viewportDragging) {
+            localCursor = this._localCursors.dragging;
+        } else if (this._dragViewport) {
+            localCursor = this._localCursors.drag;
+        } else if (this._viewOnly) {
+            localCursor = this._localCursors.viewOnly;
+            // clear locally rendered cursor when switching to view-only whilst connected
+            image = RFB.cursors.none;
+        } else if (this._shouldShowDotCursor()) {
+            localCursor = this._localCursors.empty;
+            image = this._showDotCursor ? RFB.cursors.dot : this._cursorImage;
+        } else {
+            localCursor = this._localCursors.default;
+        }
+        this._cursor.change(image.rgbaPixels,
+                            image.hotx, image.hoty,
+                            image.w, image.h,
+                            { localCursor }
         );
     }
 
