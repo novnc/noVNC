@@ -233,6 +233,14 @@ export default class RFB extends EventTargetMixin {
 
         // Cursor
         this._cursor = new Cursor();
+        this._showLocalCursor = false;
+        this._localCursors = {
+            dragging: null,
+            drag: null,
+            viewOnly: null,
+            default: null,
+            empty: null,
+        };
 
         // XXX: TightVNC 2.8.11 sends no cursor at all until Windows changes
         // it. Result: no cursor at all until a window border or an edit field
@@ -373,6 +381,24 @@ export default class RFB extends EventTargetMixin {
     set showDotCursor(show) {
         this._showDotCursor = show;
         this._refreshCursor();
+    }
+
+    get showLocalCursor() { return this._showLocalCursor; }
+    set showLocalCursor(cursors) {
+        cursors ??= false;
+        this._showLocalCursor = !!cursors;
+        const {
+            default: defaultCursor,
+            viewOnly: viewOnlyCursor,
+            drag: dragCursor,
+            dragging: draggingCursor,
+            empty: emptyCursor,
+        } = cursors;
+        defaultCursor && (this._localCursors.default = defaultCursor);
+        viewOnlyCursor && (this._localCursors.viewOnly = viewOnlyCursor);
+        dragCursor && (this._localCursors.drag = dragCursor);
+        draggingCursor && (this._localCursors.dragging = draggingCursor);
+        emptyCursor && (this._localCursors.empty = emptyCursor);
     }
 
     get background() { return this._screen.style.background; }
