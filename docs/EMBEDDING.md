@@ -82,6 +82,9 @@ Currently, the following options are available:
 * `view_clip` - If the remote session should be clipped or use scrollbars if
   it cannot fit in the browser.
 
+* `view_drag` - If the remote session is clipped enable dragging the viewport
+  when connected.
+
 * `resize` - How to resize the remote session if it is not the same size as
   the browser window. Can be one of `off`, `scale` and `remote`.
 

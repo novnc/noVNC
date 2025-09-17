@@ -233,6 +233,14 @@ export default class RFB extends EventTargetMixin {
 
         // Cursor
         this._cursor = new Cursor();
+        this._showLocalCursor = false;
+        this._localCursors = {
+            dragging: null,
+            drag: null,
+            viewOnly: null,
+            default: null,
+            empty: null,
+        };
 
         // XXX: TightVNC 2.8.11 sends no cursor at all until Windows changes
         // it. Result: no cursor at all until a window border or an edit field
@@ -290,12 +298,12 @@ export default class RFB extends EventTargetMixin {
 
         // ===== PROPERTIES =====
 
-        this.dragViewport = false;
         this.focusOnClick = true;
 
         this._viewOnly = false;
         this._clipViewport = false;
         this._clippingViewport = false;
+        this._dragViewport = false;
         this._scaleViewport = false;
         this._resizeSession = false;
 
@@ -315,8 +323,10 @@ export default class RFB extends EventTargetMixin {
             this._rfbConnectionState === "connected") {
             if (viewOnly) {
                 this._keyboard.ungrab();
+                this._refreshCursor();
             } else {
                 this._keyboard.grab();
+                this._refreshCursor();
             }
         }
     }
@@ -340,6 +350,12 @@ export default class RFB extends EventTargetMixin {
     set clipViewport(viewport) {
         this._clipViewport = viewport;
         this._updateClip();
+    }
+
+    get dragViewport() { return this._dragViewport; }
+    set dragViewport(dragViewport) {
+        this._dragViewport = dragViewport;
+        this._refreshCursor();
     }
 
     get scaleViewport() { return this._scaleViewport; }
@@ -367,6 +383,29 @@ export default class RFB extends EventTargetMixin {
     get showDotCursor() { return this._showDotCursor; }
     set showDotCursor(show) {
         this._showDotCursor = show;
+        this._refreshCursor();
+    }
+
+    get showLocalCursor() { return this._showLocalCursor; }
+    set showLocalCursor(cursors) {
+        cursors ??= false;
+        this._showLocalCursor = !!cursors;
+        const {
+            default: defaultCursor,
+            viewOnly: viewOnlyCursor,
+            drag: dragCursor,
+            dragging: draggingCursor,
+            empty: emptyCursor,
+        } = cursors;
+        defaultCursor && (this._localCursors.default = defaultCursor);
+        viewOnlyCursor && (this._localCursors.viewOnly = viewOnlyCursor);
+        dragCursor && (this._localCursors.drag = dragCursor);
+        draggingCursor && (this._localCursors.dragging = draggingCursor);
+        emptyCursor && (this._localCursors.empty = emptyCursor);
+        this._cursor.detach();
+        this._cursor.attach(this._canvas, {
+            showLocalCursor: this._showLocalCursor,
+        });
         this._refreshCursor();
     }
 
@@ -574,7 +613,9 @@ export default class RFB extends EventTargetMixin {
 
         this._gestures.attach(this._canvas);
 
-        this._cursor.attach(this._canvas);
+        this._cursor.attach(this._canvas, {
+            showLocalCursor: this._showLocalCursor
+        });
         this._refreshCursor();
 
         // Monitor size changes of the screen element
@@ -1111,15 +1152,22 @@ export default class RFB extends EventTargetMixin {
 
         let bmask = RFB._convertButtonMask(ev.buttons);
 
-        let down = ev.type == 'mousedown';
+        let down = false;
         switch (ev.type) {
             case 'mousedown':
+                down = true;
+            // eslint-disable-next-line no-fallthrough
             case 'mouseup':
-                if (this.dragViewport) {
+                if (this._dragViewport) {
                     if (down && !this._viewportDragging) {
                         this._viewportDragging = true;
                         this._viewportDragPos = {'x': pos.x, 'y': pos.y};
                         this._viewportHasMoved = false;
+
+                        if (this._showLocalCursor) {
+                            this._refreshCursor();
+                            this._cursor.detach();
+                        }
 
                         this._flushMouseMoveTimer(pos.x, pos.y);
 
@@ -1129,6 +1177,13 @@ export default class RFB extends EventTargetMixin {
                         break;
                     } else {
                         this._viewportDragging = false;
+
+                        if (this._showLocalCursor) {
+                            this._cursor.attach(this._canvas, {
+                                showLocalCursor: this._showLocalCursor,
+                            });
+                            this._refreshCursor();
+                        }
 
                         // If we actually performed a drag then we are done
                         // here and should not send any mouse events
@@ -1334,7 +1389,7 @@ export default class RFB extends EventTargetMixin {
                         this._handleTapEvent(ev, 0x2);
                         break;
                     case 'drag':
-                        if (this.dragViewport) {
+                        if (this._dragViewport) {
                             this._viewportHasMoved = false;
                             this._viewportDragging = true;
                             this._viewportDragPos = {'x': pos.x, 'y': pos.y};
@@ -1344,7 +1399,7 @@ export default class RFB extends EventTargetMixin {
                         }
                         break;
                     case 'longpress':
-                        if (this.dragViewport) {
+                        if (this._dragViewport) {
                             // If dragViewport is true, we need to wait to see
                             // if we have dragged outside the threshold before
                             // sending any events to the server.
@@ -1376,7 +1431,7 @@ export default class RFB extends EventTargetMixin {
                         break;
                     case 'drag':
                     case 'longpress':
-                        if (this.dragViewport) {
+                        if (this._dragViewport) {
                             this._viewportDragging = true;
                             const deltaX = this._viewportDragPos.x - pos.x;
                             const deltaY = this._viewportDragPos.y - pos.y;
@@ -1451,7 +1506,7 @@ export default class RFB extends EventTargetMixin {
                     case 'twodrag':
                         break;
                     case 'drag':
-                        if (this.dragViewport) {
+                        if (this._dragViewport) {
                             this._viewportDragging = false;
                         } else {
                             this._fakeMouseMove(ev, pos.x, pos.y);
@@ -1465,7 +1520,7 @@ export default class RFB extends EventTargetMixin {
                             break;
                         }
 
-                        if (this.dragViewport && !this._viewportHasMoved) {
+                        if (this._dragViewport && !this._viewportHasMoved) {
                             this._fakeMouseMove(ev, pos.x, pos.y);
                             // If dragViewport is true, we need to wait to see
                             // if we have dragged outside the threshold before
@@ -3032,9 +3087,19 @@ export default class RFB extends EventTargetMixin {
 
     _shouldShowDotCursor() {
         // Called when this._cursorImage is updated
-        if (!this._showDotCursor) {
-            // User does not want to see the dot, so...
+        if (!this._showDotCursor && !(this._showLocalCursor && this._localCursors.empty)) {
+            // User does not want to see the dot or has no local cursor, so...
             return false;
+        }
+        if (this._showLocalCursor) {
+            // Do not show the dot in states with a local cursor
+            if (this._viewportDragging) {
+                if (this._localCursors.dragging) { return false; }
+            } else if (this._dragViewport) {
+                if (this._localCursors.drag) { return false; }
+            } else if (this._viewOnly) {
+                if (this._localCursors.viewOnly) { return false; }
+            }
         }
 
         // The dot should not be shown if the cursor is already visible,
@@ -3057,10 +3122,38 @@ export default class RFB extends EventTargetMixin {
             this._rfbConnectionState !== "connected") {
             return;
         }
+        if (this._showLocalCursor) {
+            this._refreshCursorWithLocalCursors();
+            return;
+        }
         const image = this._shouldShowDotCursor() ? RFB.cursors.dot : this._cursorImage;
         this._cursor.change(image.rgbaPixels,
                             image.hotx, image.hoty,
                             image.w, image.h
+        );
+    }
+
+    _refreshCursorWithLocalCursors() {
+        let image = this._cursorImage;
+        let localCursor; // = 'none';
+        if (this._viewportDragging) {
+            localCursor = this._localCursors.dragging;
+        } else if (this._dragViewport) {
+            localCursor = this._localCursors.drag;
+        } else if (this._viewOnly) {
+            localCursor = this._localCursors.viewOnly;
+            // clear locally rendered cursor when switching to view-only whilst connected
+            image = RFB.cursors.none;
+        } else if (this._shouldShowDotCursor()) {
+            localCursor = this._localCursors.empty;
+            image = this._showDotCursor ? RFB.cursors.dot : this._cursorImage;
+        } else {
+            localCursor = this._localCursors.default;
+        }
+        this._cursor.change(image.rgbaPixels,
+                            image.hotx, image.hoty,
+                            image.w, image.h,
+                            { localCursor }
         );
     }
 

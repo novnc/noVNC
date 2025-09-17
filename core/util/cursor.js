@@ -6,7 +6,12 @@
 
 import { supportsCursorURIs, isTouchDevice } from './browser.js';
 
-const useFallback = !supportsCursorURIs || isTouchDevice;
+// Sometimes (at least with Chrome and Firefox on Windows)
+// isTouchDevice is true even if there is no touch device, in
+// this case useFallback ist also true and cursor URIs are never
+// used.
+const __FORCE_NO_TOUCH_DEVICE__ = false;
+const useFallback = !supportsCursorURIs || (!__FORCE_NO_TOUCH_DEVICE__ && isTouchDevice);
 
 export default class Cursor {
     constructor() {
@@ -14,17 +19,16 @@ export default class Cursor {
 
         this._canvas = document.createElement('canvas');
 
-        if (useFallback) {
-            this._canvas.style.position = 'fixed';
-            this._canvas.style.zIndex = '65535';
-            this._canvas.style.pointerEvents = 'none';
-            // Safari on iOS can select the cursor image
-            // https://bugs.webkit.org/show_bug.cgi?id=249223
-            this._canvas.style.userSelect = 'none';
-            this._canvas.style.WebkitUserSelect = 'none';
-            // Can't use "display" because of Firefox bug #1445997
-            this._canvas.style.visibility = 'hidden';
-        }
+        // always initalize canvas.style in case of showing local cursors
+        this._canvas.style.position = 'fixed';
+        this._canvas.style.zIndex = '65535';
+        this._canvas.style.pointerEvents = 'none';
+        // Safari on iOS can select the cursor image
+        // https://bugs.webkit.org/show_bug.cgi?id=249223
+        this._canvas.style.userSelect = 'none';
+        this._canvas.style.WebkitUserSelect = 'none';
+        // Can't use "display" because of Firefox bug #1445997
+        this._canvas.style.visibility = 'hidden';
 
         this._position = { x: 0, y: 0 };
         this._hotSpot = { x: 0, y: 0 };
@@ -37,14 +41,15 @@ export default class Cursor {
         };
     }
 
-    attach(target) {
+    attach(target, { showLocalCursor } = {}) {
         if (this._target) {
             this.detach();
         }
 
         this._target = target;
+        this._showLocalCursor = !!showLocalCursor;
 
-        if (useFallback) {
+        if (useFallback || this._showLocalCursor) {
             document.body.appendChild(this._canvas);
 
             const options = { capture: true, passive: true };
@@ -54,7 +59,7 @@ export default class Cursor {
             this._target.addEventListener('mouseup', this._eventHandlers.mouseup, options);
         }
 
-        this.clear();
+        this.clear({ localCursor: showLocalCursor });
     }
 
     detach() {
@@ -62,7 +67,7 @@ export default class Cursor {
             return;
         }
 
-        if (useFallback) {
+        if (useFallback || this._showLocalCursor) {
             const options = { capture: true, passive: true };
             this._target.removeEventListener('mouseover', this._eventHandlers.mouseover, options);
             this._target.removeEventListener('mouseleave', this._eventHandlers.mouseleave, options);
@@ -77,9 +82,9 @@ export default class Cursor {
         this._target = null;
     }
 
-    change(rgba, hotx, hoty, w, h) {
+    change(rgba, hotx, hoty, w, h, { localCursor } = {}) {
         if ((w === 0) || (h === 0)) {
-            this.clear();
+            this.clear({ localCursor });
             return;
         }
 
@@ -97,7 +102,8 @@ export default class Cursor {
         ctx.clearRect(0, 0, w, h);
         ctx.putImageData(img, 0, 0);
 
-        if (useFallback) {
+        if (useFallback || this._showLocalCursor) {
+            this._target.style.cursor = localCursor ?? 'none';
             this._updatePosition();
         } else {
             let url = this._canvas.toDataURL();
@@ -105,8 +111,12 @@ export default class Cursor {
         }
     }
 
-    clear() {
-        this._target.style.cursor = 'none';
+    clear({ localCursor } = {}) {
+        // whilst dragging the viewport and changes to the remote cursor
+        // are made the target might be detached
+        if (this._target) {
+            this._target.style.cursor = localCursor ?? 'none';
+        }
         this._canvas.width = 0;
         this._canvas.height = 0;
         this._position.x = this._position.x + this._hotSpot.x;
@@ -118,7 +128,7 @@ export default class Cursor {
     // Mouse events might be emulated, this allows
     // moving the cursor in such cases
     move(clientX, clientY) {
-        if (!useFallback) {
+        if (!useFallback && !this._showLocalCursor) {
             return;
         }
         // clientX/clientY are relative the _visual viewport_,
