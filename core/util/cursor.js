@@ -6,6 +6,10 @@
 
 import { supportsCursorURIs, isTouchDevice } from './browser.js';
 
+// Sometimes (at least with Chrome and Firefox on Windows)
+// isTouchDevice is true even if there is no touch device, in
+// this case useFallback ist also true and cursor URIs are never
+// used.
 const useFallback = !supportsCursorURIs || isTouchDevice;
 
 export default class Cursor {
