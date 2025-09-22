@@ -1357,12 +1357,16 @@ export default class Display {
                                 break;
                             default:
                                 secondaryScreenRects++;
+                                if (a instanceof HTMLImageElement) {
+                                    Log.Warn("Wrong rect type: " + rect.type);
+                                } else {
                                     if (this._screens[screenLocation.screenIndex].channel) {
                                         this._screens[screenLocation.screenIndex].channel.postMessage({
-                                        eventType: 'rect',
-                                        rect: a,
-                                        screenLocationIndex: sI
-                                    });
+                                            eventType: 'rect',
+                                            rect: a,
+                                            screenLocationIndex: sI
+                                        });
+                                    }
                                 }
                         }
                     }
