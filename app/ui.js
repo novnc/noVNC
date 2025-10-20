@@ -146,8 +146,8 @@ const UI = {
 
     initFullscreen() {
         // Only show the button if fullscreen is properly supported
-        // * Safari doesn't support alphanumerical input while in fullscreen
-        if (!isSafari() &&
+        // * Safari on iOS doesn't support alphanumerical input while in fullscreen
+        if (!(isSafari() && isIOS()) &&
             (document.documentElement.requestFullscreen ||
              document.documentElement.mozRequestFullScreen ||
              document.documentElement.webkitRequestFullscreen ||
