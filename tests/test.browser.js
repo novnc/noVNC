@@ -1,6 +1,74 @@
 import { isMac, isWindows, isIOS, isAndroid, isChromeOS,
          isSafari, isFirefox, isChrome, isChromium, isOpera, isEdge,
-         isGecko, isWebKit, isBlink } from '../core/util/browser.js';
+         isGecko, isWebKit, isBlink,
+         browserAsyncClipboardSupport } from '../core/util/browser.js';
+
+describe('Async clipboard', function () {
+    "use strict";
+
+    beforeEach(function () {
+        sinon.stub(navigator, "clipboard").value({
+            writeText: sinon.stub(),
+            readText: sinon.stub(),
+        });
+        sinon.stub(navigator, "permissions").value({
+            query: sinon.stub().resolves({ state: "granted" })
+        });
+    });
+
+    afterEach(function () {
+        sinon.restore();
+    });
+
+    it("queries permissions with correct parameters", async function () {
+        const queryStub = navigator.permissions.query;
+        await browserAsyncClipboardSupport();
+        expect(queryStub.firstCall).to.have.been.calledWithExactly({
+            name: "clipboard-write",
+            allowWithoutGesture: true
+        });
+        expect(queryStub.secondCall).to.have.been.calledWithExactly({
+            name: "clipboard-read",
+            allowWithoutGesture: false
+        });
+    });
+
+    it("is available when API present and permissions granted", async function () {
+        navigator.permissions.query.resolves({ state: "granted" });
+        const result = await browserAsyncClipboardSupport();
+        expect(result).to.equal('available');
+    });
+
+    it("is available when API present and permissions yield 'prompt'", async function () {
+        navigator.permissions.query.resolves({ state: "prompt" });
+        const result = await browserAsyncClipboardSupport();
+        expect(result).to.equal('available');
+    });
+
+    it("is unavailable when permissions denied", async function () {
+        navigator.permissions.query.resolves({ state: "denied" });
+        const result = await browserAsyncClipboardSupport();
+        expect(result).to.equal('denied');
+    });
+
+    it("is unavailable when permissions API fails", async function () {
+        navigator.permissions.query.rejects(new Error("fail"));
+        const result = await browserAsyncClipboardSupport();
+        expect(result).to.equal('unsupported');
+    });
+
+    it("is unavailable when write text API missing", async function () {
+        navigator.clipboard.writeText = undefined;
+        const result = await browserAsyncClipboardSupport();
+        expect(result).to.equal('unsupported');
+    });
+
+    it("is unavailable when read text API missing", async function () {
+        navigator.clipboard.readText = undefined;
+        const result = await browserAsyncClipboardSupport();
+        expect(result).to.equal('unsupported');
+    });
+});
 
 describe('OS detection', function () {
     let origNavigator;

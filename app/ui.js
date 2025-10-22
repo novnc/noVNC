@@ -9,7 +9,7 @@
 import * as Log from '../core/util/logging.js';
 import _, { l10n } from './localization.js';
 import { isTouchDevice, isMac, isIOS, isAndroid, isChromeOS, isSafari,
-         hasScrollbarGutter, dragThreshold }
+         hasScrollbarGutter, dragThreshold, browserAsyncClipboardSupport }
     from '../core/util/browser.js';
 import { setCapture, getPointerEvent } from '../core/util/events.js';
 import KeyTable from "../core/input/keysym.js";
@@ -1100,6 +1100,7 @@ const UI = {
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
 
         UI.updateViewOnly(); // requires UI.rfb
+        UI.updateClipboard();
     },
 
     disconnect() {
@@ -1751,6 +1752,31 @@ const UI = {
             document.getElementById('noVNC_clipboard_button')
                 .classList.remove('noVNC_hidden');
         }
+    },
+
+    updateClipboard() {
+        browserAsyncClipboardSupport()
+            .then((support) => {
+                if (support === 'unsupported') {
+                    // Use fallback clipboard panel
+                    return;
+                }
+                if (support === 'denied' || support === 'available') {
+                    UI.closeClipboardPanel();
+                    document.getElementById('noVNC_clipboard_button')
+                        .classList.add('noVNC_hidden');
+                    document.getElementById('noVNC_clipboard_button')
+                        .removeEventListener('click', UI.toggleClipboardPanel);
+                    document.getElementById('noVNC_clipboard_text')
+                        .removeEventListener('change', UI.clipboardSend);
+                    if (UI.rfb) {
+                        UI.rfb.removeEventListener('clipboard', UI.clipboardReceive);
+                    }
+                }
+            })
+            .catch(() => {
+                // Treat as unsupported
+            });
     },
 
     updateShowDotCursor() {
