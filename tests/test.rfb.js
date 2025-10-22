@@ -3467,17 +3467,48 @@ describe('Remote Frame Buffer protocol client', function () {
         });
 
         describe('Normal clipboard handling receive', function () {
-            it('should fire the clipboard callback with the retrieved text on ServerCutText', function () {
+            it('should not dispatch a clipboard event following successful async write clipboard', async function () {
+                client._viewOnly = false;
+                client._asyncClipboard = {
+                    writeClipboard: sinon.stub().returns(true),
+                };
                 const expectedStr = 'cheese!';
                 const data = [3, 0, 0, 0];
                 push32(data, expectedStr.length);
                 for (let i = 0; i < expectedStr.length; i++) { data.push(expectedStr.charCodeAt(i)); }
-                const spy = sinon.spy();
-                client.addEventListener("clipboard", spy);
+
+                const dispatchEventSpy = sinon.spy(client, 'dispatchEvent');
 
                 client._sock._websocket._receiveData(new Uint8Array(data));
-                expect(spy).to.have.been.calledOnce;
-                expect(spy.args[0][0].detail.text).to.equal(expectedStr);
+
+                expect(client._asyncClipboard.writeClipboard.calledOnceWith(
+                    expectedStr
+                )).to.be.true;
+                expect(dispatchEventSpy.calledWith(
+                    new CustomEvent("clipboard", {detail: {expectedStr: expectedStr}})
+                )).to.be.false;
+            });
+
+            it('should dispatch a clipboard event following unsuccessful async write clipboard', async function () {
+                client._viewOnly = false;
+                client._asyncClipboard = {
+                    writeClipboard: sinon.stub().returns(false),
+                };
+                const expectedStr = 'cheese!';
+                const data = [3, 0, 0, 0];
+                push32(data, expectedStr.length);
+                for (let i = 0; i < expectedStr.length; i++) { data.push(expectedStr.charCodeAt(i)); }
+
+                const dispatchEventSpy = sinon.spy(client, 'dispatchEvent');
+
+                client._sock._websocket._receiveData(new Uint8Array(data));
+
+                expect(client._asyncClipboard.writeClipboard.calledOnceWith(
+                    expectedStr
+                )).to.be.true;
+                expect(dispatchEventSpy.calledOnceWith(
+                    new CustomEvent("clipboard", {detail: {expectedStr: expectedStr}})
+                )).to.be.true;
             });
         });
 
@@ -3530,8 +3561,71 @@ describe('Remote Frame Buffer protocol client', function () {
                     client._sock._websocket._receiveData(new Uint8Array(data));
                 });
 
+                it('should not dispatch a clipboard event following successful async write clipboard', async function () {
+                    client._viewOnly = false;
+                    client._asyncClipboard = {
+                        writeClipboard: sinon.stub().returns(true),
+                    };
+                    let expectedData = "Schnitzel";
+                    let data = [3, 0, 0, 0];
+                    const flags = [0x10, 0x00, 0x00, 0x01];
+
+                    let text = encodeUTF8("Schnitzel");
+                    let deflatedText = deflateWithSize(text);
+
+                    // How much data we are sending.
+                    push32(data, toUnsigned32bit(-(4 + deflatedText.length)));
+
+                    data = data.concat(flags);
+                    data = data.concat(Array.from(deflatedText));
+
+                    const dispatchEventSpy = sinon.spy(client, 'dispatchEvent');
+
+                    client._sock._websocket._receiveData(new Uint8Array(data));
+
+                    expect(client._asyncClipboard.writeClipboard.calledOnceWith(
+                        expectedData
+                    )).to.be.true;
+                    expect(dispatchEventSpy.calledOnceWith(
+                        new CustomEvent("clipboard", {detail: {expectedData: expectedData}})
+                    )).to.be.false;
+                });
+                it('should dispatch a clipboard event following unsuccessful async write clipboard', async function () {
+                    client._viewOnly = false;
+                    client._asyncClipboard = {
+                        writeClipboard: sinon.stub().returns(false),
+                    };
+                    let expectedData = "Potatoes";
+                    let data = [3, 0, 0, 0];
+                    const flags = [0x10, 0x00, 0x00, 0x01];
+
+                    let text = encodeUTF8("Potatoes");
+                    let deflatedText = deflateWithSize(text);
+
+                    // How much data we are sending.
+                    push32(data, toUnsigned32bit(-(4 + deflatedText.length)));
+
+                    data = data.concat(flags);
+                    data = data.concat(Array.from(deflatedText));
+
+                    const dispatchEventSpy = sinon.spy(client, 'dispatchEvent');
+
+                    client._sock._websocket._receiveData(new Uint8Array(data));
+
+                    expect(client._asyncClipboard.writeClipboard.calledOnceWith(
+                        expectedData
+                    )).to.be.true;
+                    expect(dispatchEventSpy.calledOnceWith(
+                        new CustomEvent("clipboard", {detail: {expectedData: expectedData}})
+                    )).to.be.true;
+                });
+
                 describe('Handle Provide', function () {
-                    it('should update clipboard with correct Unicode data from a Provide message', function () {
+                    it('should update clipboard with correct Unicode data from a Provide message', async function () {
+                        client._viewOnly = false;
+                        client._asyncClipboard = {
+                            writeClipboard: sinon.stub().returns(false),
+                        };
                         let expectedData = "Aå漢字!";
                         let data = [3, 0, 0, 0];
                         const flags = [0x10, 0x00, 0x00, 0x01];
@@ -3545,16 +3639,23 @@ describe('Remote Frame Buffer protocol client', function () {
                         data = data.concat(flags);
                         data = data.concat(Array.from(deflatedText));
 
-                        const spy = sinon.spy();
-                        client.addEventListener("clipboard", spy);
+                        const dispatchEventSpy = sinon.spy(client, 'dispatchEvent');
 
                         client._sock._websocket._receiveData(new Uint8Array(data));
-                        expect(spy).to.have.been.calledOnce;
-                        expect(spy.args[0][0].detail.text).to.equal(expectedData);
-                        client.removeEventListener("clipboard", spy);
+
+                        expect(client._asyncClipboard.writeClipboard.calledOnceWith(
+                            expectedData
+                        )).to.be.true;
+                        expect(dispatchEventSpy.calledOnceWith(
+                            new CustomEvent("clipboard", {detail: {expectedData: expectedData}})
+                        )).to.be.true;
                     });
 
-                    it('should update clipboard with correct escape characters from a Provide message ', function () {
+                    it('should update clipboard with correct escape characters from a Provide message ', async function () {
+                        client._viewOnly = false;
+                        client._asyncClipboard = {
+                            writeClipboard: sinon.stub().returns(false),
+                        };
                         let expectedData = "Oh\nmy\n!";
                         let data = [3, 0, 0, 0];
                         const flags = [0x10, 0x00, 0x00, 0x01];
@@ -3569,16 +3670,23 @@ describe('Remote Frame Buffer protocol client', function () {
                         data = data.concat(flags);
                         data = data.concat(Array.from(deflatedText));
 
-                        const spy = sinon.spy();
-                        client.addEventListener("clipboard", spy);
+                        const dispatchEventSpy = sinon.spy(client, 'dispatchEvent');
 
                         client._sock._websocket._receiveData(new Uint8Array(data));
-                        expect(spy).to.have.been.calledOnce;
-                        expect(spy.args[0][0].detail.text).to.equal(expectedData);
-                        client.removeEventListener("clipboard", spy);
+
+                        expect(client._asyncClipboard.writeClipboard.calledOnceWith(
+                            expectedData
+                        )).to.be.true;
+                        expect(dispatchEventSpy.calledOnceWith(
+                            new CustomEvent("clipboard", {detail: {expectedData: expectedData}})
+                        )).to.be.true;
                     });
 
-                    it('should be able to handle large Provide messages', function () {
+                    it('should be able to handle large Provide messages', async function () {
+                        client._viewOnly = false;
+                        client._asyncClipboard = {
+                            writeClipboard: sinon.stub().returns(false),
+                        };
                         let expectedData = "hello".repeat(100000);
                         let data = [3, 0, 0, 0];
                         const flags = [0x10, 0x00, 0x00, 0x01];
@@ -3593,13 +3701,16 @@ describe('Remote Frame Buffer protocol client', function () {
                         data = data.concat(flags);
                         data = data.concat(Array.from(deflatedText));
 
-                        const spy = sinon.spy();
-                        client.addEventListener("clipboard", spy);
+                        const dispatchEventSpy = sinon.spy(client, 'dispatchEvent');
 
                         client._sock._websocket._receiveData(new Uint8Array(data));
-                        expect(spy).to.have.been.calledOnce;
-                        expect(spy.args[0][0].detail.text).to.equal(expectedData);
-                        client.removeEventListener("clipboard", spy);
+
+                        expect(client._asyncClipboard.writeClipboard.calledOnceWith(
+                            expectedData
+                        )).to.be.true;
+                        expect(dispatchEventSpy.calledOnceWith(
+                            new CustomEvent("clipboard", {detail: {expectedData: expectedData}})
+                        )).to.be.true;
                     });
 
                 });
