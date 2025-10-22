@@ -325,7 +325,7 @@ select:active {
 
 #noVNC_close_error {
   position: flex;
-  margin-left: auto; 
+  margin-left: auto;
   margin-right: 0;
   cursor: pointer;
   width: 20px;
@@ -453,7 +453,7 @@ select:active {
 }
 .noVNC_right #noVNC_control_bar_handle {
   background-position: left;
-  
+
 }
 .noVNC_right #noVNC_control_bar_handle:after {
   left: 5px;
@@ -1002,7 +1002,7 @@ body {
 .keyboard-controls .button.ctrl {
   background-image: url("../images/ctrl.svg");
   background-size: contain;
-}    
+}
 
 .keyboard-controls .button.alt {
   background-image: url("../images/alt.svg");
@@ -1110,6 +1110,12 @@ body {
 @media screen and (max-width: 320px) {
   #noVNC_logo {
     font-size: 90px;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  #noVNC_displays .arrange-buttons .flex {
+    flex-wrap: wrap;
   }
 }
 
@@ -1225,7 +1231,7 @@ a:visited {
 }
 #noVNC_connect_button:hover .image {
   color:#298453;
-  
+
 }
 #noVNC_connect_button:hover .go {
   transition: all 0.3s;
@@ -1276,7 +1282,7 @@ a:visited {
 }
 .canvas {
   background: rgb(225,225,226);
-  background: linear-gradient(0deg, rgba(225,225,226,1) 0%, rgba(237,237,238,1) 100%);  
+  background: linear-gradient(0deg, rgba(225,225,226,1) 0%, rgba(237,237,238,1) 100%);
 }
 .row {
   background: #e9e9ea;
@@ -1313,6 +1319,7 @@ a:visited {
   flex-direction: row;
   justify-content: center;
   align-items: center;
+  box-sizing: border-box;
 
   line-height: 25px;
   word-wrap: break-word;
@@ -1326,13 +1333,15 @@ a:visited {
 }
 #noVNC_displays .canvas {
   display: flex;
-  width: 700px;
+  width: 100%;
+  max-width: 700px;
   flex-direction: column;
   border-radius: 15px;
   background: #fdfdfd;
   padding: 15px 20px;
   box-shadow: 0 0 15px rgba(0,0,0,0.4);
   position: relative;
+  box-sizing: border-box;
 }
 #noVNC_displays .canvas-title {
   font-size: 14px;
@@ -1352,6 +1361,8 @@ a:visited {
   margin-top: 15px;
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 5px;
 }
 #noVNC_displays .arrange-buttons button, #noVNC_displays .arrange-buttons .button {
   border: none;
