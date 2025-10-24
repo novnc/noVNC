@@ -3,15 +3,26 @@ on:
   release:
     types: [created]
 
+permissions:
+  contents: write
+  id-token: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5.1.0
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::028537455170:role/Github/GithubAssetsUploadRole_jvm-oom-handler
+          role-session-name: GithubAction
 
       - name: Upload to s3
-        run: ./uploadToS3.sh "${{ secrets.ASSETS_UPLOADER_KEY }}" "${{ secrets.ASSETS_UPLOADER_SECRET }}" "${{ github.event.release.tag_name }}"
+        run: ./uploadToS3.sh "${{ github.event.release.tag_name }}"
 
       - name: Slack
         uses: codio/codio-slack-action@master
