@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: noVNC 1.6.0\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
-"POT-Creation-Date: 2025-02-14 10:14+0100\n"
+"POT-Creation-Date: 2025-10-31 09:17+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -38,39 +38,43 @@ msgstr ""
 msgid "Internal error"
 msgstr ""
 
-#: ../app/ui.js:1079
+#: ../app/ui.js:1084
 msgid "Failed to connect to server: "
 msgstr ""
 
-#: ../app/ui.js:1145
+#: ../app/ui.js:1151
 msgid "Connected (encrypted) to "
 msgstr ""
 
-#: ../app/ui.js:1147
+#: ../app/ui.js:1153
 msgid "Connected (unencrypted) to "
 msgstr ""
 
-#: ../app/ui.js:1170
+#: ../app/ui.js:1178
 msgid "Something went wrong, connection is closed"
 msgstr ""
 
-#: ../app/ui.js:1173
+#: ../app/ui.js:1181
 msgid "Failed to connect to server"
 msgstr ""
 
-#: ../app/ui.js:1185
+#: ../app/ui.js:1193
 msgid "Disconnected"
 msgstr ""
 
-#: ../app/ui.js:1200
+#: ../app/ui.js:1210
 msgid "New connection has been rejected with reason: "
 msgstr ""
 
-#: ../app/ui.js:1203
+#: ../app/ui.js:1213
 msgid "New connection has been rejected"
 msgstr ""
 
-#: ../app/ui.js:1269
+#: ../app/ui.js:1225
+msgid "Are you sure you want to disconnect the session?"
+msgstr ""
+
+#: ../app/ui.js:1297
 msgid "Credentials are required"
 msgstr ""
 
