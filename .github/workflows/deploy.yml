@@ -23,7 +23,7 @@ jobs:
         with:
           # Needs to be explicitly specified for auth to work
           registry-url: 'https://registry.npmjs.org'
-      - run: npm install
+      - run: npm install -g npm@latest
       - uses: actions/upload-artifact@v4
         with:
           name: npm
