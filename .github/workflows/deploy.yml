@@ -29,22 +29,16 @@ jobs:
           name: npm
           path: lib
       - run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
         if: |
           github.repository == 'novnc/noVNC' &&
           github.event_name == 'release' &&
           !github.event.release.prerelease
       - run: npm publish --access public --tag beta
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
         if: |
           github.repository == 'novnc/noVNC' &&
           github.event_name == 'release' &&
           github.event.release.prerelease
       - run: npm publish --access public --tag dev
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
         if: |
           github.repository == 'novnc/noVNC' &&
           github.event_name == 'push' &&
