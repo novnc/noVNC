@@ -21,9 +21,12 @@ jobs:
         if: github.event_name != 'release'
       - uses: actions/setup-node@v4
         with:
+          # Node 24 is needed to get npm > 11.5.1, which is a requirement for
+          # OIDC auth.
+          node-version: 24
           # Needs to be explicitly specified for auth to work
           registry-url: 'https://registry.npmjs.org'
-      - run: npm install -g npm@latest
+      - run: npm install
       - uses: actions/upload-artifact@v4
         with:
           name: npm
