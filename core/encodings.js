@@ -54,6 +54,7 @@ export const encodings = {
     pseudoEncodingVideoOutTimeLevel1: -1986,
     pseudoEncodingVideoOutTimeLevel100: -1887,
     pseudoEncodingQOI: -1886,
+    pseudoEncodingKasmDisconnectNotify: -1885,
 
     pseudoEncodingVMwareCursor: 0x574d5664,
     pseudoEncodingVMwareCursorPosition: 0x574d5666,
