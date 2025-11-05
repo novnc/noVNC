@@ -9,6 +9,7 @@ import KeyTable from '../core/input/keysym.js';
 import legacyCrypto from '../core/crypto/crypto.js';
 
 import FakeWebSocket from './fake.websocket.js';
+import WakeLockManager from '../core/util/wakelock.js';
 
 function push8(arr, num) {
     "use strict";
@@ -5258,6 +5259,102 @@ describe('Remote Frame Buffer protocol client', function () {
             expect(RFB.messages.clientEncodings).to.have.been.calledOnce;
             expect(RFB.messages.clientEncodings.getCall(0).args[1]).to.include(encodings.pseudoEncodingCompressLevel0 + newCompression);
         });
+    });
+
+    describe('wakelock setting', function () {
+        let client;
+
+        beforeEach(function () {
+            sinon.spy(WakeLockManager.prototype, "acquire");
+            sinon.spy(WakeLockManager.prototype, "release");
+
+            client = makeRFB();
+        });
+
+        afterEach(function () {
+            WakeLockManager.prototype.acquire.restore();
+            WakeLockManager.prototype.release.restore();
+        });
+
+        it('should acquire wakelock when connected', function() {
+            expect(WakeLockManager.prototype.acquire).to.not.have.been.called;
+
+            client.requestLocalWakelock = true;
+            expect(WakeLockManager.prototype.acquire).to.have.been.calledOnce;
+        });
+
+        it('should acquire wakelock after connection', function() {
+            expect(WakeLockManager.prototype.acquire).to.not.have.been.called;
+            client._rfbConnectionState = 'connecting';
+
+            client.requestLocalWakelock = true;
+            expect(WakeLockManager.prototype.acquire).to.not.have.been.called;
+
+            client._updateConnectionState('connected');
+            expect(WakeLockManager.prototype.acquire).to.have.been.calledOnce;
+        });
+
+        it('should release wakelock when disabled', function() {
+            client.requestLocalWakelock = true;
+            expect(WakeLockManager.prototype.acquire).to.have.been.calledOnce;
+            expect(WakeLockManager.prototype.release).to.not.have.been.called;
+
+            client.requestLocalWakelock = false;
+            expect(WakeLockManager.prototype.release).to.have.been.calledOnce;
+        });
+
+        it('should release wakelock when disconnected', function() {
+            client.requestLocalWakelock = true;
+            expect(WakeLockManager.prototype.acquire).to.have.been.calledOnce;
+            expect(WakeLockManager.prototype.release).to.not.have.been.called;
+
+            client.disconnect();
+            expect(WakeLockManager.prototype.release).to.have.been.calledOnce;
+        });
+
+        it('should behave sensibly with non-boolean values', function() {
+            // Client starts with requestLocakWakelock = false, setting it to
+            // the same value should have no effect.
+            client.requestLocalWakelock = false;
+            expect(client.requestLocalWakelock).to.be.false;
+            expect(WakeLockManager.prototype.acquire).to.not.have.been.called;
+            expect(WakeLockManager.prototype.release).to.not.have.been.called;
+
+            // Setting it to something else falsely should have no effect.
+            client.requestLocalWakelock = null;
+            expect(client.requestLocalWakelock).to.be.false;
+            expect(WakeLockManager.prototype.acquire).to.not.have.been.called;
+            expect(WakeLockManager.prototype.release).to.not.have.been.called;
+
+            // Setting it to something else falsely should have no effect.
+            client.requestLocalWakelock = undefined;
+            expect(client.requestLocalWakelock).to.be.false;
+            expect(WakeLockManager.prototype.acquire).to.not.have.been.called;
+            expect(WakeLockManager.prototype.release).to.not.have.been.called;
+
+            // Switching to something true should trigger a single call to
+            // acquire.
+            client.requestLocalWakelock = true;
+            expect(client.requestLocalWakelock).to.be.true;
+            expect(WakeLockManager.prototype.acquire).to.have.been.calledOnce;
+            expect(WakeLockManager.prototype.release).to.not.have.been.called;
+
+            WakeLockManager.prototype.acquire.resetHistory();
+
+            // Switching to something else trueish should have no effect.
+            client.requestLocalWakelock = "some-value";
+            expect(client.requestLocalWakelock).to.be.true;
+            expect(WakeLockManager.prototype.acquire).to.not.have.been.called;
+            expect(WakeLockManager.prototype.release).to.not.have.been.called;
+
+            // Validate that switching from a trueish value to a falseish value
+            // works.
+            client.requestLocalWakelock = null;
+            expect(client.requestLocalWakelock).to.be.false;
+            expect(WakeLockManager.prototype.acquire).to.not.have.been.called;
+            expect(WakeLockManager.prototype.release).to.have.been.calledOnce;
+        });
+
     });
 });
 

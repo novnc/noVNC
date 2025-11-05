@@ -27,6 +27,7 @@ import XtScancode from "./input/xtscancodes.js";
 import { encodings } from "./encodings.js";
 import RSAAESAuthenticationState from "./ra2.js";
 import legacyCrypto from "./crypto/crypto.js";
+import WakeLockManager from './util/wakelock.js';
 
 import RawDecoder from "./decoders/raw.js";
 import CopyRectDecoder from "./decoders/copyrect.js";
@@ -169,6 +170,7 @@ export default class RFB extends EventTargetMixin {
         this._keyboard = null;          // Keyboard input handler object
         this._gestures = null;          // Gesture input handler object
         this._resizeObserver = null;    // Resize observer object
+        this._wakelock = new WakeLockManager();
 
         // Timers
         this._disconnTimer = null;      // disconnection timer
@@ -308,6 +310,8 @@ export default class RFB extends EventTargetMixin {
 
         this._qualityLevel = 6;
         this._compressionLevel = 2;
+
+        this._requestLocalWakelock = false;
     }
 
     // ===== PROPERTIES =====
@@ -417,6 +421,24 @@ export default class RFB extends EventTargetMixin {
 
         if (this._rfbConnectionState === 'connected') {
             this._sendEncodings();
+        }
+    }
+
+    get requestLocalWakelock() {
+        return this._requestLocalWakelock;
+    }
+    set requestLocalWakelock(requestLocalWakelock) {
+        let newState = !!requestLocalWakelock;
+        if (newState === this._requestLocalWakelock) {
+            return;
+        }
+        this._requestLocalWakelock = newState;
+        if (newState) {
+            if (this._rfbConnectionState === 'connected') {
+                this._wakelock.acquire();
+            }
+        } else {
+            this._wakelock.release();
         }
     }
 
@@ -934,6 +956,9 @@ export default class RFB extends EventTargetMixin {
                 break;
 
             case 'connected':
+                if (this._requestLocalWakelock) {
+                    this._wakelock.acquire();
+                }
                 this.dispatchEvent(new CustomEvent("connect", { detail: {} }));
                 break;
 
@@ -950,6 +975,7 @@ export default class RFB extends EventTargetMixin {
                 this.dispatchEvent(new CustomEvent(
                     "disconnect", { detail:
                                     { clean: this._rfbCleanDisconnect } }));
+                this._wakelock.release();
                 break;
         }
     }

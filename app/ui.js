@@ -189,6 +189,7 @@ const UI = {
         UI.initSetting('repeaterID', '');
         UI.initSetting('reconnect', false);
         UI.initSetting('reconnect_delay', 5000);
+        UI.initSetting('request_wakelock', false);
     },
     // Adds a link to the label elements on the corresponding input elements
     setupSettingLabels() {
@@ -371,6 +372,8 @@ const UI = {
         UI.addSettingChangeHandler('view_only', UI.updateViewOnly);
         UI.addSettingChangeHandler('show_dot');
         UI.addSettingChangeHandler('show_dot', UI.updateShowDotCursor);
+        UI.addSettingChangeHandler('request_wakelock');
+        UI.addSettingChangeHandler('request_wakelock', UI.updateRequestWakelock);
         UI.addSettingChangeHandler('host');
         UI.addSettingChangeHandler('port');
         UI.addSettingChangeHandler('path');
@@ -1101,6 +1104,7 @@ const UI = {
         UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
         UI.rfb.compressionLevel = parseInt(UI.getSetting('compression'));
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
+        UI.rfb.requestLocalWakelock = UI.getSetting('request_wakelock');
 
         UI.updateViewOnly(); // requires UI.rfb
         UI.updateClipboard();
@@ -1818,6 +1822,12 @@ const UI = {
         // Display the desktop name in the document title
         document.title = e.detail.name + " - " + PAGE_TITLE;
     },
+
+    updateRequestWakelock() {
+        if (!UI.rfb) return;
+        UI.rfb.requestLocalWakelock = UI.getSetting('request_wakelock');
+    },
+
 
     bell(e) {
         if (UI.getSetting('bell') === 'on') {
