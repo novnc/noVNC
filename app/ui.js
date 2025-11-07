@@ -993,10 +993,25 @@ const UI = {
             UI.openClipboardPanel();
         }
     },
+    showCopiedNotification() {
+        // This is responsible for showing the notification when text is updated in the clipboard.
+        const notificationBox = document.createElement("div");
+        notificationBox.className = "notification";
+        notificationBox.innerText = "Clipboard updated";
+        document.body.appendChild(notificationBox);
+
+        setTimeout(() => {
+            notificationBox.classList.add("fade-out");
+            setTimeout(() => {
+                notificationBox.remove();
+            }, 500); // Wait for fade-out transition
+        }, 3000); // Display for 3 seconds
+    },
 
     clipboardReceive(e) {
         Log.Debug(">> UI.clipboardReceive: " + e.detail.text.substr(0, 40) + "...");
         document.getElementById('noVNC_clipboard_text').value = e.detail.text;
+        UI.showCopiedNotification();
         Log.Debug("<< UI.clipboardReceive");
     },
 
