@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
 import Websock from '../core/websock.js';
 import FakeWebSocket from './fake.websocket.js';
 
@@ -352,7 +353,7 @@ describe('Websock', function () {
 
     describe('lifecycle methods', function () {
         let oldWS;
-        before(function () {
+        beforeAll(function () {
             oldWS = WebSocket;
         });
 
@@ -360,7 +361,11 @@ describe('Websock', function () {
         beforeEach(function () {
             sock = new Websock();
             // eslint-disable-next-line no-global-assign
-            WebSocket = sinon.spy(FakeWebSocket);
+            WebSocket = vi.fn(FakeWebSocket);
+        });
+
+        afterEach(function () {
+            vi.restoreAllMocks();
         });
 
         describe('opening', function () {
@@ -370,7 +375,7 @@ describe('Websock', function () {
 
             it('should open the actual websocket', function () {
                 sock.open('ws://localhost:8675', 'binary');
-                expect(WebSocket).to.have.been.calledWith('ws://localhost:8675', 'binary');
+                expect(WebSocket).toHaveBeenCalledWith('ws://localhost:8675', 'binary');
             });
 
             // it('should initialize the event handlers')?
@@ -380,79 +385,79 @@ describe('Websock', function () {
             it('should attach to an existing websocket', function () {
                 let ws = new FakeWebSocket('ws://localhost:8675');
                 sock.attach(ws);
-                expect(WebSocket).to.not.have.been.called;
+                expect(WebSocket).not.toHaveBeenCalled();
             });
         });
 
         describe('closing', function () {
             beforeEach(function () {
                 sock.open('ws://localhost');
-                sock._websocket.close = sinon.spy();
+                sock._websocket.close = vi.fn();
             });
 
             it('should close the actual websocket if it is open', function () {
                 sock._websocket.readyState = WebSocket.OPEN;
                 sock.close();
-                expect(sock._websocket.close).to.have.been.calledOnce;
+                expect(sock._websocket.close).toHaveBeenCalledOnce();
             });
 
             it('should close the actual websocket if it is connecting', function () {
                 sock._websocket.readyState = WebSocket.CONNECTING;
                 sock.close();
-                expect(sock._websocket.close).to.have.been.calledOnce;
+                expect(sock._websocket.close).toHaveBeenCalledOnce();
             });
 
             it('should not try to close the actual websocket if closing', function () {
                 sock._websocket.readyState = WebSocket.CLOSING;
                 sock.close();
-                expect(sock._websocket.close).not.to.have.been.called;
+                expect(sock._websocket.close).not.toHaveBeenCalled();
             });
 
             it('should not try to close the actual websocket if closed', function () {
                 sock._websocket.readyState = WebSocket.CLOSED;
                 sock.close();
-                expect(sock._websocket.close).not.to.have.been.called;
+                expect(sock._websocket.close).not.toHaveBeenCalled();
             });
 
             it('should reset onmessage to not call _recvMessage', function () {
-                sinon.spy(sock, '_recvMessage');
+                vi.spyOn(sock, '_recvMessage');
                 sock.close();
                 sock._websocket.onmessage(null);
                 try {
-                    expect(sock._recvMessage).not.to.have.been.called;
+                    expect(sock._recvMessage).not.toHaveBeenCalled();
                 } finally {
-                    sock._recvMessage.restore();
+                    sock._recvMessage.mockRestore();
                 }
             });
         });
 
         describe('event handlers', function () {
             beforeEach(function () {
-                sock._recvMessage = sinon.spy();
-                sock.on('open', sinon.spy());
-                sock.on('close', sinon.spy());
-                sock.on('error', sinon.spy());
+                sock._recvMessage = vi.fn();
+                sock.on('open', vi.fn());
+                sock.on('close', vi.fn());
+                sock.on('error', vi.fn());
                 sock.open('ws://localhost');
             });
 
             it('should call _recvMessage on a message', function () {
                 sock._websocket.onmessage(null);
-                expect(sock._recvMessage).to.have.been.calledOnce;
+                expect(sock._recvMessage).toHaveBeenCalledOnce();
             });
 
             it('should call the open event handler on opening', function () {
                 sock._websocket.onopen();
-                expect(sock._eventHandlers.open).to.have.been.calledOnce;
+                expect(sock._eventHandlers.open).toHaveBeenCalledOnce();
             });
 
             it('should call the close event handler on closing', function () {
                 sock._websocket.onclose();
-                expect(sock._eventHandlers.close).to.have.been.calledOnce;
+                expect(sock._eventHandlers.close).toHaveBeenCalledOnce();
             });
 
             it('should call the error event handler on error', function () {
                 sock._websocket.onerror();
-                expect(sock._eventHandlers.error).to.have.been.calledOnce;
+                expect(sock._eventHandlers.error).toHaveBeenCalledOnce();
             });
         });
 
@@ -543,7 +548,7 @@ describe('Websock', function () {
             });
         });
 
-        after(function () {
+        afterAll(function () {
             // eslint-disable-next-line no-global-assign
             WebSocket = oldWS;
         });
@@ -563,19 +568,19 @@ describe('Websock', function () {
         });
 
         it('should call the message event handler if present', function () {
-            sock._eventHandlers.message = sinon.spy();
+            sock._eventHandlers.message = vi.fn();
             const msg = { data: new Uint8Array([1, 2, 3]).buffer };
             sock._mode = 'binary';
             sock._recvMessage(msg);
-            expect(sock._eventHandlers.message).to.have.been.calledOnce;
+            expect(sock._eventHandlers.message).toHaveBeenCalledOnce();
         });
 
         it('should not call the message event handler if there is nothing in the receive queue', function () {
-            sock._eventHandlers.message = sinon.spy();
+            sock._eventHandlers.message = vi.fn();
             const msg = { data: new Uint8Array([]).buffer };
             sock._mode = 'binary';
             sock._recvMessage(msg);
-            expect(sock._eventHandlers.message).not.to.have.been.called;
+            expect(sock._eventHandlers.message).not.toHaveBeenCalled();
         });
 
         it('should compact the receive queue when fully read', function () {

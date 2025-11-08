@@ -1,5 +1,6 @@
 /* jshint expr: true */
 
+import { vi, describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
 import * as WebUtil from '../app/webutil.js';
 
 describe('WebUtil', function () {
@@ -52,19 +53,17 @@ describe('WebUtil', function () {
         });
     });
 
-    describe('cookies', function () {
-        // TODO
-    });
+    describe.todo('cookies');
 
     describe('settings', function () {
 
         describe('localStorage', function () {
             let chrome = window.chrome;
-            before(function () {
+            beforeAll(function () {
                 chrome = window.chrome;
                 window.chrome = null;
             });
-            after(function () {
+            afterAll(function () {
                 window.chrome = chrome;
             });
 
@@ -74,9 +73,9 @@ describe('WebUtil', function () {
 
                 Object.defineProperty(window, "localStorage", {value: {}});
 
-                window.localStorage.setItem = sinon.stub();
-                window.localStorage.getItem = sinon.stub();
-                window.localStorage.removeItem = sinon.stub();
+                window.localStorage.setItem = vi.fn();
+                window.localStorage.getItem = vi.fn();
+                window.localStorage.removeItem = vi.fn();
 
                 return WebUtil.initSettings();
             });
@@ -87,12 +86,12 @@ describe('WebUtil', function () {
             describe('writeSetting', function () {
                 it('should save the setting value to local storage', function () {
                     WebUtil.writeSetting('test', 'value');
-                    expect(window.localStorage.setItem).to.have.been.calledWithExactly('test', 'value');
+                    expect(window.localStorage.setItem).toHaveBeenCalledWith('test', 'value');
                     expect(WebUtil.readSetting('test')).to.equal('value');
                 });
 
                 it('should not crash when local storage save fails', function () {
-                    localStorage.setItem.throws(new DOMException());
+                    localStorage.setItem.mockImplementation(() => { throw new DOMException(); });
                     expect(WebUtil.writeSetting('test', 'value')).to.not.throw;
                 });
             });
@@ -100,14 +99,14 @@ describe('WebUtil', function () {
             describe('setSetting', function () {
                 it('should update the setting but not save to local storage', function () {
                     WebUtil.setSetting('test', 'value');
-                    expect(window.localStorage.setItem).to.not.have.been.called;
+                    expect(window.localStorage.setItem).not.toHaveBeenCalled();
                     expect(WebUtil.readSetting('test')).to.equal('value');
                 });
             });
 
             describe('readSetting', function () {
                 it('should read the setting value from local storage', function () {
-                    localStorage.getItem.returns('value');
+                    localStorage.getItem.mockReturnValue('value');
                     expect(WebUtil.readSetting('test')).to.equal('value');
                 });
 
@@ -116,33 +115,33 @@ describe('WebUtil', function () {
                 });
 
                 it('should return the cached value even if local storage changed', function () {
-                    localStorage.getItem.returns('value');
+                    localStorage.getItem.mockReturnValue('value');
                     expect(WebUtil.readSetting('test')).to.equal('value');
-                    localStorage.getItem.returns('something else');
+                    localStorage.getItem.mockReturnValue('something else');
                     expect(WebUtil.readSetting('test')).to.equal('value');
                 });
 
                 it('should cache the value even if it is not initially in local storage', function () {
                     expect(WebUtil.readSetting('test')).to.be.null;
-                    localStorage.getItem.returns('value');
+                    localStorage.getItem.mockReturnValue('value');
                     expect(WebUtil.readSetting('test')).to.be.null;
                 });
 
                 it('should return the default value always if the first read was not in local storage', function () {
                     expect(WebUtil.readSetting('test', 'default')).to.equal('default');
-                    localStorage.getItem.returns('value');
+                    localStorage.getItem.mockReturnValue('value');
                     expect(WebUtil.readSetting('test', 'another default')).to.equal('another default');
                 });
 
                 it('should return the last local written value', function () {
-                    localStorage.getItem.returns('value');
+                    localStorage.getItem.mockReturnValue('value');
                     expect(WebUtil.readSetting('test')).to.equal('value');
                     WebUtil.writeSetting('test', 'something else');
                     expect(WebUtil.readSetting('test')).to.equal('something else');
                 });
 
                 it('should not crash when local storage read fails', function () {
-                    localStorage.getItem.throws(new DOMException());
+                    localStorage.getItem.mockImplementation(() => { throw new DOMException(); });
                     expect(WebUtil.readSetting('test')).to.not.throw;
                 });
             });
@@ -151,11 +150,11 @@ describe('WebUtil', function () {
             describe('eraseSetting', function () {
                 it('should remove the setting from local storage', function () {
                     WebUtil.eraseSetting('test');
-                    expect(window.localStorage.removeItem).to.have.been.calledWithExactly('test');
+                    expect(window.localStorage.removeItem).toHaveBeenCalledWith('test');
                 });
 
                 it('should not crash when local storage remove fails', function () {
-                    localStorage.removeItem.throws(new DOMException());
+                    localStorage.removeItem.mockImplementation(() => { throw new DOMException(); });
                     expect(WebUtil.eraseSetting('test')).to.not.throw;
                 });
             });
@@ -164,7 +163,7 @@ describe('WebUtil', function () {
         describe('chrome.storage', function () {
             let chrome = window.chrome;
             let settings = {};
-            before(function () {
+            beforeAll(function () {
                 chrome = window.chrome;
                 window.chrome = {
                     storage: {
@@ -176,25 +175,25 @@ describe('WebUtil', function () {
                     }
                 };
             });
-            after(function () {
+            afterAll(function () {
                 window.chrome = chrome;
             });
 
             beforeEach(function () {
                 settings = {};
-                sinon.spy(window.chrome.storage.sync, 'set');
-                sinon.spy(window.chrome.storage.sync, 'remove');
+                vi.spyOn(window.chrome.storage.sync, 'set');
+                vi.spyOn(window.chrome.storage.sync, 'remove');
                 return WebUtil.initSettings();
             });
             afterEach(function () {
-                window.chrome.storage.sync.set.restore();
-                window.chrome.storage.sync.remove.restore();
+                window.chrome.storage.sync.set.mockRestore();
+                window.chrome.storage.sync.remove.mockRestore();
             });
 
             describe('writeSetting', function () {
                 it('should save the setting value to chrome storage', function () {
                     WebUtil.writeSetting('test', 'value');
-                    expect(window.chrome.storage.sync.set).to.have.been.calledWithExactly(sinon.match({ test: 'value' }));
+                    expect(window.chrome.storage.sync.set).toHaveBeenCalledWith(expect.objectContaining({ test: 'value' }));
                     expect(WebUtil.readSetting('test')).to.equal('value');
                 });
             });
@@ -202,7 +201,7 @@ describe('WebUtil', function () {
             describe('setSetting', function () {
                 it('should update the setting but not save to chrome storage', function () {
                     WebUtil.setSetting('test', 'value');
-                    expect(window.chrome.storage.sync.set).to.not.have.been.called;
+                    expect(window.chrome.storage.sync.set).not.toHaveBeenCalled();
                     expect(WebUtil.readSetting('test')).to.equal('value');
                 });
             });
@@ -229,7 +228,7 @@ describe('WebUtil', function () {
             describe('eraseSetting', function () {
                 it('should remove the setting from chrome storage', function () {
                     WebUtil.eraseSetting('test');
-                    expect(window.chrome.storage.sync.remove).to.have.been.calledWithExactly('test');
+                    expect(window.chrome.storage.sync.remove).toHaveBeenCalledWith('test');
                 });
             });
         });

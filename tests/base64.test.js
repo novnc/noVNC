@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import Base64 from '../core/base64.js';
 
 describe('Base64 tools', function () {

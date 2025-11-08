@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 /* eslint-disable no-console */
 import * as Log from '../core/util/logging.js';
 import { encodeUTF8, decodeUTF8 } from '../core/util/strings.js';
@@ -7,19 +8,19 @@ describe('Utils', function () {
 
     describe('logging functions', function () {
         beforeEach(function () {
-            sinon.spy(console, 'log');
-            sinon.spy(console, 'debug');
-            sinon.spy(console, 'warn');
-            sinon.spy(console, 'error');
-            sinon.spy(console, 'info');
+            vi.spyOn(console, 'log');
+            vi.spyOn(console, 'debug');
+            vi.spyOn(console, 'warn');
+            vi.spyOn(console, 'error');
+            vi.spyOn(console, 'info');
         });
 
         afterEach(function () {
-            console.log.restore();
-            console.debug.restore();
-            console.warn.restore();
-            console.error.restore();
-            console.info.restore();
+            console.log.mockRestore();
+            console.debug.mockRestore();
+            console.warn.mockRestore();
+            console.error.mockRestore();
+            console.info.mockRestore();
             Log.initLogging();
         });
 
@@ -27,33 +28,33 @@ describe('Utils', function () {
             Log.initLogging('warn');
             Log.Debug('hi');
             Log.Info('hello');
-            expect(console.log).to.not.have.been.called;
+            expect(console.log).not.toHaveBeenCalled();
         });
 
         it('should use console.debug for Debug', function () {
             Log.initLogging('debug');
             Log.Debug('dbg');
-            expect(console.debug).to.have.been.calledWith('dbg');
+            expect(console.debug).toHaveBeenCalledWith('dbg');
         });
 
         it('should use console.info for Info', function () {
             Log.initLogging('debug');
             Log.Info('inf');
-            expect(console.info).to.have.been.calledWith('inf');
+            expect(console.info).toHaveBeenCalledWith('inf');
         });
 
         it('should use console.warn for Warn', function () {
             Log.initLogging('warn');
             Log.Warn('wrn');
-            expect(console.warn).to.have.been.called;
-            expect(console.warn).to.have.been.calledWith('wrn');
+            expect(console.warn).toHaveBeenCalled();
+            expect(console.warn).toHaveBeenCalledWith('wrn');
         });
 
         it('should use console.error for Error', function () {
             Log.initLogging('error');
             Log.Error('err');
-            expect(console.error).to.have.been.called;
-            expect(console.error).to.have.been.calledWith('err');
+            expect(console.error).toHaveBeenCalled();
+            expect(console.error).toHaveBeenCalledWith('err');
         });
     });
 
