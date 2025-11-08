@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { isMac, isWindows, isIOS, isAndroid, isChromeOS,
          isSafari, isFirefox, isChrome, isChromium, isOpera, isEdge,
          isGecko, isWebKit, isBlink,
@@ -7,52 +8,55 @@ describe('Async clipboard', function () {
     "use strict";
 
     beforeEach(function () {
-        sinon.stub(navigator, "clipboard").value({
-            writeText: sinon.stub(),
-            readText: sinon.stub(),
-        });
-        sinon.stub(navigator, "permissions").value({
-            query: sinon.stub().resolves({ state: "granted" })
+        vi.stubGlobal('navigator', {
+            ...navigator,
+            clipboard: {
+                writeText: vi.fn(),
+                readText: vi.fn(),
+            },
+            permissions: {
+                query: vi.fn().mockResolvedValue({ state: "granted" })
+            }
         });
     });
 
     afterEach(function () {
-        sinon.restore();
+        vi.restoreAllMocks();
     });
 
     it("queries permissions with correct parameters", async function () {
         const queryStub = navigator.permissions.query;
         await browserAsyncClipboardSupport();
-        expect(queryStub.firstCall).to.have.been.calledWithExactly({
+        expect(queryStub).toHaveBeenNthCalledWith(1, {
             name: "clipboard-write",
             allowWithoutGesture: true
         });
-        expect(queryStub.secondCall).to.have.been.calledWithExactly({
+        expect(queryStub).toHaveBeenNthCalledWith(2, {
             name: "clipboard-read",
             allowWithoutGesture: false
         });
     });
 
     it("is available when API present and permissions granted", async function () {
-        navigator.permissions.query.resolves({ state: "granted" });
+        navigator.permissions.query.mockResolvedValue({ state: "granted" });
         const result = await browserAsyncClipboardSupport();
         expect(result).to.equal('available');
     });
 
     it("is available when API present and permissions yield 'prompt'", async function () {
-        navigator.permissions.query.resolves({ state: "prompt" });
+        navigator.permissions.query.mockResolvedValue({ state: "prompt" });
         const result = await browserAsyncClipboardSupport();
         expect(result).to.equal('available');
     });
 
     it("is unavailable when permissions denied", async function () {
-        navigator.permissions.query.resolves({ state: "denied" });
+        navigator.permissions.query.mockResolvedValue({ state: "denied" });
         const result = await browserAsyncClipboardSupport();
         expect(result).to.equal('denied');
     });
 
     it("is unavailable when permissions API fails", async function () {
-        navigator.permissions.query.rejects(new Error("fail"));
+        navigator.permissions.query.mockRejectedValue(new Error("fail"));
         const result = await browserAsyncClipboardSupport();
         expect(result).to.equal('unsupported');
     });

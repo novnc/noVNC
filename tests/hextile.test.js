@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import Websock from '../core/websock.js';
 import Display from '../core/display.js';
 
@@ -40,8 +41,8 @@ describe('Hextile decoder', function () {
     let decoder;
     let display;
 
-    before(FakeWebSocket.replace);
-    after(FakeWebSocket.restore);
+    beforeAll(FakeWebSocket.replace);
+    afterAll(FakeWebSocket.restore);
 
     beforeEach(function () {
         decoder = new HextileDecoder();

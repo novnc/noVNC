@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import keysyms from '../core/input/keysymdef.js';
 import * as KeyboardUtil from "../core/input/util.js";
 
@@ -140,8 +141,8 @@ describe('Helpers', function () {
             it('should handle Windows key with incorrect location', function () {
                 expect(KeyboardUtil.getKeysym({key: 'Meta', location: 0})).to.be.equal(0xFFEC);
             });
-            it('should handle Clear/NumLock key with incorrect location', function () {
-                this.skip(); // Broken because of Clear/NumLock override
+            it('should handle Clear/NumLock key with incorrect location', function ({ skip }) {
+                skip(); // Broken because of Clear/NumLock override
                 expect(KeyboardUtil.getKeysym({key: 'Clear', code: 'NumLock', location: 3})).to.be.equal(0xFF0B);
             });
             it('should handle Meta/Windows distinction', function () {

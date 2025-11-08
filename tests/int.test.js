@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { toUnsigned32bit, toSigned32bit } from '../core/util/int.js';
 
 describe('Integer casting', function () {

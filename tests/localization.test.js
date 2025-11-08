@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import _, { Localizer, l10n } from '../app/localization.js';
 
 describe('Localization', function () {
@@ -15,11 +16,11 @@ describe('Localization', function () {
         Object.defineProperty(window, "navigator", {value: {}});
         window.navigator.languages = [];
 
-        fetch = sinon.stub(window, "fetch");
-        fetch.resolves(new Response("{}"));
+        fetch = vi.spyOn(window, "fetch");
+        fetch.mockResolvedValue(new Response("{}"));
     });
     afterEach(function () {
-        fetch.restore();
+        vi.restoreAllMocks();
 
         Object.defineProperty(window, "navigator", origNavigator);
     });
@@ -31,7 +32,7 @@ describe('Localization', function () {
         it('should export a singleton translation function', async function () {
             // FIXME: Can we use some spy instead?
             window.navigator.languages = ["de"];
-            fetch.resolves(new Response(JSON.stringify({ "Foobar": "gazonk" })));
+            fetch.mockResolvedValue(new Response(JSON.stringify({ "Foobar": "gazonk" })));
             await l10n.setup(["de"]);
             expect(_("Foobar")).to.equal("gazonk");
         });
@@ -103,35 +104,38 @@ describe('Localization', function () {
             window.navigator.languages = [];
             let lclz = new Localizer();
             await lclz.setup([]);
-            expect(fetch).to.not.have.been.called;
+            expect(fetch).not.toHaveBeenCalled();
         });
         it('should fetch dictionary relative base URL', async function () {
             window.navigator.languages = ["de", "fr"];
-            fetch.resolves(new Response('{ "Foobar": "gazonk" }'));
+            fetch.mockResolvedValue(new Response('{ "Foobar": "gazonk" }'));
             let lclz = new Localizer();
             await lclz.setup(["ru", "fr"], "/some/path/");
-            expect(fetch).to.have.been.calledOnceWith("/some/path/fr.json");
+            expect(fetch).toHaveBeenCalledOnce();
+            expect(fetch).toHaveBeenCalledWith("/some/path/fr.json");
             expect(lclz.get("Foobar")).to.equal("gazonk");
         });
         it('should handle base URL without trailing slash', async function () {
             window.navigator.languages = ["de", "fr"];
-            fetch.resolves(new Response('{ "Foobar": "gazonk" }'));
+            fetch.mockResolvedValue(new Response('{ "Foobar": "gazonk" }'));
             let lclz = new Localizer();
             await lclz.setup(["ru", "fr"], "/some/path");
-            expect(fetch).to.have.been.calledOnceWith("/some/path/fr.json");
+            expect(fetch).toHaveBeenCalledOnce();
+            expect(fetch).toHaveBeenCalledWith("/some/path/fr.json");
             expect(lclz.get("Foobar")).to.equal("gazonk");
         });
         it('should handle current base URL', async function () {
             window.navigator.languages = ["de", "fr"];
-            fetch.resolves(new Response('{ "Foobar": "gazonk" }'));
+            fetch.mockResolvedValue(new Response('{ "Foobar": "gazonk" }'));
             let lclz = new Localizer();
             await lclz.setup(["ru", "fr"]);
-            expect(fetch).to.have.been.calledOnceWith("fr.json");
+            expect(fetch).toHaveBeenCalledOnce();
+            expect(fetch).toHaveBeenCalledWith("fr.json");
             expect(lclz.get("Foobar")).to.equal("gazonk");
         });
         it('should fail if dictionary cannot be found', async function () {
             window.navigator.languages = ["de", "fr"];
-            fetch.resolves(new Response('{}', { status: 404 }));
+            fetch.mockResolvedValue(new Response('{}', { status: 404 }));
             let lclz = new Localizer();
             let ok = false;
             try {

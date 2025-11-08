@@ -258,15 +258,6 @@ export default class Websock {
     attach(rawChannel) {
         this.init();
 
-        // Must get object and class methods to be compatible with the tests.
-        const channelProps = [...Object.keys(rawChannel), ...Object.getOwnPropertyNames(Object.getPrototypeOf(rawChannel))];
-        for (let i = 0; i < rawChannelProps.length; i++) {
-            const prop = rawChannelProps[i];
-            if (channelProps.indexOf(prop) < 0) {
-                throw new Error('Raw channel missing property: ' + prop);
-            }
-        }
-
         this._websocket = rawChannel;
         this._websocket.binaryType = "arraybuffer";
         this._websocket.onmessage = this._recvMessage.bind(this);

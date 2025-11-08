@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import Keyboard from '../core/input/keyboard.js';
 
 describe('Key event handling', function () {
@@ -10,8 +11,8 @@ describe('Key event handling', function () {
         for (let key in KeyboardEventInit) {
             e[key] = KeyboardEventInit[key];
         }
-        e.stopPropagation = sinon.spy();
-        e.preventDefault = sinon.spy();
+        e.stopPropagation = vi.fn();
+        e.preventDefault = vi.fn();
         e.getModifierState = function (key) {
             return e[key];
         };
@@ -20,66 +21,74 @@ describe('Key event handling', function () {
     }
 
     describe('Decode keyboard events', function () {
-        it('should decode keydown events', function (done) {
-            const kbd = new Keyboard(document);
-            kbd.onkeyevent = (keysym, code, down) => {
-                expect(keysym).to.be.equal(0x61);
-                expect(code).to.be.equal('KeyA');
-                expect(down).to.be.equal(true);
-                done();
-            };
-            kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
-        });
-        it('should decode keyup events', function (done) {
-            let calls = 0;
-            const kbd = new Keyboard(document);
-            kbd.onkeyevent = (keysym, code, down) => {
-                expect(keysym).to.be.equal(0x61);
-                expect(code).to.be.equal('KeyA');
-                if (calls++ === 1) {
-                    expect(down).to.be.equal(false);
+        it('should decode keydown events', function () {
+            return new Promise((done) => {
+                const kbd = new Keyboard(document);
+                kbd.onkeyevent = (keysym, code, down) => {
+                    expect(keysym).to.be.equal(0x61);
+                    expect(code).to.be.equal('KeyA');
+                    expect(down).to.be.equal(true);
                     done();
-                }
-            };
-            kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
-            kbd._handleKeyUp(keyevent('keyup', {code: 'KeyA', key: 'a'}));
+                };
+                kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
+            });
+        });
+        it('should decode keyup events', function () {
+            return new Promise((done) => {
+                let calls = 0;
+                const kbd = new Keyboard(document);
+                kbd.onkeyevent = (keysym, code, down) => {
+                    expect(keysym).to.be.equal(0x61);
+                    expect(code).to.be.equal('KeyA');
+                    if (calls++ === 1) {
+                        expect(down).to.be.equal(false);
+                        done();
+                    }
+                };
+                kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
+                kbd._handleKeyUp(keyevent('keyup', {code: 'KeyA', key: 'a'}));
+            });
         });
     });
 
     describe('Fake keyup', function () {
-        it('should fake keyup events for virtual keyboards', function (done) {
-            let count = 0;
-            const kbd = new Keyboard(document);
-            kbd.onkeyevent = (keysym, code, down) => {
-                switch (count++) {
-                    case 0:
-                        expect(keysym).to.be.equal(0x61);
-                        expect(code).to.be.equal('Unidentified');
-                        expect(down).to.be.equal(true);
-                        break;
-                    case 1:
-                        expect(keysym).to.be.equal(0x61);
-                        expect(code).to.be.equal('Unidentified');
-                        expect(down).to.be.equal(false);
-                        done();
-                }
-            };
-            kbd._handleKeyDown(keyevent('keydown', {code: 'Unidentified', key: 'a'}));
+        it('should fake keyup events for virtual keyboards', function () {
+            return new Promise((done) => {
+                let count = 0;
+                const kbd = new Keyboard(document);
+                kbd.onkeyevent = (keysym, code, down) => {
+                    switch (count++) {
+                        case 0:
+                            expect(keysym).to.be.equal(0x61);
+                            expect(code).to.be.equal('Unidentified');
+                            expect(down).to.be.equal(true);
+                            break;
+                        case 1:
+                            expect(keysym).to.be.equal(0x61);
+                            expect(code).to.be.equal('Unidentified');
+                            expect(down).to.be.equal(false);
+                            done();
+                    }
+                };
+                kbd._handleKeyDown(keyevent('keydown', {code: 'Unidentified', key: 'a'}));
+            });
         });
     });
 
     describe('Track key state', function () {
-        it('should send release using the same keysym as the press', function (done) {
-            const kbd = new Keyboard(document);
-            kbd.onkeyevent = (keysym, code, down) => {
-                expect(keysym).to.be.equal(0x61);
-                expect(code).to.be.equal('KeyA');
-                if (!down) {
-                    done();
-                }
-            };
-            kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
-            kbd._handleKeyUp(keyevent('keyup', {code: 'KeyA', key: 'b'}));
+        it('should send release using the same keysym as the press', function () {
+            return new Promise((done) => {
+                const kbd = new Keyboard(document);
+                kbd.onkeyevent = (keysym, code, down) => {
+                    expect(keysym).to.be.equal(0x61);
+                    expect(code).to.be.equal('KeyA');
+                    if (!down) {
+                        done();
+                    }
+                };
+                kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
+                kbd._handleKeyUp(keyevent('keyup', {code: 'KeyA', key: 'b'}));
+            });
         });
         it('should send the same keysym for multiple presses', function () {
             let count = 0;
@@ -96,23 +105,25 @@ describe('Key event handling', function () {
         });
         it('should do nothing on keyup events if no keys are down', function () {
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
             kbd._handleKeyUp(keyevent('keyup', {code: 'KeyA', key: 'a'}));
-            expect(kbd.onkeyevent).to.not.have.been.called;
+            expect(kbd.onkeyevent).not.toHaveBeenCalled();
         });
 
         describe('Legacy events', function () {
-            it('should track keys using keyCode if no code', function (done) {
-                const kbd = new Keyboard(document);
-                kbd.onkeyevent = (keysym, code, down) => {
-                    expect(keysym).to.be.equal(0x61);
-                    expect(code).to.be.equal('Platform65');
-                    if (!down) {
-                        done();
-                    }
-                };
-                kbd._handleKeyDown(keyevent('keydown', {keyCode: 65, key: 'a'}));
-                kbd._handleKeyUp(keyevent('keyup', {keyCode: 65, key: 'b'}));
+            it('should track keys using keyCode if no code', function () {
+                return new Promise((done) => {
+                    const kbd = new Keyboard(document);
+                    kbd.onkeyevent = (keysym, code, down) => {
+                        expect(keysym).to.be.equal(0x61);
+                        expect(code).to.be.equal('Platform65');
+                        if (!down) {
+                            done();
+                        }
+                    };
+                    kbd._handleKeyDown(keyevent('keydown', {keyCode: 65, key: 'a'}));
+                    kbd._handleKeyUp(keyevent('keyup', {keyCode: 65, key: 'b'}));
+                });
             });
             it('should ignore compositing code', function () {
                 const kbd = new Keyboard(document);
@@ -122,17 +133,19 @@ describe('Key event handling', function () {
                 };
                 kbd._handleKeyDown(keyevent('keydown', {keyCode: 229, key: 'a'}));
             });
-            it('should track keys using keyIdentifier if no code', function (done) {
-                const kbd = new Keyboard(document);
-                kbd.onkeyevent = (keysym, code, down) => {
-                    expect(keysym).to.be.equal(0x61);
-                    expect(code).to.be.equal('Platform65');
-                    if (!down) {
-                        done();
-                    }
-                };
-                kbd._handleKeyDown(keyevent('keydown', {keyIdentifier: 'U+0041', key: 'a'}));
-                kbd._handleKeyUp(keyevent('keyup', {keyIdentifier: 'U+0041', key: 'b'}));
+            it('should track keys using keyIdentifier if no code', function () {
+                return new Promise((done) => {
+                    const kbd = new Keyboard(document);
+                    kbd.onkeyevent = (keysym, code, down) => {
+                        expect(keysym).to.be.equal(0x61);
+                        expect(code).to.be.equal('Platform65');
+                        if (!down) {
+                            done();
+                        }
+                    };
+                    kbd._handleKeyDown(keyevent('keydown', {keyIdentifier: 'U+0041', key: 'a'}));
+                    kbd._handleKeyUp(keyevent('keyup', {keyIdentifier: 'U+0041', key: 'b'}));
+                });
             });
         });
     });
@@ -171,29 +184,33 @@ describe('Key event handling', function () {
             kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'Alt', location: 2}));
             expect(count).to.be.equal(2);
         });
-        it('should change left Super to Alt', function (done) {
-            const kbd = new Keyboard(document);
-            kbd.onkeyevent = (keysym, code, down) => {
-                expect(keysym).to.be.equal(0xFFE9);
-                expect(code).to.be.equal('MetaLeft');
-                done();
-            };
-            kbd._handleKeyDown(keyevent('keydown', {code: 'MetaLeft', key: 'Meta', location: 1}));
+        it('should change left Super to Alt', function () {
+            return new Promise((done) => {
+                const kbd = new Keyboard(document);
+                kbd.onkeyevent = (keysym, code, down) => {
+                    expect(keysym).to.be.equal(0xFFE9);
+                    expect(code).to.be.equal('MetaLeft');
+                    done();
+                };
+                kbd._handleKeyDown(keyevent('keydown', {code: 'MetaLeft', key: 'Meta', location: 1}));
+            });
         });
-        it('should change right Super to left Super', function (done) {
-            const kbd = new Keyboard(document);
-            kbd.onkeyevent = (keysym, code, down) => {
-                expect(keysym).to.be.equal(0xFFEB);
-                expect(code).to.be.equal('MetaRight');
-                done();
-            };
-            kbd._handleKeyDown(keyevent('keydown', {code: 'MetaRight', key: 'Meta', location: 2}));
+        it('should change right Super to left Super', function () {
+            return new Promise((done) => {
+                const kbd = new Keyboard(document);
+                kbd.onkeyevent = (keysym, code, down) => {
+                    expect(keysym).to.be.equal(0xFFEB);
+                    expect(code).to.be.equal('MetaRight');
+                    done();
+                };
+                kbd._handleKeyDown(keyevent('keydown', {code: 'MetaRight', key: 'Meta', location: 2}));
+            });
         });
     });
 
     describe('Meta key combination on iOS and macOS', function () {
         let origNavigator;
-        beforeEach(function () {
+        beforeEach(function ({ skip }) {
             // window.navigator is a protected read-only property in many
             // environments, so we need to redefine it whilst running these
             // tests.
@@ -203,7 +220,7 @@ describe('Key event handling', function () {
             if (window.navigator.platform !== undefined) {
                 // Object.defineProperty() doesn't work properly in old
                 // versions of Chrome
-                this.skip();
+                skip();
             }
         });
 
@@ -216,39 +233,39 @@ describe('Key event handling', function () {
         it('should send keyup when meta key is pressed on iOS', function () {
             window.navigator.platform = "iPad";
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
 
             kbd._handleKeyDown(keyevent('keydown', {code: 'MetaRight', key: 'Meta', location: 2, metaKey: true}));
-            expect(kbd.onkeyevent).to.have.been.calledOnce;
-            kbd.onkeyevent.resetHistory();
+            expect(kbd.onkeyevent).toHaveBeenCalledOnce();
+            kbd.onkeyevent.mockClear();
 
             kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a', metaKey: true}));
-            expect(kbd.onkeyevent).to.have.been.calledTwice;
-            expect(kbd.onkeyevent).to.have.been.calledWith(0x61, "KeyA", true);
-            expect(kbd.onkeyevent).to.have.been.calledWith(0x61, "KeyA", false);
-            kbd.onkeyevent.resetHistory();
+            expect(kbd.onkeyevent).toHaveBeenCalledTimes(2);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(1, 0x61, "KeyA", true, null, null);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(2, 0x61, "KeyA", false, null, null);
+            kbd.onkeyevent.mockClear();
 
             kbd._handleKeyUp(keyevent('keyup', {code: 'MetaRight', key: 'Meta', location: 2, metaKey: true}));
-            expect(kbd.onkeyevent).to.have.been.calledOnce;
+            expect(kbd.onkeyevent).toHaveBeenCalledOnce();
         });
 
         it('should send keyup when meta key is pressed on macOS', function () {
             window.navigator.platform = "Mac";
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
 
             kbd._handleKeyDown(keyevent('keydown', {code: 'MetaRight', key: 'Meta', location: 2, metaKey: true}));
-            expect(kbd.onkeyevent).to.have.been.calledOnce;
-            kbd.onkeyevent.resetHistory();
+            expect(kbd.onkeyevent).toHaveBeenCalledOnce();
+            kbd.onkeyevent.mockClear();
 
             kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a', metaKey: true}));
-            expect(kbd.onkeyevent).to.have.been.calledTwice;
-            expect(kbd.onkeyevent).to.have.been.calledWith(0x61, "KeyA", true);
-            expect(kbd.onkeyevent).to.have.been.calledWith(0x61, "KeyA", false);
-            kbd.onkeyevent.resetHistory();
+            expect(kbd.onkeyevent).toHaveBeenCalledTimes(2);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(1, 0x61, "KeyA", true, null, null);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(2, 0x61, "KeyA", false, null, null);
+            kbd.onkeyevent.mockClear();
 
             kbd._handleKeyUp(keyevent('keyup', {code: 'MetaRight', key: 'Meta', location: 2, metaKey: true}));
-            expect(kbd.onkeyevent).to.have.been.calledOnce;
+            expect(kbd.onkeyevent).toHaveBeenCalledOnce();
         });
     });
 
@@ -270,45 +287,45 @@ describe('Key event handling', function () {
         it('should toggle caps lock on key press on iOS', function () {
             window.navigator.platform = "iPad";
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
             kbd._handleKeyDown(keyevent('keydown', {code: 'CapsLock', key: 'CapsLock'}));
 
-            expect(kbd.onkeyevent).to.have.been.calledTwice;
-            expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
-            expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
+            expect(kbd.onkeyevent).toHaveBeenCalledTimes(2);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(1, 0xFFE5, "CapsLock", true, null, null);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(2, 0xFFE5, "CapsLock", false, null, null);
         });
 
         it('should toggle caps lock on key press on mac', function () {
             window.navigator.platform = "Mac";
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
             kbd._handleKeyDown(keyevent('keydown', {code: 'CapsLock', key: 'CapsLock'}));
 
-            expect(kbd.onkeyevent).to.have.been.calledTwice;
-            expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
-            expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
+            expect(kbd.onkeyevent).toHaveBeenCalledTimes(2);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(1, 0xFFE5, "CapsLock", true, null, null);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(2, 0xFFE5, "CapsLock", false, null, null);
         });
 
         it('should toggle caps lock on key release on iOS', function () {
             window.navigator.platform = "iPad";
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
             kbd._handleKeyUp(keyevent('keyup', {code: 'CapsLock', key: 'CapsLock'}));
 
-            expect(kbd.onkeyevent).to.have.been.calledTwice;
-            expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
-            expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
+            expect(kbd.onkeyevent).toHaveBeenCalledTimes(2);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(1, 0xFFE5, "CapsLock", true, null, null);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(2, 0xFFE5, "CapsLock", false, null, null);
         });
 
         it('should toggle caps lock on key release on mac', function () {
             window.navigator.platform = "Mac";
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
             kbd._handleKeyUp(keyevent('keyup', {code: 'CapsLock', key: 'CapsLock'}));
 
-            expect(kbd.onkeyevent).to.have.been.calledTwice;
-            expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
-            expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
+            expect(kbd.onkeyevent).toHaveBeenCalledTimes(2);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(1, 0xFFE5, "CapsLock", true, null, null);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(2, 0xFFE5, "CapsLock", false, null, null);
         });
     });
 
@@ -329,30 +346,30 @@ describe('Key event handling', function () {
 
         it('should provide caps lock state', function () {
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
             kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'A', NumLock: false, CapsLock: true}));
 
-            expect(kbd.onkeyevent).to.have.been.calledOnce;
-            expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0x41, "KeyA", true, false, true);
+            expect(kbd.onkeyevent).toHaveBeenCalledOnce();
+            expect(kbd.onkeyevent).toHaveBeenCalledWith(0x41, "KeyA", true, false, true);
         });
 
         it('should provide num lock state', function () {
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
             kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'A', NumLock: true, CapsLock: false}));
 
-            expect(kbd.onkeyevent).to.have.been.calledOnce;
-            expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0x41, "KeyA", true, true, false);
+            expect(kbd.onkeyevent).toHaveBeenCalledOnce();
+            expect(kbd.onkeyevent).toHaveBeenCalledWith(0x41, "KeyA", true, true, false);
         });
 
         it('should have no num lock state on mac', function () {
             window.navigator.platform = "Mac";
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
             kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'A', NumLock: false, CapsLock: true}));
 
-            expect(kbd.onkeyevent).to.have.been.calledOnce;
-            expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0x41, "KeyA", true, null, true);
+            expect(kbd.onkeyevent).toHaveBeenCalledOnce();
+            expect(kbd.onkeyevent).toHaveBeenCalledWith(0x41, "KeyA", true, null, true);
         });
     });
 
@@ -379,18 +396,20 @@ describe('Key event handling', function () {
         for (let [key, keysym] of Object.entries(keys)) {
             it(`should fake key release for ${key} on Windows`, function () {
                 let kbd = new Keyboard(document);
-                kbd.onkeyevent = sinon.spy();
+                kbd.onkeyevent = vi.fn();
                 kbd._handleKeyDown(keyevent('keydown', {code: 'FakeIM', key: key}));
 
-                expect(kbd.onkeyevent).to.have.been.calledTwice;
-                expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(keysym, "FakeIM", true);
-                expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(keysym, "FakeIM", false);
+                expect(kbd.onkeyevent).toHaveBeenCalledTimes(2);
+                expect(kbd.onkeyevent).toHaveBeenNthCalledWith(1, keysym, "FakeIM", true, null, null);
+                expect(kbd.onkeyevent).toHaveBeenNthCalledWith(2, keysym, "FakeIM", false, null, null);
             });
         }
     });
 
     describe('Escape AltGraph on Windows', function () {
         let origNavigator;
+        let clock;
+
         beforeEach(function () {
             // window.navigator is a protected read-only property in many
             // environments, so we need to redefine it whilst running these
@@ -400,181 +419,183 @@ describe('Key event handling', function () {
             Object.defineProperty(window, "navigator", {value: {}});
             window.navigator.platform = "Windows x86_64";
 
-            this.clock = sinon.useFakeTimers();
+            clock = vi.useFakeTimers();
         });
         afterEach(function () {
             Object.defineProperty(window, "navigator", origNavigator);
-            if (this.clock !== undefined) {
-                this.clock.restore();
+            if (clock !== undefined) {
+                clock.restoreAllMocks();
             }
         });
 
         it('should supress ControlLeft until it knows if it is AltGr', function () {
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
             kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1}));
-            expect(kbd.onkeyevent).to.not.have.been.called;
+            expect(kbd.onkeyevent).not.toHaveBeenCalled();
         });
 
         it('should not trigger on repeating ControlLeft', function () {
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
             kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1}));
             kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1}));
-            expect(kbd.onkeyevent).to.have.been.calledTwice;
-            expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0xffe3, "ControlLeft", true);
-            expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xffe3, "ControlLeft", true);
+            expect(kbd.onkeyevent).toHaveBeenCalledTimes(2);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(1, 0xffe3, "ControlLeft", true, null, null);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(2, 0xffe3, "ControlLeft", true, null, null);
         });
 
         it('should not supress ControlRight', function () {
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
             kbd._handleKeyDown(keyevent('keydown', {code: 'ControlRight', key: 'Control', location: 2}));
-            expect(kbd.onkeyevent).to.have.been.calledOnce;
-            expect(kbd.onkeyevent).to.have.been.calledWith(0xffe4, "ControlRight", true);
+            expect(kbd.onkeyevent).toHaveBeenCalledOnce();
+            expect(kbd.onkeyevent).toHaveBeenCalledWith(0xffe4, "ControlRight", true, null, null);
         });
 
         it('should release ControlLeft after 100 ms', function () {
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
             kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1}));
-            expect(kbd.onkeyevent).to.not.have.been.called;
-            this.clock.tick(100);
-            expect(kbd.onkeyevent).to.have.been.calledOnce;
-            expect(kbd.onkeyevent).to.have.been.calledWith(0xffe3, "ControlLeft", true);
+            expect(kbd.onkeyevent).not.toHaveBeenCalled();
+            clock.advanceTimersByTime(100);
+            expect(kbd.onkeyevent).toHaveBeenCalledOnce();
+            expect(kbd.onkeyevent).toHaveBeenCalledWith(0xffe3, "ControlLeft", true, null, null);
         });
 
         it('should release ControlLeft on other key press', function () {
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
             kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1}));
-            expect(kbd.onkeyevent).to.not.have.been.called;
+            expect(kbd.onkeyevent).not.toHaveBeenCalled();
             kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
-            expect(kbd.onkeyevent).to.have.been.calledTwice;
-            expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0xffe3, "ControlLeft", true);
-            expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0x61, "KeyA", true);
+            expect(kbd.onkeyevent).toHaveBeenCalledTimes(2);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(1, 0xffe3, "ControlLeft", true, null, null);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(2, 0x61, "KeyA", true, null, null);
 
             // Check that the timer is properly dead
-            kbd.onkeyevent.resetHistory();
-            this.clock.tick(100);
-            expect(kbd.onkeyevent).to.not.have.been.called;
+            kbd.onkeyevent.mockClear();
+            clock.advanceTimersByTime(100);
+            expect(kbd.onkeyevent).not.toHaveBeenCalled();
         });
 
         it('should release ControlLeft on other key release', function () {
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
             kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
             kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1}));
-            expect(kbd.onkeyevent).to.have.been.calledOnce;
-            expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0x61, "KeyA", true);
+            expect(kbd.onkeyevent).toHaveBeenCalledOnce();
+            expect(kbd.onkeyevent).toHaveBeenCalledWith(0x61, "KeyA", true, null, null);
             kbd._handleKeyUp(keyevent('keyup', {code: 'KeyA', key: 'a'}));
-            expect(kbd.onkeyevent).to.have.been.calledThrice;
-            expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xffe3, "ControlLeft", true);
-            expect(kbd.onkeyevent.thirdCall).to.have.been.calledWith(0x61, "KeyA", false);
+            expect(kbd.onkeyevent).toHaveBeenCalledTimes(3);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(2, 0xffe3, "ControlLeft", true, null, null);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(3, 0x61, "KeyA", false, null, null);
 
             // Check that the timer is properly dead
-            kbd.onkeyevent.resetHistory();
-            this.clock.tick(100);
-            expect(kbd.onkeyevent).to.not.have.been.called;
+            kbd.onkeyevent.mockClear();
+            clock.advanceTimersByTime(100);
+            expect(kbd.onkeyevent).not.toHaveBeenCalled();
         });
 
         it('should release ControlLeft on blur', function () {
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
             kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1}));
-            expect(kbd.onkeyevent).to.not.have.been.called;
+            expect(kbd.onkeyevent).not.toHaveBeenCalled();
             kbd._allKeysUp();
-            expect(kbd.onkeyevent).to.have.been.calledTwice;
-            expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0xffe3, "ControlLeft", true);
-            expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xffe3, "ControlLeft", false);
+            expect(kbd.onkeyevent).toHaveBeenCalledTimes(2);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(1, 0xffe3, "ControlLeft", true, null, null);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(2, 0xffe3, "ControlLeft", false, null, null);
 
             // Check that the timer is properly dead
-            kbd.onkeyevent.resetHistory();
-            this.clock.tick(100);
-            expect(kbd.onkeyevent).to.not.have.been.called;
+            kbd.onkeyevent.mockClear();
+            clock.advanceTimersByTime(100);
+            expect(kbd.onkeyevent).not.toHaveBeenCalled();
         });
 
         it('should generate AltGraph for quick Ctrl+Alt sequence', function () {
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
             kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1, timeStamp: Date.now()}));
-            this.clock.tick(20);
+            clock.advanceTimersByTime(20);
             kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'Alt', location: 2, timeStamp: Date.now()}));
-            expect(kbd.onkeyevent).to.have.been.calledOnce;
-            expect(kbd.onkeyevent).to.have.been.calledWith(0xfe03, 'AltRight', true);
+            expect(kbd.onkeyevent).toHaveBeenCalledOnce();
+            expect(kbd.onkeyevent).toHaveBeenCalledWith(0xfe03, 'AltRight', true, null, null);
 
             // Check that the timer is properly dead
-            kbd.onkeyevent.resetHistory();
-            this.clock.tick(100);
-            expect(kbd.onkeyevent).to.not.have.been.called;
+            kbd.onkeyevent.mockClear();
+            clock.advanceTimersByTime(100);
+            expect(kbd.onkeyevent).not.toHaveBeenCalled();
         });
 
         it('should generate Ctrl, Alt for slow Ctrl+Alt sequence', function () {
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
             kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1, timeStamp: Date.now()}));
-            this.clock.tick(60);
+            clock.advanceTimersByTime(60);
             kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'Alt', location: 2, timeStamp: Date.now()}));
-            expect(kbd.onkeyevent).to.have.been.calledTwice;
-            expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0xffe3, "ControlLeft", true);
-            expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xffea, "AltRight", true);
+            expect(kbd.onkeyevent).toHaveBeenCalledTimes(2);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(1, 0xffe3, "ControlLeft", true, null, null);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(2, 0xffea, "AltRight", true, null, null);
 
             // Check that the timer is properly dead
-            kbd.onkeyevent.resetHistory();
-            this.clock.tick(100);
-            expect(kbd.onkeyevent).to.not.have.been.called;
+            kbd.onkeyevent.mockClear();
+            clock.advanceTimersByTime(100);
+            expect(kbd.onkeyevent).not.toHaveBeenCalled();
         });
 
         it('should generate AltGraph for quick Ctrl+AltGraph sequence', function () {
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
             kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1, timeStamp: Date.now()}));
-            this.clock.tick(20);
+            clock.advanceTimersByTime(20);
             kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'AltGraph', location: 2, timeStamp: Date.now()}));
-            expect(kbd.onkeyevent).to.have.been.calledOnce;
-            expect(kbd.onkeyevent).to.have.been.calledWith(0xfe03, 'AltRight', true);
+            expect(kbd.onkeyevent).toHaveBeenCalledOnce();
+            expect(kbd.onkeyevent).toHaveBeenCalledWith(0xfe03, 'AltRight', true, null, null);
 
             // Check that the timer is properly dead
-            kbd.onkeyevent.resetHistory();
-            this.clock.tick(100);
-            expect(kbd.onkeyevent).to.not.have.been.called;
+            kbd.onkeyevent.mockClear();
+            clock.advanceTimersByTime(100);
+            expect(kbd.onkeyevent).not.toHaveBeenCalled();
         });
 
         it('should generate Ctrl, AltGraph for slow Ctrl+AltGraph sequence', function () {
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
             kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1, timeStamp: Date.now()}));
-            this.clock.tick(60);
+            clock.advanceTimersByTime(60);
             kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'AltGraph', location: 2, timeStamp: Date.now()}));
-            expect(kbd.onkeyevent).to.have.been.calledTwice;
-            expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0xffe3, "ControlLeft", true);
-            expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xfe03, "AltRight", true);
+            expect(kbd.onkeyevent).toHaveBeenCalledTimes(2);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(1, 0xffe3, "ControlLeft", true, null, null);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(2, 0xfe03, "AltRight", true, null, null);
 
             // Check that the timer is properly dead
-            kbd.onkeyevent.resetHistory();
-            this.clock.tick(100);
-            expect(kbd.onkeyevent).to.not.have.been.called;
+            kbd.onkeyevent.mockClear();
+            clock.advanceTimersByTime(100);
+            expect(kbd.onkeyevent).not.toHaveBeenCalled();
         });
 
         it('should pass through single Alt', function () {
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
             kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'Alt', location: 2}));
-            expect(kbd.onkeyevent).to.have.been.calledOnce;
-            expect(kbd.onkeyevent).to.have.been.calledWith(0xffea, 'AltRight', true);
+            expect(kbd.onkeyevent).toHaveBeenCalledOnce();
+            expect(kbd.onkeyevent).toHaveBeenCalledWith(0xffea, 'AltRight', true, null, null);
         });
 
         it('should pass through single AltGr', function () {
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
             kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'AltGraph', location: 2}));
-            expect(kbd.onkeyevent).to.have.been.calledOnce;
-            expect(kbd.onkeyevent).to.have.been.calledWith(0xfe03, 'AltRight', true);
+            expect(kbd.onkeyevent).toHaveBeenCalledOnce();
+            expect(kbd.onkeyevent).toHaveBeenCalledWith(0xfe03, 'AltRight', true, null, null);
         });
     });
 
     describe('Missing Shift keyup on Windows', function () {
         let origNavigator;
+        let clock;
+
         beforeEach(function () {
             // window.navigator is a protected read-only property in many
             // environments, so we need to redefine it whilst running these
@@ -584,53 +605,53 @@ describe('Key event handling', function () {
             Object.defineProperty(window, "navigator", {value: {}});
             window.navigator.platform = "Windows x86_64";
 
-            this.clock = sinon.useFakeTimers();
+            clock = vi.useFakeTimers();
         });
         afterEach(function () {
             Object.defineProperty(window, "navigator", origNavigator);
-            if (this.clock !== undefined) {
-                this.clock.restore();
+            if (clock !== undefined) {
+                clock.restoreAllMocks();
             }
         });
 
         it('should fake a left Shift keyup', function () {
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
 
             kbd._handleKeyDown(keyevent('keydown', {code: 'ShiftLeft', key: 'Shift', location: 1}));
-            expect(kbd.onkeyevent).to.have.been.calledOnce;
-            expect(kbd.onkeyevent).to.have.been.calledWith(0xffe1, 'ShiftLeft', true);
-            kbd.onkeyevent.resetHistory();
+            expect(kbd.onkeyevent).toHaveBeenCalledOnce();
+            expect(kbd.onkeyevent).toHaveBeenCalledWith(0xffe1, 'ShiftLeft', true, null, null);
+            kbd.onkeyevent.mockClear();
 
             kbd._handleKeyDown(keyevent('keydown', {code: 'ShiftRight', key: 'Shift', location: 2}));
-            expect(kbd.onkeyevent).to.have.been.calledOnce;
-            expect(kbd.onkeyevent).to.have.been.calledWith(0xffe2, 'ShiftRight', true);
-            kbd.onkeyevent.resetHistory();
+            expect(kbd.onkeyevent).toHaveBeenCalledOnce();
+            expect(kbd.onkeyevent).toHaveBeenCalledWith(0xffe2, 'ShiftRight', true, null, null);
+            kbd.onkeyevent.mockClear();
 
             kbd._handleKeyUp(keyevent('keyup', {code: 'ShiftLeft', key: 'Shift', location: 1}));
-            expect(kbd.onkeyevent).to.have.been.calledTwice;
-            expect(kbd.onkeyevent).to.have.been.calledWith(0xffe2, 'ShiftRight', false);
-            expect(kbd.onkeyevent).to.have.been.calledWith(0xffe1, 'ShiftLeft', false);
+            expect(kbd.onkeyevent).toHaveBeenCalledTimes(2);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(1, 0xffe1, 'ShiftLeft', false, null, null);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(2, 0xffe2, 'ShiftRight', false, null, null);
         });
 
         it('should fake a right Shift keyup', function () {
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = sinon.spy();
+            kbd.onkeyevent = vi.fn();
 
             kbd._handleKeyDown(keyevent('keydown', {code: 'ShiftLeft', key: 'Shift', location: 1}));
-            expect(kbd.onkeyevent).to.have.been.calledOnce;
-            expect(kbd.onkeyevent).to.have.been.calledWith(0xffe1, 'ShiftLeft', true);
-            kbd.onkeyevent.resetHistory();
+            expect(kbd.onkeyevent).toHaveBeenCalledOnce();
+            expect(kbd.onkeyevent).toHaveBeenCalledWith(0xffe1, 'ShiftLeft', true, null, null);
+            kbd.onkeyevent.mockClear();
 
             kbd._handleKeyDown(keyevent('keydown', {code: 'ShiftRight', key: 'Shift', location: 2}));
-            expect(kbd.onkeyevent).to.have.been.calledOnce;
-            expect(kbd.onkeyevent).to.have.been.calledWith(0xffe2, 'ShiftRight', true);
-            kbd.onkeyevent.resetHistory();
+            expect(kbd.onkeyevent).toHaveBeenCalledOnce();
+            expect(kbd.onkeyevent).toHaveBeenCalledWith(0xffe2, 'ShiftRight', true, null, null);
+            kbd.onkeyevent.mockClear();
 
             kbd._handleKeyUp(keyevent('keyup', {code: 'ShiftRight', key: 'Shift', location: 2}));
-            expect(kbd.onkeyevent).to.have.been.calledTwice;
-            expect(kbd.onkeyevent).to.have.been.calledWith(0xffe2, 'ShiftRight', false);
-            expect(kbd.onkeyevent).to.have.been.calledWith(0xffe1, 'ShiftLeft', false);
+            expect(kbd.onkeyevent).toHaveBeenCalledTimes(2);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(1, 0xffe2, 'ShiftRight', false, null, null);
+            expect(kbd.onkeyevent).toHaveBeenNthCalledWith(2, 0xffe1, 'ShiftLeft', false, null, null);
         });
     });
 });

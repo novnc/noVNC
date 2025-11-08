@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import Base64 from '../core/base64.js';
 import Display from '../core/display.js';
 
@@ -71,15 +72,15 @@ describe('Display/Canvas helper', function () {
         });
 
         it('should redraw when moving the viewport', function () {
-            display.flip = sinon.spy();
+            display.flip = vi.fn();
             display.viewportChangePos(-1, 1);
-            expect(display.flip).to.have.been.calledOnce;
+            expect(display.flip).toHaveBeenCalledOnce();
         });
 
         it('should redraw when resizing the viewport', function () {
-            display.flip = sinon.spy();
+            display.flip = vi.fn();
             display.viewportChangeSize(2, 2);
-            expect(display.flip).to.have.been.calledOnce;
+            expect(display.flip).toHaveBeenCalledOnce();
         });
 
         it('should show the entire framebuffer when disabling the viewport', function () {
@@ -322,37 +323,37 @@ describe('Display/Canvas helper', function () {
         beforeEach(function () {
             display = new Display(document.createElement('canvas'));
             display.resize(4, 4);
-            sinon.spy(display, '_scanRenderQ');
+            vi.spyOn(display, '_scanRenderQ');
         });
 
         it('should try to process an item when it is pushed on, if nothing else is on the queue', function () {
             display._renderQPush({ type: 'noop' });  // does nothing
-            expect(display._scanRenderQ).to.have.been.calledOnce;
+            expect(display._scanRenderQ).toHaveBeenCalledOnce();
         });
 
         it('should not try to process an item when it is pushed on if we are waiting for other items', function () {
             display._renderQ.length = 2;
             display._renderQPush({ type: 'noop' });
-            expect(display._scanRenderQ).to.not.have.been.called;
+            expect(display._scanRenderQ).not.toHaveBeenCalled();
         });
 
         it('should wait until an image is loaded to attempt to draw it and the rest of the queue', function () {
-            const img = { complete: false, width: 4, height: 4, addEventListener: sinon.spy() };
+            const img = { complete: false, width: 4, height: 4, addEventListener: vi.fn() };
             display._renderQ = [{ type: 'img', x: 3, y: 4, width: 4, height: 4, img: img },
                                 { type: 'fill', x: 1, y: 2, width: 3, height: 4, color: 5 }];
-            display.drawImage = sinon.spy();
-            display.fillRect = sinon.spy();
+            display.drawImage = vi.fn();
+            display.fillRect = vi.fn();
 
             display._scanRenderQ();
-            expect(display.drawImage).to.not.have.been.called;
-            expect(display.fillRect).to.not.have.been.called;
-            expect(img.addEventListener).to.have.been.calledOnce;
+            expect(display.drawImage).not.toHaveBeenCalled();
+            expect(display.fillRect).not.toHaveBeenCalled();
+            expect(img.addEventListener).toHaveBeenCalledOnce();
 
             display._renderQ[0].img.complete = true;
             display._scanRenderQ();
-            expect(display.drawImage).to.have.been.calledOnce;
-            expect(display.fillRect).to.have.been.calledOnce;
-            expect(img.addEventListener).to.have.been.calledOnce;
+            expect(display.drawImage).toHaveBeenCalledOnce();
+            expect(display.fillRect).toHaveBeenCalledOnce();
+            expect(img.addEventListener).toHaveBeenCalledOnce();
         });
 
         it('should resolve promise when queue is flushed', async function () {
@@ -363,32 +364,32 @@ describe('Display/Canvas helper', function () {
         });
 
         it('should draw a blit image on type "blit"', function () {
-            display.blitImage = sinon.spy();
+            display.blitImage = vi.fn();
             display._renderQPush({ type: 'blit', x: 3, y: 4, width: 5, height: 6, data: [7, 8, 9] });
-            expect(display.blitImage).to.have.been.calledOnce;
-            expect(display.blitImage).to.have.been.calledWith(3, 4, 5, 6, [7, 8, 9], 0);
+            expect(display.blitImage).toHaveBeenCalledOnce();
+            expect(display.blitImage).toHaveBeenCalledWith(3, 4, 5, 6, [7, 8, 9], 0, true);
         });
 
         it('should copy a region on type "copy"', function () {
-            display.copyImage = sinon.spy();
+            display.copyImage = vi.fn();
             display._renderQPush({ type: 'copy', x: 3, y: 4, width: 5, height: 6, oldX: 7, oldY: 8 });
-            expect(display.copyImage).to.have.been.calledOnce;
-            expect(display.copyImage).to.have.been.calledWith(7, 8, 3, 4, 5, 6);
+            expect(display.copyImage).toHaveBeenCalledOnce();
+            expect(display.copyImage).toHaveBeenCalledWith(7, 8, 3, 4, 5, 6, true);
         });
 
         it('should fill a rect with a given color on type "fill"', function () {
-            display.fillRect = sinon.spy();
+            display.fillRect = vi.fn();
             display._renderQPush({ type: 'fill', x: 3, y: 4, width: 5, height: 6, color: [7, 8, 9]});
-            expect(display.fillRect).to.have.been.calledOnce;
-            expect(display.fillRect).to.have.been.calledWith(3, 4, 5, 6, [7, 8, 9]);
+            expect(display.fillRect).toHaveBeenCalledOnce();
+            expect(display.fillRect).toHaveBeenCalledWith(3, 4, 5, 6, [7, 8, 9], true);
         });
 
         it('should draw an image from an image object on type "img" (if complete)', function () {
             const img = { complete: true };
-            display.drawImage = sinon.spy();
+            display.drawImage = vi.fn();
             display._renderQPush({ type: 'img', x: 3, y: 4, img: img });
-            expect(display.drawImage).to.have.been.calledOnce;
-            expect(display.drawImage).to.have.been.calledWith(img, 3, 4);
+            expect(display.drawImage).toHaveBeenCalledOnce();
+            expect(display.drawImage).toHaveBeenCalledWith(img, 3, 4);
         });
     });
 });
