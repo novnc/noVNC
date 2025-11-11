@@ -20,6 +20,7 @@ import Inflator from "./inflator.js";
 import Deflator from "./deflator.js";
 import Keyboard from "./input/keyboard.js";
 import GestureHandler from "./input/gesturehandler.js";
+import TouchHandlerUltraVNC from "./input/touchhandlerultravnc.js";
 import Cursor from "./util/cursor.js";
 import Websock from "./websock.js";
 import KeyTable from "./input/keysym.js";
@@ -120,6 +121,7 @@ export default class RFB extends EventTargetMixin {
         this._shared = 'shared' in options ? !!options.shared : true;
         this._repeaterID = options.repeaterID || '';
         this._wsProtocols = options.wsProtocols || [];
+        this._gesturesMode = options.gesturesMode || ''
 
         // Internal state
         this._rfbConnectionState = '';
@@ -210,6 +212,7 @@ export default class RFB extends EventTargetMixin {
             handleMouse: this._handleMouse.bind(this),
             handleWheel: this._handleWheel.bind(this),
             handleGesture: this._handleGesture.bind(this),
+            handleUltraVNCTouch: this._handleUltraVNCTouch.bind(this),
             handleRSAAESCredentialsRequired: this._handleRSAAESCredentialsRequired.bind(this),
             handleRSAAESServerVerification: this._handleRSAAESServerVerification.bind(this),
         };
@@ -276,7 +279,13 @@ export default class RFB extends EventTargetMixin {
         this._remoteCapsLock = null; // Null indicates unknown or irrelevant
         this._remoteNumLock = null;
 
-        this._gestures = new GestureHandler();
+        switch (this._gesturesMode) {
+            case 'ultravnc':
+                this._gestures = new TouchHandlerUltraVNC();
+                break;
+            default:
+                this._gestures = new GestureHandler();
+        }
 
         this._sock = new Websock();
         this._sock.on('open', this._socketOpen.bind(this));
@@ -605,9 +614,15 @@ export default class RFB extends EventTargetMixin {
         this._canvas.addEventListener("wheel", this._eventHandlers.handleWheel);
 
         // Gesture events
-        this._canvas.addEventListener("gesturestart", this._eventHandlers.handleGesture);
-        this._canvas.addEventListener("gesturemove", this._eventHandlers.handleGesture);
-        this._canvas.addEventListener("gestureend", this._eventHandlers.handleGesture);
+        switch (this._gesturesMode) {
+            case 'ultravnc':
+                this._canvas.addEventListener('ultravnctouch', this._eventHandlers.handleUltraVNCTouch);
+                break;
+            default:
+                this._canvas.addEventListener('gesturestart', this._eventHandlers.handleGesture);
+                this._canvas.addEventListener('gesturemove', this._eventHandlers.handleGesture);
+                this._canvas.addEventListener('gestureend', this._eventHandlers.handleGesture);
+        }
 
         Log.Debug("<< RFB.connect");
     }
@@ -615,9 +630,17 @@ export default class RFB extends EventTargetMixin {
     _disconnect() {
         Log.Debug(">> RFB.disconnect");
         this._cursor.detach();
-        this._canvas.removeEventListener("gesturestart", this._eventHandlers.handleGesture);
-        this._canvas.removeEventListener("gesturemove", this._eventHandlers.handleGesture);
-        this._canvas.removeEventListener("gestureend", this._eventHandlers.handleGesture);
+
+        switch (this._gesturesMode) {
+            case 'ultravnc':
+                this._canvas.removeEventListener('ultravnctouch', this._eventHandlers.handleUltraVNCTouch);
+                break;
+            default:
+                this._canvas.removeEventListener('gesturestart', this._eventHandlers.handleGesture);
+                this._canvas.removeEventListener('gesturemove', this._eventHandlers.handleGesture);
+                this._canvas.removeEventListener('gestureend', this._eventHandlers.handleGesture);
+        }
+
         this._canvas.removeEventListener("wheel", this._eventHandlers.handleWheel);
         this._canvas.removeEventListener('mousedown', this._eventHandlers.handleMouse);
         this._canvas.removeEventListener('mouseup', this._eventHandlers.handleMouse);
@@ -1490,6 +1513,84 @@ export default class RFB extends EventTargetMixin {
         }
     }
 
+    _handleUltraVNCTouch(ev) {
+        this._sock.sQpush8(TouchHandlerUltraVNC.giiMsgType); // GII message type
+        this._sock.sQpush8(TouchHandlerUltraVNC.giiEventInjectionMsgType); // GII event
+        this._sock.sQpush16(TouchHandlerUltraVNC.giiEventInjectionSize + (TouchHandlerUltraVNC.giiEventInjectionTouchSize * ev.detail.currentTouches.length)); // length, not used
+        this._sock.sQpush8(TouchHandlerUltraVNC.giiEventInjectionSize + (TouchHandlerUltraVNC.giiEventInjectionTouchSize * ev.detail.currentTouches.length)); // eventSize, not used
+        this._sock.sQpush8(TouchHandlerUltraVNC.giiEventInjectionEventType); // eventType, not used
+        this._sock.sQpush16(0); // padding
+        this._sock.sQpush32(ev.detail.giiDeviceOrigin);
+        this._sock.sQpush32(ev.detail.currentTouches.length); // nb of touch events
+        this._sock.sQpush32(TouchHandlerUltraVNC.giiNumTouches * ev.detail.currentTouches.length); // count
+
+        let pointerUpIds = [];
+
+        // Send all current touches
+        for (let i = 0; i < ev.detail.currentTouches.length; i++) {
+            let valuatorFlag = 0x00000000;
+            valuatorFlag |= TouchHandlerUltraVNC.LENGTH_16_flag;
+            valuatorFlag |= TouchHandlerUltraVNC.IDFORMAT_32;
+            if (ev.detail.currentTouches[i].status !== "POINTER_UP") valuatorFlag |= TouchHandlerUltraVNC.PF_flag;
+            if (ev.detail.currentTouches[i].event.identifier === 0) valuatorFlag |= TouchHandlerUltraVNC.IF_flag; // IF_flag
+
+            this._sock.sQpush32(valuatorFlag);
+            this._sock.sQpush32(ev.detail.currentTouches[i].event.touchIdentifier);
+
+            let scaledPosition = clientToElement(ev.detail.currentTouches[i].event.clientX, ev.detail.currentTouches[i].event.clientY,
+                                                 this._canvas);
+
+            if ((valuatorFlag & TouchHandlerUltraVNC.LENGTH_16_flag) !== 0) {
+                let scaledX16 = this._display.absX(scaledPosition.x) & 0xFFFF;
+                let scaledY16 = this._display.absY(scaledPosition.y) & 0xFFFF;
+                let coordinates = (scaledX16 << 16) | scaledY16;
+                this._sock.sQpush32(coordinates);
+            }
+
+            // Keep track of last released touches
+            if (ev.detail.currentTouches[i].status === "POINTER_UP") {
+                pointerUpIds.push(ev.detail.currentTouches[i].event.identifier);
+            }
+        }
+
+        this._sock.flush();
+
+        // Remove released touches from current touches in handler
+        for (let i = 0; i < pointerUpIds.length; i++) {
+            const index = ev.detail.currentTouches.findIndex(t => t.event.identifier === pointerUpIds[i]);
+            if (index !== -1) {
+                this._gestures._removeTouch(index);
+            }
+        }
+
+        // Interrupt touch sending interval
+        if (ev.detail.currentTouches.length === 0 && this._sendTouchesIntervalId !== -1) {
+            this._gestures._interruptTouches();
+            this._sendEmptyTouch(ev.detail.giiDeviceOrigin);
+            return;
+        }
+    }
+
+    _sendEmptyTouch(giiDeviceOrigin) {
+        let valuatorFlag = 0x00000000;
+        valuatorFlag |= TouchHandlerUltraVNC.LENGTH_16_flag;
+        valuatorFlag |= TouchHandlerUltraVNC.IDFORMAT_CLEAR;
+
+        this._sock.sQpush8(TouchHandlerUltraVNC.giiMsgType); // GII message type
+        this._sock.sQpush8(TouchHandlerUltraVNC.giiEventInjectionMsgType); // GII event
+        this._sock.sQpush16(TouchHandlerUltraVNC.giiEventInjectionHeaderSize + TouchHandlerUltraVNC.giiEventInjectionSize);
+        this._sock.sQpush8(TouchHandlerUltraVNC.giiEventInjectionHeaderSize + TouchHandlerUltraVNC.giiEventInjectionSize);
+        this._sock.sQpush8(TouchHandlerUltraVNC.giiEventInjectionEventType);
+        this._sock.sQpush16(0); // padding
+        this._sock.sQpush32(giiDeviceOrigin); // deviceOrigin
+        this._sock.sQpush32(1); // nb of touchevents
+        this._sock.sQpush32(4); // nb of values, not used
+        this._sock.sQpush32(valuatorFlag);
+        this._sock.sQpush32(0); // empty Id
+        this._sock.sQpush32(0); // empty coordinates
+        this._sock.flush();
+    }
+
     _flushMouseMoveTimer(x, y) {
         if (this._mouseMoveTimer !== null) {
             clearTimeout(this._mouseMoveTimer);
@@ -2271,6 +2372,10 @@ export default class RFB extends EventTargetMixin {
         encs.push(encodings.pseudoEncodingExtendedClipboard);
         encs.push(encodings.pseudoEncodingExtendedMouseButtons);
 
+        if (this._gesturesMode === 'ultravnc') {
+            encs.push(encodings.pseudoEncodingGii);
+        }
+
         if (this._fbDepth == 24) {
             encs.push(encodings.pseudoEncodingVMwareCursor);
             encs.push(encodings.pseudoEncodingCursor);
@@ -2571,6 +2676,30 @@ export default class RFB extends EventTargetMixin {
         return true;
     }
 
+    _handleGiiMsg() {
+        if (this._sock.rQwait("GII message subtype", 1, 1)) {
+            return false;
+        }
+        let giiMsgSubtype = this._sock.rQshift8();
+
+        switch (giiMsgSubtype) {
+            case 129: // GII Version Message
+                if (this._sock.rQwait("GII version message", 34, 1)) { return false; }
+                this._sock.rQskipBytes(34);
+                RFB.messages.giiVersionMessage(this._sock);
+                RFB.messages.giiDeviceCreation(this._sock);
+                break;
+            case 130: // GII Device Creation
+                if (this._sock.rQwait("GII device creation", 6, 1)) { return false; }
+                this._sock.rQshiftBytes(2);
+                this._gestures._giiDeviceOrigin = this._sock.rQshift32();
+                if (this._gestures._giiDeviceOrigin) this._gestures._isUltraVNCTouchActivated = true;
+                break;
+        }
+
+        return true;
+    }
+
     _normalMsg() {
         let msgType;
         if (this._FBU.rects > 0) {
@@ -2621,6 +2750,9 @@ export default class RFB extends EventTargetMixin {
 
             case 250:  // XVP
                 return this._handleXvpMsg();
+
+            case 253: // GII
+                return this._handleGiiMsg();
 
             default:
                 this._fail("Unexpected server message (type " + msgType + ")");
@@ -3085,6 +3217,16 @@ export default class RFB extends EventTargetMixin {
             "raw", passwordChars, { name: "DES-ECB" }, false, ["encrypt"]);
         return legacyCrypto.encrypt({ name: "DES-ECB" }, key, challenge);
     }
+
+    static stringAsByteArrayWithPadding(str, size) {
+        let full = new Uint8Array(size);
+        let utf8Encode = new TextEncoder();
+        let strArray = utf8Encode.encode(str);
+        for (let i = 0; i < strArray.length; i++) {
+            full[i] = strArray[i];
+        }
+        return full;
+    }
 }
 
 // Class Methods
@@ -3400,6 +3542,44 @@ RFB.messages = {
 
         sock.sQpush8(ver);
         sock.sQpush8(op);
+
+        sock.flush();
+    },
+
+    giiVersionMessage(sock) {
+        sock.sQpush8(TouchHandlerUltraVNC.giiMsgType);
+        sock.sQpush8(TouchHandlerUltraVNC.giiDeviceVersionMsgType);
+        sock.sQpush16(TouchHandlerUltraVNC.giiDeviceVersionMsgSize);
+        sock.sQpush16(TouchHandlerUltraVNC.giiDeviceVersion);
+
+        sock.flush();
+    },
+
+    giiDeviceCreation(sock) {
+        sock.sQpush8(TouchHandlerUltraVNC.giiMsgType);
+        sock.sQpush8(TouchHandlerUltraVNC.giiDeviceCreationMsgType);
+        sock.sQpush16(TouchHandlerUltraVNC.giiDeviceCreationMsgSize);
+        sock.sQpushBytes(RFB.stringAsByteArrayWithPadding(TouchHandlerUltraVNC.giiDeviceName, TouchHandlerUltraVNC.giiDeviceNameSize));
+        sock.sQpush8(TouchHandlerUltraVNC.giiDNTerm);
+        sock.sQpush32(TouchHandlerUltraVNC.giiVendorID);
+        sock.sQpush32(TouchHandlerUltraVNC.giiProductID);
+        sock.sQpush32(TouchHandlerUltraVNC.giiEventMask);
+        sock.sQpush32(TouchHandlerUltraVNC.giiNumRegisters);
+        sock.sQpush32(TouchHandlerUltraVNC.giiNumValuators);
+        sock.sQpush32(TouchHandlerUltraVNC.giiNumButtons);
+        sock.sQpush32(TouchHandlerUltraVNC.giiIndex);
+        sock.sQpushBytes(RFB.stringAsByteArrayWithPadding(TouchHandlerUltraVNC.giiDeviceLongName, TouchHandlerUltraVNC.giiDeviceLongNameSize));
+        sock.sQpush8(TouchHandlerUltraVNC.giiLNTerm);
+        sock.sQpushBytes(RFB.stringAsByteArrayWithPadding(TouchHandlerUltraVNC.giiDeviceShortName, TouchHandlerUltraVNC.giiDeviceShortNameSize));
+        sock.sQpush8(TouchHandlerUltraVNC.giiSNTerm);
+        sock.sQpush32(TouchHandlerUltraVNC.giiRangeMin);
+        sock.sQpush32(TouchHandlerUltraVNC.giiRangeCenter);
+        sock.sQpush32(TouchHandlerUltraVNC.giiRangeMax);
+        sock.sQpush32(TouchHandlerUltraVNC.giiSIUnit);
+        sock.sQpush32(TouchHandlerUltraVNC.giiSIAdd);
+        sock.sQpush32(TouchHandlerUltraVNC.giiSIMul);
+        sock.sQpush32(TouchHandlerUltraVNC.giiSIDiv);
+        sock.sQpush32(TouchHandlerUltraVNC.giiSIShift);
 
         sock.flush();
     }
