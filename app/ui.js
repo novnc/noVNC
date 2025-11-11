@@ -185,6 +185,8 @@ const UI = {
         UI.initSetting('bell', 'on');
         UI.initSetting('view_only', false);
         UI.initSetting('show_dot', false);
+        UI.initSetting('show_local_cursor', false);
+        UI.initSetting('show_drag_cursor', false);
         UI.initSetting('path', 'websockify');
         UI.initSetting('repeaterID', '');
         UI.initSetting('reconnect', false);
@@ -371,6 +373,10 @@ const UI = {
         UI.addSettingChangeHandler('view_only', UI.updateViewOnly);
         UI.addSettingChangeHandler('show_dot');
         UI.addSettingChangeHandler('show_dot', UI.updateShowDotCursor);
+        UI.addSettingChangeHandler('show_local_cursor');
+        UI.addSettingChangeHandler('show_local_cursor', UI.updateShowLocalCursor);
+        UI.addSettingChangeHandler('show_drag_cursor');
+        UI.addSettingChangeHandler('show_drag_cursor', UI.updateShowDragCursor);
         UI.addSettingChangeHandler('host');
         UI.addSettingChangeHandler('port');
         UI.addSettingChangeHandler('path');
@@ -1101,6 +1107,8 @@ const UI = {
         UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
         UI.rfb.compressionLevel = parseInt(UI.getSetting('compression'));
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
+        UI.rfb.showLocalCursor = UI.getSetting('show_local_cursor');
+        UI.rfb.showDragCursor = UI.getSetting('show_drag_cursor');
 
         UI.updateViewOnly(); // requires UI.rfb
         UI.updateClipboard();
@@ -1807,6 +1815,16 @@ const UI = {
     updateShowDotCursor() {
         if (!UI.rfb) return;
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
+    },
+
+    updateShowLocalCursor() {
+        if (!UI.rfb) return;
+        UI.rfb.showLocalCursor = UI.getSetting('show_local_cursor');
+    },
+
+    updateShowDragCursor() {
+        if (!UI.rfb) return;
+        UI.rfb.showDragCursor = UI.getSetting('show_drag_cursor');
     },
 
     updateLogging() {
