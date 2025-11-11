@@ -185,6 +185,7 @@ const UI = {
         UI.initSetting('bell', 'on');
         UI.initSetting('view_only', false);
         UI.initSetting('show_dot', false);
+        UI.initSetting('notify_clipboard_received', false);
         UI.initSetting('path', 'websockify');
         UI.initSetting('repeaterID', '');
         UI.initSetting('reconnect', false);
@@ -371,6 +372,8 @@ const UI = {
         UI.addSettingChangeHandler('view_only', UI.updateViewOnly);
         UI.addSettingChangeHandler('show_dot');
         UI.addSettingChangeHandler('show_dot', UI.updateShowDotCursor);
+        UI.addSettingChangeHandler('notify_clipboard_received');
+        UI.addSettingChangeHandler('notify_clipboard_received', UI.updateNotifyClipboardReceived);
         UI.addSettingChangeHandler('host');
         UI.addSettingChangeHandler('port');
         UI.addSettingChangeHandler('path');
@@ -892,6 +895,7 @@ const UI = {
         UI.updateSetting('logging');
         UI.updateSetting('reconnect');
         UI.updateSetting('reconnect_delay');
+        UI.updateSetting('notify_clipboard_received');
 
         document.getElementById('noVNC_settings')
             .classList.add("noVNC_open");
@@ -993,25 +997,17 @@ const UI = {
             UI.openClipboardPanel();
         }
     },
-    showCopiedNotification() {
-        // This is responsible for showing the notification when text is updated in the clipboard.
-        const notificationBox = document.createElement("div");
-        notificationBox.className = "notification";
-        notificationBox.innerText = "Clipboard updated";
-        document.body.appendChild(notificationBox);
 
-        setTimeout(() => {
-            notificationBox.classList.add("fade-out");
-            setTimeout(() => {
-                notificationBox.remove();
-            }, 500); // Wait for fade-out transition
-        }, 3000); // Display for 3 seconds
+    notifyClipboardReceived() {
+        // When enabled with setting 'notify_clipboard_received', shows
+        // notification when a 'clipboard-received'-event is fired by
+        // the RFB instance.
+        UI.showStatus(_('Clipboard updated'), 3000);
     },
 
     clipboardReceive(e) {
         Log.Debug(">> UI.clipboardReceive: " + e.detail.text.substr(0, 40) + "...");
         document.getElementById('noVNC_clipboard_text').value = e.detail.text;
-        UI.showCopiedNotification();
         Log.Debug("<< UI.clipboardReceive");
     },
 
@@ -1119,6 +1115,7 @@ const UI = {
 
         UI.updateViewOnly(); // requires UI.rfb
         UI.updateClipboard();
+        UI.updateNotifyClipboardReceived();
     },
 
     disconnect() {
@@ -1822,6 +1819,14 @@ const UI = {
     updateShowDotCursor() {
         if (!UI.rfb) return;
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
+    },
+
+    updateNotifyClipboardReceived() {
+        if (!UI.rfb) return;
+        UI.rfb.removeEventListener('clipboardreceived', UI.notifyClipboardReceived);
+        if (UI.getSetting('notify_clipboard_received')) {
+            UI.rfb.addEventListener('clipboardreceived', UI.notifyClipboardReceived);
+        }
     },
 
     updateLogging() {
