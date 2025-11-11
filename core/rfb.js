@@ -2335,11 +2335,13 @@ export default class RFB extends EventTargetMixin {
 
     _writeClipboard(text) {
         if (this._viewOnly) return;
-        if (this._asyncClipboard.writeClipboard(text)) return;
-        // Fallback clipboard
-        this.dispatchEvent(
-            new CustomEvent("clipboard", {detail: {text: text}})
-        );
+        if (!(this._asyncClipboard.writeClipboard(text))) {
+            // Fallback clipboard
+            this.dispatchEvent(
+                new CustomEvent("clipboard", {detail: {text: text}})
+            );
+        }
+        this.dispatchEvent(new CustomEvent("clipboardreceived"));
     }
 
     _handleServerCutText() {

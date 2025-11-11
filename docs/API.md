@@ -96,6 +96,12 @@ protocol stream.
   - The `clipboard` event is fired when clipboard data is received from
     the server.
 
+['clipboardreceived'](#clipboardreceived)
+  - The `clipboardreceived` event is fired after the `clipboard` event
+    or after the clipboard has been updated through the
+    [Clipboard module](API-internal.md#11-module-list). The copied text
+    has already been written to the system clipboard or the clipboard panel.
+
 [`clippingviewport`](#clippingviewport)
   - The `clippingviewport` event is fired when `RFB.clippingViewport` is
     updated.
