@@ -47,6 +47,20 @@ describe('Websock', function () {
             });
         });
 
+        describe('rQlen())', function () {
+            it('should return the number of buffered bytes in the receive queue', function () {
+                websock._receiveData(new Uint8Array([0xab, 0xcd, 0x12, 0x34,
+                                                     0x88, 0xee, 0x11, 0x33]));
+                expect(sock.rQlen()).to.equal(8);
+                sock.rQshift8();
+                expect(sock.rQlen()).to.equal(7);
+                sock.rQshift16();
+                expect(sock.rQlen()).to.equal(5);
+                sock.rQshift32();
+                expect(sock.rQlen()).to.equal(1);
+            });
+        });
+
         describe('rQshiftStr', function () {
             it('should shift the given number of bytes off of the receive queue and return a string', function () {
                 websock._receiveData(new Uint8Array([0xab, 0xcd, 0x12, 0x34,

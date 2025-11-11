@@ -1,4 +1,4 @@
-import * as chai from '../node_modules/chai/chai.js';
+import * as chai from '../node_modules/chai/index.js';
 import sinon from '../node_modules/sinon/pkg/sinon-esm.js';
 import sinonChai from '../node_modules/sinon-chai/lib/sinon-chai.js';
 

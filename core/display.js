@@ -521,6 +521,9 @@ export default class Display {
                             return;
                         }
                         this.drawImage(a.img, a.x, a.y);
+                        // This helps the browser free the memory right
+                        // away, rather than ballooning
+                        a.img.src = "";
                     } else {
                         a.img._noVNCDisplay = this;
                         a.img.addEventListener('load', this._resumeRenderQ);
