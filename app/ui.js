@@ -9,7 +9,7 @@
 import * as Log from '../core/util/logging.js';
 import _, { l10n } from './localization.js';
 import { isTouchDevice, isMac, isIOS, isAndroid, isChromeOS, isSafari,
-         hasScrollbarGutter, dragThreshold }
+         hasScrollbarGutter, dragThreshold, browserAsyncClipboardSupport }
     from '../core/util/browser.js';
 import { setCapture, getPointerEvent } from '../core/util/events.js';
 import KeyTable from "../core/input/keysym.js";
@@ -20,7 +20,7 @@ import * as WebUtil from "./webutil.js";
 
 const PAGE_TITLE = "noVNC";
 
-const LINGUAS = ["cs", "de", "el", "es", "fr", "it", "ja", "ko", "nl", "pl", "pt_BR", "ru", "sv", "tr", "zh_CN", "zh_TW"];
+const LINGUAS = ["cs", "de", "el", "es", "fr", "hr", "hu", "it", "ja", "ko", "nl", "pl", "pt_BR", "ru", "sv", "tr", "zh_CN", "zh_TW"];
 
 const UI = {
 
@@ -185,6 +185,7 @@ const UI = {
         UI.initSetting('bell', 'on');
         UI.initSetting('view_only', false);
         UI.initSetting('show_dot', false);
+        UI.initSetting('notify_clipboard_received', false);
         UI.initSetting('path', 'websockify');
         UI.initSetting('repeaterID', '');
         UI.initSetting('reconnect', false);
@@ -371,6 +372,8 @@ const UI = {
         UI.addSettingChangeHandler('view_only', UI.updateViewOnly);
         UI.addSettingChangeHandler('show_dot');
         UI.addSettingChangeHandler('show_dot', UI.updateShowDotCursor);
+        UI.addSettingChangeHandler('notify_clipboard_received');
+        UI.addSettingChangeHandler('notify_clipboard_received', UI.updateNotifyClipboardReceived);
         UI.addSettingChangeHandler('host');
         UI.addSettingChangeHandler('port');
         UI.addSettingChangeHandler('path');
@@ -892,6 +895,7 @@ const UI = {
         UI.updateSetting('logging');
         UI.updateSetting('reconnect');
         UI.updateSetting('reconnect_delay');
+        UI.updateSetting('notify_clipboard_received');
 
         document.getElementById('noVNC_settings')
             .classList.add("noVNC_open");
@@ -993,25 +997,17 @@ const UI = {
             UI.openClipboardPanel();
         }
     },
-    showCopiedNotification() {
-        // This is responsible for showing the notification when text is updated in the clipboard.
-        const notificationBox = document.createElement("div");
-        notificationBox.className = "notification";
-        notificationBox.innerText = "Clipboard updated";
-        document.body.appendChild(notificationBox);
 
-        setTimeout(() => {
-            notificationBox.classList.add("fade-out");
-            setTimeout(() => {
-                notificationBox.remove();
-            }, 500); // Wait for fade-out transition
-        }, 3000); // Display for 3 seconds
+    notifyClipboardReceived() {
+        // When enabled with setting 'notify_clipboard_received', shows
+        // notification when a 'clipboard-received'-event is fired by
+        // the RFB instance.
+        UI.showStatus(_('Clipboard updated'), 3000);
     },
 
     clipboardReceive(e) {
         Log.Debug(">> UI.clipboardReceive: " + e.detail.text.substr(0, 40) + "...");
         document.getElementById('noVNC_clipboard_text').value = e.detail.text;
-        UI.showCopiedNotification();
         Log.Debug("<< UI.clipboardReceive");
     },
 
@@ -1118,6 +1114,8 @@ const UI = {
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
 
         UI.updateViewOnly(); // requires UI.rfb
+        UI.updateClipboard();
+        UI.updateNotifyClipboardReceived();
     },
 
     disconnect() {
@@ -1169,6 +1167,8 @@ const UI = {
         UI.showStatus(msg);
         UI.updateVisualState('connected');
 
+        UI.updateBeforeUnload();
+
         // Do this last because it can only be used on rendered elements
         UI.rfb.focus();
     },
@@ -1205,6 +1205,8 @@ const UI = {
             UI.showStatus(_("Disconnected"), 'normal');
         }
 
+        UI.updateBeforeUnload();
+
         document.title = PAGE_TITLE;
 
         UI.openControlbar();
@@ -1223,6 +1225,24 @@ const UI = {
             msg = _("New connection has been rejected");
         }
         UI.showStatus(msg, 'error');
+    },
+
+    handleBeforeUnload(e) {
+        // Trigger a "Leave site?" warning prompt before closing the
+        // page. Modern browsers (Oct 2025) accept either (or both)
+        // preventDefault() or a nonempty returnValue, though the latter is
+        // considered legacy. The custom string is ignored by modern browsers,
+        // which display a native message, but older browsers will show it.
+        e.preventDefault();
+        e.returnValue = _("Are you sure you want to disconnect the session?");
+    },
+
+    updateBeforeUnload() {
+        // Remove first to avoid adding duplicates
+        window.removeEventListener("beforeunload", UI.handleBeforeUnload);
+        if (!UI.rfb?.viewOnly && UI.connected) {
+            window.addEventListener("beforeunload", UI.handleBeforeUnload);
+        }
     },
 
 /* ------^-------
@@ -1751,6 +1771,8 @@ const UI = {
         if (!UI.rfb) return;
         UI.rfb.viewOnly = UI.getSetting('view_only');
 
+        UI.updateBeforeUnload();
+
         // Hide input related buttons in view only mode
         if (UI.rfb.viewOnly) {
             document.getElementById('noVNC_keyboard_button')
@@ -1769,9 +1791,42 @@ const UI = {
         }
     },
 
+    updateClipboard() {
+        browserAsyncClipboardSupport()
+            .then((support) => {
+                if (support === 'unsupported') {
+                    // Use fallback clipboard panel
+                    return;
+                }
+                if (support === 'denied' || support === 'available') {
+                    UI.closeClipboardPanel();
+                    document.getElementById('noVNC_clipboard_button')
+                        .classList.add('noVNC_hidden');
+                    document.getElementById('noVNC_clipboard_button')
+                        .removeEventListener('click', UI.toggleClipboardPanel);
+                    document.getElementById('noVNC_clipboard_text')
+                        .removeEventListener('change', UI.clipboardSend);
+                    if (UI.rfb) {
+                        UI.rfb.removeEventListener('clipboard', UI.clipboardReceive);
+                    }
+                }
+            })
+            .catch(() => {
+                // Treat as unsupported
+            });
+    },
+
     updateShowDotCursor() {
         if (!UI.rfb) return;
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
+    },
+
+    updateNotifyClipboardReceived() {
+        if (!UI.rfb) return;
+        UI.rfb.removeEventListener('clipboardreceived', UI.notifyClipboardReceived);
+        if (UI.getSetting('notify_clipboard_received')) {
+            UI.rfb.addEventListener('clipboardreceived', UI.notifyClipboardReceived);
+        }
     },
 
     updateLogging() {

@@ -1,337 +1,338 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR The noVNC authors
+# Croatian translations for noVNC package
+# Hrvatski prijevod za noVNC paket
+# Copyright (C) 2025 The noVNC authors
 # This file is distributed under the same license as the noVNC package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Milo Ivir <mail@milotype.de>, 2025.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: noVNC 1.6.0\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
-"POT-Creation-Date: 2025-10-31 09:17+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"POT-Creation-Date: 2025-02-14 10:14+0100\n"
+"PO-Revision-Date: 2025-08-25 18:24+0200\n"
+"Last-Translator: Milo Ivir <mail@mivirtype.de>\n"
+"Language-Team: \n"
+"Language: hr\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.7\n"
 
 #: ../app/ui.js:84
 msgid ""
 "Running without HTTPS is not recommended, crashes or other issues are likely."
 msgstr ""
+"Pokretanje bez HTTPS-a se ne preporučuje, vjerojatno će se dogoditi prekidi "
+"rada ili drugi problemi."
 
 #: ../app/ui.js:413
 msgid "Connecting..."
-msgstr ""
+msgstr "Povezivanje …"
 
 #: ../app/ui.js:420
 msgid "Disconnecting..."
-msgstr ""
+msgstr "Odspajanje …"
 
 #: ../app/ui.js:426
 msgid "Reconnecting..."
-msgstr ""
+msgstr "Ponovno povezivanje …"
 
 #: ../app/ui.js:431
 msgid "Internal error"
-msgstr ""
+msgstr "Interna greška"
 
-#: ../app/ui.js:1084
+#: ../app/ui.js:1079
 msgid "Failed to connect to server: "
-msgstr ""
+msgstr "Povezivanje sa serverom nije uspjelo: "
 
-#: ../app/ui.js:1151
+#: ../app/ui.js:1145
 msgid "Connected (encrypted) to "
-msgstr ""
+msgstr "Povezano (šifrirano) na "
 
-#: ../app/ui.js:1153
+#: ../app/ui.js:1147
 msgid "Connected (unencrypted) to "
-msgstr ""
+msgstr "Povezano (nešifrirano) na "
 
-#: ../app/ui.js:1178
+#: ../app/ui.js:1170
 msgid "Something went wrong, connection is closed"
-msgstr ""
+msgstr "Nešto nije u redu, veza je zatvorena"
 
-#: ../app/ui.js:1181
+#: ../app/ui.js:1173
 msgid "Failed to connect to server"
-msgstr ""
+msgstr "Povezivanje sa serverom nije uspjelo"
 
-#: ../app/ui.js:1193
+#: ../app/ui.js:1185
 msgid "Disconnected"
-msgstr ""
+msgstr "Odspojeno"
 
-#: ../app/ui.js:1210
+#: ../app/ui.js:1200
 msgid "New connection has been rejected with reason: "
-msgstr ""
+msgstr "Nova veza je odbijena s razlogom: "
 
-#: ../app/ui.js:1213
+#: ../app/ui.js:1203
 msgid "New connection has been rejected"
-msgstr ""
+msgstr "Nova veza je odbijena"
 
-#: ../app/ui.js:1225
-msgid "Are you sure you want to disconnect the session?"
-msgstr ""
-
-#: ../app/ui.js:1297
+#: ../app/ui.js:1269
 msgid "Credentials are required"
-msgstr ""
+msgstr "Podaci za prijavu su obavezni"
 
 #: ../vnc.html:106
 msgid "noVNC encountered an error:"
-msgstr ""
+msgstr "noVNC je naišao na grešku:"
 
 #: ../vnc.html:116
 msgid "Hide/Show the control bar"
-msgstr ""
+msgstr "Sakrij/Prikaži traku kontrola"
 
 #: ../vnc.html:125
 msgid "Drag"
-msgstr ""
+msgstr "Povuci"
 
 #: ../vnc.html:125
 msgid "Move/Drag viewport"
-msgstr ""
+msgstr "Pomakni/Povuci vidljivo područje"
 
 #: ../vnc.html:131
 msgid "Keyboard"
-msgstr ""
+msgstr "Tipkovnica"
 
 #: ../vnc.html:131
 msgid "Show keyboard"
-msgstr ""
+msgstr "Prikaži tipkovnicu"
 
 #: ../vnc.html:136
 msgid "Extra keys"
-msgstr ""
+msgstr "Dodatne tipke"
 
 #: ../vnc.html:136
 msgid "Show extra keys"
-msgstr ""
+msgstr "Prikaži dodatne tipke"
 
 #: ../vnc.html:141
 msgid "Ctrl"
-msgstr ""
+msgstr "Ctrl"
 
 #: ../vnc.html:141
 msgid "Toggle Ctrl"
-msgstr ""
+msgstr "Uključi/Isključi Ctrl"
 
 #: ../vnc.html:144
 msgid "Alt"
-msgstr ""
+msgstr "Alt"
 
 #: ../vnc.html:144
 msgid "Toggle Alt"
-msgstr ""
+msgstr "Uključi/Isključi Alt"
 
 #: ../vnc.html:147
 msgid "Toggle Windows"
-msgstr ""
+msgstr "Uključi/Isključi Windows"
 
 #: ../vnc.html:147
 msgid "Windows"
-msgstr ""
+msgstr "Windows"
 
 #: ../vnc.html:150
 msgid "Send Tab"
-msgstr ""
+msgstr "Pošalji tabulator"
 
 #: ../vnc.html:150
 msgid "Tab"
-msgstr ""
+msgstr "Tabulator"
 
 #: ../vnc.html:153
 msgid "Esc"
-msgstr ""
+msgstr "Esc"
 
 #: ../vnc.html:153
 msgid "Send Escape"
-msgstr ""
+msgstr "Pošalji Escape"
 
 #: ../vnc.html:156
 msgid "Ctrl+Alt+Del"
-msgstr ""
+msgstr "Ctrl + Alt + Del"
 
 #: ../vnc.html:156
 msgid "Send Ctrl-Alt-Del"
-msgstr ""
+msgstr "Pošalji Ctrl+Alt+Del"
 
 #: ../vnc.html:163
 msgid "Shutdown/Reboot"
-msgstr ""
+msgstr "Isključi/Ponovo pokreni"
 
 #: ../vnc.html:163
 msgid "Shutdown/Reboot..."
-msgstr ""
+msgstr "Isključi/Ponovo pokreni …"
 
 #: ../vnc.html:169
 msgid "Power"
-msgstr ""
+msgstr "Napajanje"
 
 #: ../vnc.html:171
 msgid "Shutdown"
-msgstr ""
+msgstr "Isključi"
 
 #: ../vnc.html:172
 msgid "Reboot"
-msgstr ""
+msgstr "Ponovo pokreni"
 
 #: ../vnc.html:173
 msgid "Reset"
-msgstr ""
+msgstr "Resetiraj"
 
 #: ../vnc.html:178 ../vnc.html:184
 msgid "Clipboard"
-msgstr ""
+msgstr "Međuspremnik"
 
 #: ../vnc.html:186
 msgid "Edit clipboard content in the textarea below."
-msgstr ""
+msgstr "Uredi sadržaj međuspremnika u donjem području teksta."
 
 #: ../vnc.html:194
 msgid "Full screen"
-msgstr ""
+msgstr "Cjeloekranski prikaz"
 
 #: ../vnc.html:199 ../vnc.html:205
 msgid "Settings"
-msgstr ""
+msgstr "Postavke"
 
 #: ../vnc.html:211
 msgid "Shared mode"
-msgstr ""
+msgstr "Dijeljeni modus"
 
 #: ../vnc.html:218
 msgid "View only"
-msgstr ""
+msgstr "Samo prikaz"
 
 #: ../vnc.html:226
 msgid "Clip to window"
-msgstr ""
+msgstr "Isijeci na veličinu prozora"
 
 #: ../vnc.html:231
 msgid "Scaling mode:"
-msgstr ""
+msgstr "Modus skaliranja:"
 
 #: ../vnc.html:233
 msgid "None"
-msgstr ""
+msgstr "Bez"
 
 #: ../vnc.html:234
 msgid "Local scaling"
-msgstr ""
+msgstr "Lokalno skaliranje"
 
 #: ../vnc.html:235
 msgid "Remote resizing"
-msgstr ""
+msgstr "Daljinsko mijenjanje veličine"
 
 #: ../vnc.html:240
 msgid "Advanced"
-msgstr ""
+msgstr "Napredno"
 
 #: ../vnc.html:243
 msgid "Quality:"
-msgstr ""
+msgstr "Kvaliteta:"
 
 #: ../vnc.html:247
 msgid "Compression level:"
-msgstr ""
+msgstr "Razina kompresije:"
 
 #: ../vnc.html:252
 msgid "Repeater ID:"
-msgstr ""
+msgstr "ID repetitora:"
 
 #: ../vnc.html:256
 msgid "WebSocket"
-msgstr ""
+msgstr "WebSocket"
 
 #: ../vnc.html:261
 msgid "Encrypt"
-msgstr ""
+msgstr "Šifriraj"
 
 #: ../vnc.html:266
 msgid "Host:"
-msgstr ""
+msgstr "Host:"
 
 #: ../vnc.html:270
 msgid "Port:"
-msgstr ""
+msgstr "Priključak:"
 
 #: ../vnc.html:274
 msgid "Path:"
-msgstr ""
+msgstr "Putanja:"
 
 #: ../vnc.html:283
 msgid "Automatic reconnect"
-msgstr ""
+msgstr "Automatsko ponovno povezivanje"
 
 #: ../vnc.html:288
 msgid "Reconnect delay (ms):"
-msgstr ""
+msgstr "Kašnjenje ponovnog povezivanja (ms):"
 
 #: ../vnc.html:295
 msgid "Show dot when no cursor"
-msgstr ""
+msgstr "Prikaži točku kada nema pokazivača"
 
 #: ../vnc.html:302
 msgid "Logging:"
-msgstr ""
+msgstr "Zapisivanje:"
 
 #: ../vnc.html:311
 msgid "Version:"
-msgstr ""
+msgstr "Verzija:"
 
 #: ../vnc.html:319
 msgid "Disconnect"
-msgstr ""
+msgstr "Odspoji"
 
 #: ../vnc.html:342
 msgid "Connect"
-msgstr ""
+msgstr "Poveži"
 
 #: ../vnc.html:351
 msgid "Server identity"
-msgstr ""
+msgstr "Identitet servera"
 
 #: ../vnc.html:354
 msgid "The server has provided the following identifying information:"
-msgstr ""
+msgstr "Server je pružio sljedeće identifikacijske podatke:"
 
 #: ../vnc.html:357
 msgid "Fingerprint:"
-msgstr ""
+msgstr "Otisak:"
 
 #: ../vnc.html:361
 msgid ""
 "Please verify that the information is correct and press \"Approve\". "
 "Otherwise press \"Reject\"."
 msgstr ""
+"Provjeri jesu li podaci točni i pritisni „Odobri“. U suprotnom pritisni "
+"„Odbaci“."
 
 #: ../vnc.html:366
 msgid "Approve"
-msgstr ""
+msgstr "Odobri"
 
 #: ../vnc.html:367
 msgid "Reject"
-msgstr ""
+msgstr "Odbij"
 
 #: ../vnc.html:375
 msgid "Credentials"
-msgstr ""
+msgstr "Podaci za prijavu"
 
 #: ../vnc.html:379
 msgid "Username:"
-msgstr ""
+msgstr "Korisničko ime:"
 
 #: ../vnc.html:383
 msgid "Password:"
-msgstr ""
+msgstr "Lozinka:"
 
 #: ../vnc.html:387
 msgid "Send credentials"
-msgstr ""
+msgstr "Pošalji podatke za prijavu"
 
 #: ../vnc.html:396
 msgid "Cancel"
-msgstr ""
+msgstr "Odustani"

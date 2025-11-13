@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: noVNC 1.6.0\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
-"POT-Creation-Date: 2025-02-14 10:14+0100\n"
-"PO-Revision-Date: 2025-02-14 10:29+0100\n"
+"POT-Creation-Date: 2025-10-31 09:17+0100\n"
+"PO-Revision-Date: 2025-10-31 10:48+0100\n"
 "Last-Translator: Alexander Zeijlon <aleze@cendio.com>\n"
 "Language-Team: none\n"
 "Language: sv\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.7\n"
 
 #: ../app/ui.js:84
 msgid ""
@@ -32,7 +32,7 @@ msgstr "Ansluter..."
 
 #: ../app/ui.js:420
 msgid "Disconnecting..."
-msgstr "Kopplar ner..."
+msgstr "Kopplar ifrån..."
 
 #: ../app/ui.js:426
 msgid "Reconnecting..."
@@ -42,39 +42,43 @@ msgstr "Återansluter..."
 msgid "Internal error"
 msgstr "Internt fel"
 
-#: ../app/ui.js:1079
+#: ../app/ui.js:1084
 msgid "Failed to connect to server: "
 msgstr "Misslyckades att ansluta till servern: "
 
-#: ../app/ui.js:1145
+#: ../app/ui.js:1151
 msgid "Connected (encrypted) to "
 msgstr "Ansluten (krypterat) till "
 
-#: ../app/ui.js:1147
+#: ../app/ui.js:1153
 msgid "Connected (unencrypted) to "
 msgstr "Ansluten (okrypterat) till "
 
-#: ../app/ui.js:1170
+#: ../app/ui.js:1178
 msgid "Something went wrong, connection is closed"
 msgstr "Något gick fel, anslutningen avslutades"
 
-#: ../app/ui.js:1173
+#: ../app/ui.js:1181
 msgid "Failed to connect to server"
 msgstr "Misslyckades att ansluta till servern"
 
-#: ../app/ui.js:1185
+#: ../app/ui.js:1193
 msgid "Disconnected"
 msgstr "Frånkopplad"
 
-#: ../app/ui.js:1200
+#: ../app/ui.js:1210
 msgid "New connection has been rejected with reason: "
 msgstr "Ny anslutning har blivit nekad med följande skäl: "
 
-#: ../app/ui.js:1203
+#: ../app/ui.js:1213
 msgid "New connection has been rejected"
 msgstr "Ny anslutning har blivit nekad"
 
-#: ../app/ui.js:1269
+#: ../app/ui.js:1225
+msgid "Are you sure you want to disconnect the session?"
+msgstr "Är du säker på att du vill koppla ifrån sessionen?"
+
+#: ../app/ui.js:1297
 msgid "Credentials are required"
 msgstr "Användaruppgifter krävs"
 
@@ -160,11 +164,11 @@ msgstr "Skicka Ctrl-Alt-Del"
 
 #: ../vnc.html:163
 msgid "Shutdown/Reboot"
-msgstr "Stäng av/Boota om"
+msgstr "Stäng av/Starta om"
 
 #: ../vnc.html:163
 msgid "Shutdown/Reboot..."
-msgstr "Stäng av/Boota om..."
+msgstr "Stäng av/Starta om..."
 
 #: ../vnc.html:169
 msgid "Power"
@@ -176,7 +180,7 @@ msgstr "Stäng av"
 
 #: ../vnc.html:172
 msgid "Reboot"
-msgstr "Boota om"
+msgstr "Starta om"
 
 #: ../vnc.html:173
 msgid "Reset"
@@ -284,7 +288,7 @@ msgstr "Version:"
 
 #: ../vnc.html:319
 msgid "Disconnect"
-msgstr "Koppla från"
+msgstr "Koppla ifrån"
 
 #: ../vnc.html:342
 msgid "Connect"
@@ -292,7 +296,7 @@ msgstr "Anslut"
 
 #: ../vnc.html:351
 msgid "Server identity"
-msgstr "Server-identitet"
+msgstr "Serveridentitet"
 
 #: ../vnc.html:354
 msgid "The server has provided the following identifying information:"
@@ -308,7 +312,7 @@ msgid ""
 "Otherwise press \"Reject\"."
 msgstr ""
 "Kontrollera att informationen är korrekt och tryck sedan \"Godkänn\". Tryck "
-"annars \"Neka\"."
+"annars \"Avvisa\"."
 
 #: ../vnc.html:366
 msgid "Approve"
@@ -316,7 +320,7 @@ msgstr "Godkänn"
 
 #: ../vnc.html:367
 msgid "Reject"
-msgstr "Neka"
+msgstr "Avvisa"
 
 #: ../vnc.html:375
 msgid "Credentials"

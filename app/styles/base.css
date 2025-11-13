@@ -902,30 +902,6 @@ html {
 #noVNC_bell {
     display: none;
 }
-/* ----------------------------------------
- *
- * Styles for Showing the Clipboard updated
-*/
-.notification {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background-color: grey;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-  font-family: sans-serif;
-  font-size: 16px;
-  opacity: 1;
-  transition: opacity 0.5s ease;
-  z-index: 9999;
-}
-
-.fade-out {
-  opacity: 0;
-}
-
 
 /* ----------------------------------------
  * Media sizing
