@@ -174,6 +174,44 @@
                     </div>
                 </div>
 
+                <!-- File Upload -->
+                <div class="noVNC_button_div noVNC_hide_on_disconnect" >
+                    <input type="image" alt="Upload Files" src="app/images/upload.svg"
+                        id="noVNC_upload_button" class="noVNC_button"
+                        title="Upload Files">
+                    Upload Files
+                    <div class="noVNC_vcenter">
+                        <div id="noVNC_upload_panel" class="noVNC_panel">
+                            <div class="noVNC_heading">
+                                <img alt="" src="app/images/upload.svg"> Upload Files
+                            </div>
+                            <input type="file" id="noVNC_file_input" multiple style="margin: 10px 0;">
+                            <div id="noVNC_upload_files_list" style="max-height: 300px; overflow-y: auto;">
+                                <!-- Upload progress items will be added here dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- File Download -->
+                <div class="noVNC_button_div noVNC_hide_on_disconnect" >
+                    <input type="image" alt="Download Files" src="app/images/download.svg"
+                        id="noVNC_download_button" class="noVNC_button"
+                        title="Download Files">
+                    Download Files
+                    <div class="noVNC_vcenter">
+                        <div id="noVNC_download_panel" class="noVNC_panel">
+                            <div class="noVNC_heading">
+                                <img alt="" src="app/images/download.svg"> Download Files
+                            </div>
+                            <button id="noVNC_refresh_downloads_button" style="margin: 10px 0; padding: 5px 10px;">Refresh File List</button>
+                            <div id="noVNC_download_files_list" style="max-height: 400px; overflow-y: auto; margin-top: 10px;">
+                                <!-- Download file list will be added here dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Toggle fullscreen -->
                 <div class="noVNC_button_div noVNC_hidden" >
                     <input type="image" alt="Fullscreen" src="app/images/fullscreen.svg"

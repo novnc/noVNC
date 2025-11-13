@@ -147,6 +147,8 @@ const UI = {
         UI.addMachineHandlers();
         UI.addConnectionControlHandlers();
         UI.addClipboardHandlers();
+        UI.addUploadHandlers();
+        UI.addDownloadHandlers();
         UI.addSettingsHandlers();
         UI.addDisplaysHandler();
         // UI.addMultiMonitorAddHandler();
@@ -530,6 +532,20 @@ const UI = {
             .addEventListener('change', UI.clipboardSend);
         document.getElementById("noVNC_clipboard_clear_button")
             .addEventListener('click', UI.clipboardClear);
+    },
+
+    addUploadHandlers() {
+        UI.addClickHandle('noVNC_upload_button', UI.toggleUploadPanel);
+
+        document.getElementById("noVNC_file_input")
+            .addEventListener('change', UI.handleFileSelect);
+    },
+
+    addDownloadHandlers() {
+        UI.addClickHandle('noVNC_download_button', UI.toggleDownloadPanel);
+
+        document.getElementById("noVNC_refresh_downloads_button")
+            .addEventListener('click', UI.refreshDownloadsList);
     },
 
     // Add a call to save settings when the element changes,
@@ -1216,6 +1232,8 @@ const UI = {
         UI.closeSettingsPanel();
         UI.closePowerPanel();
         UI.closeClipboardPanel();
+        UI.closeUploadPanel();
+        UI.closeDownloadPanel();
         UI.closeExtraKeys();
     },
 
@@ -1366,6 +1384,301 @@ const UI = {
         } else {
             UI.openClipboardPanel();
         }
+    },
+
+    openUploadPanel() {
+        UI.closeAllPanels();
+        UI.openControlbar();
+
+        document.getElementById('noVNC_upload_panel')
+            .classList.add("noVNC_open");
+        document.getElementById('noVNC_upload_button')
+            .classList.add("noVNC_selected");
+    },
+
+    closeUploadPanel() {
+        document.getElementById('noVNC_upload_panel')
+            .classList.remove("noVNC_open");
+        document.getElementById('noVNC_upload_button')
+            .classList.remove("noVNC_selected");
+    },
+
+    toggleUploadPanel(e) {
+        if (!UI.isControlPanelItemClick(e)) {
+            return false;
+        }
+
+        if (document.getElementById('noVNC_upload_panel')
+            .classList.contains("noVNC_open")) {
+            UI.closeUploadPanel();
+        } else {
+            UI.openUploadPanel();
+        }
+    },
+
+    handleFileSelect(e) {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+
+        for (let i = 0; i < files.length; i++) {
+            UI.uploadFile(files[i]);
+        }
+
+        // Clear the input so the same file can be selected again
+        e.target.value = '';
+    },
+
+    formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+    },
+
+    uploadFile(file) {
+        const uploadsList = document.getElementById('noVNC_upload_files_list');
+
+        // Create progress item
+        const progressItem = document.createElement('div');
+        progressItem.className = 'noVNC_upload_item';
+        progressItem.style.marginBottom = '10px';
+        progressItem.style.padding = '8px';
+        progressItem.style.border = '1px solid #ccc';
+        progressItem.style.borderRadius = '4px';
+
+        const fileName = document.createElement('div');
+        fileName.textContent = file.name + ' (' + UI.formatFileSize(file.size) + ')';
+        fileName.style.fontSize = '13px';
+        fileName.style.fontWeight = 'bold';
+        fileName.style.marginBottom = '8px';
+        fileName.style.wordBreak = 'break-all';
+        fileName.style.color = '#ffffff';
+
+        const progressBarContainer = document.createElement('div');
+        progressBarContainer.style.width = '100%';
+        progressBarContainer.style.height = '20px';
+        progressBarContainer.style.backgroundColor = '#f0f0f0';
+        progressBarContainer.style.borderRadius = '10px';
+        progressBarContainer.style.overflow = 'hidden';
+
+        const progressBar = document.createElement('div');
+        progressBar.style.height = '100%';
+        progressBar.style.width = '0%';
+        progressBar.style.backgroundColor = '#4CAF50';
+        progressBar.style.transition = 'width 0.3s';
+
+        const progressText = document.createElement('div');
+        progressText.textContent = '0%';
+        progressText.style.fontSize = '11px';
+        progressText.style.marginTop = '3px';
+        progressText.style.textAlign = 'center';
+
+        progressBarContainer.appendChild(progressBar);
+        progressItem.appendChild(fileName);
+        progressItem.appendChild(progressBarContainer);
+        progressItem.appendChild(progressText);
+        uploadsList.appendChild(progressItem);
+
+        // Prepare FormData
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // Create XMLHttpRequest
+        const xhr = new XMLHttpRequest();
+
+        // Progress handler
+        xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+                const percentComplete = (e.loaded / e.total) * 100;
+                progressBar.style.width = percentComplete + '%';
+                progressText.textContent = Math.round(percentComplete) + '%';
+            }
+        });
+
+        // Completion handler
+        xhr.addEventListener('load', () => {
+            if (xhr.status === 200) {
+                progressBar.style.backgroundColor = '#4CAF50';
+                progressText.textContent = 'Complete!';
+
+                // Remove after 5 seconds
+                setTimeout(() => {
+                    progressItem.style.transition = 'opacity 0.5s';
+                    progressItem.style.opacity = '0';
+                    setTimeout(() => {
+                        progressItem.remove();
+                    }, 500);
+                }, 5000);
+            } else {
+                progressBar.style.backgroundColor = '#f44336';
+                progressText.textContent = 'Failed!';
+
+                // Remove after 5 seconds
+                setTimeout(() => {
+                    progressItem.style.transition = 'opacity 0.5s';
+                    progressItem.style.opacity = '0';
+                    setTimeout(() => {
+                        progressItem.remove();
+                    }, 500);
+                }, 5000);
+            }
+        });
+
+        // Error handler
+        xhr.addEventListener('error', () => {
+            progressBar.style.backgroundColor = '#f44336';
+            progressText.textContent = 'Error!';
+
+            // Remove after 5 seconds
+            setTimeout(() => {
+                progressItem.style.transition = 'opacity 0.5s';
+                progressItem.style.opacity = '0';
+                setTimeout(() => {
+                    progressItem.remove();
+                }, 500);
+            }, 5000);
+        });
+
+        // Send request
+        xhr.open('POST', '/upload', true);
+        xhr.send(formData);
+    },
+
+    openDownloadPanel() {
+        UI.closeAllPanels();
+        UI.openControlbar();
+
+        document.getElementById('noVNC_download_panel')
+            .classList.add("noVNC_open");
+        document.getElementById('noVNC_download_button')
+            .classList.add("noVNC_selected");
+
+        // Refresh file list when opening
+        UI.refreshDownloadsList();
+    },
+
+    closeDownloadPanel() {
+        document.getElementById('noVNC_download_panel')
+            .classList.remove("noVNC_open");
+        document.getElementById('noVNC_download_button')
+            .classList.remove("noVNC_selected");
+    },
+
+    toggleDownloadPanel(e) {
+        if (!UI.isControlPanelItemClick(e)) {
+            return false;
+        }
+
+        if (document.getElementById('noVNC_download_panel')
+            .classList.contains("noVNC_open")) {
+            UI.closeDownloadPanel();
+        } else {
+            UI.openDownloadPanel();
+        }
+    },
+
+    refreshDownloadsList() {
+        const downloadsList = document.getElementById('noVNC_download_files_list');
+
+        // Show loading message
+        downloadsList.innerHTML = '<div style="padding: 10px; text-align: center;">Loading files...</div>';
+
+        // Fetch file list from API
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', '/api/downloads', true);
+
+        xhr.addEventListener('load', () => {
+            if (xhr.status === 200) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+
+                    if (response.success && response.downloads && response.downloads.length > 0) {
+                        // Clear loading message
+                        downloadsList.innerHTML = '';
+
+                        // Display each file
+                        response.downloads.forEach(file => {
+                            const fileItem = document.createElement('div');
+                            fileItem.className = 'noVNC_download_item';
+                            fileItem.style.marginBottom = '8px';
+                            fileItem.style.padding = '8px';
+                            fileItem.style.border = '1px solid #ccc';
+                            fileItem.style.borderRadius = '4px';
+                            fileItem.style.display = 'flex';
+                            fileItem.style.justifyContent = 'space-between';
+                            fileItem.style.alignItems = 'center';
+
+                            const fileInfo = document.createElement('div');
+                            fileInfo.style.flex = '1';
+                            fileInfo.style.minWidth = '0';
+
+                            const fileName = document.createElement('div');
+                            fileName.textContent = file.filename;
+                            fileName.style.fontSize = '13px';
+                            fileName.style.fontWeight = 'bold';
+                            fileName.style.color = '#ffffff';
+                            fileName.style.wordBreak = 'break-all';
+
+                            const fileDetails = document.createElement('div');
+                            fileDetails.style.fontSize = '11px';
+                            fileDetails.style.color = '#cccccc';
+                            fileDetails.style.marginTop = '3px';
+
+                            if (file.is_dir) {
+                                fileDetails.textContent = 'Directory';
+                            } else {
+                                fileDetails.textContent = UI.formatFileSize(file.size);
+                            }
+
+                            fileInfo.appendChild(fileName);
+                            fileInfo.appendChild(fileDetails);
+
+                            // Only add download button for files, not directories
+                            if (!file.is_dir) {
+                                const downloadBtn = document.createElement('button');
+                                downloadBtn.textContent = 'Download';
+                                downloadBtn.style.marginLeft = '10px';
+                                downloadBtn.style.padding = '5px 10px';
+                                downloadBtn.style.fontSize = '12px';
+                                downloadBtn.style.cursor = 'pointer';
+                                downloadBtn.addEventListener('click', () => {
+                                    UI.downloadFile(file.filename);
+                                });
+                                fileItem.appendChild(fileInfo);
+                                fileItem.appendChild(downloadBtn);
+                            } else {
+                                fileItem.appendChild(fileInfo);
+                            }
+
+                            downloadsList.appendChild(fileItem);
+                        });
+                    } else {
+                        downloadsList.innerHTML = '<div style="padding: 10px; text-align: center; color: #999;">No files available</div>';
+                    }
+                } catch (e) {
+                    downloadsList.innerHTML = '<div style="padding: 10px; text-align: center; color: #f44336;">Error parsing response</div>';
+                }
+            } else {
+                downloadsList.innerHTML = '<div style="padding: 10px; text-align: center; color: #f44336;">Failed to load files</div>';
+            }
+        });
+
+        xhr.addEventListener('error', () => {
+            downloadsList.innerHTML = '<div style="padding: 10px; text-align: center; color: #f44336;">Network error</div>';
+        });
+
+        xhr.send();
+    },
+
+    downloadFile(filename) {
+        // Create a temporary anchor element and trigger download
+        const a = document.createElement('a');
+        a.href = '/downloads/' + encodeURIComponent(filename);
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
     },
 
     clipboardReceive(e) {
