@@ -78,6 +78,8 @@ const UI = {
     monitorStartX: 0,
     monitorStartY: 0,
 
+    currentDownloadPath: '',  // Track current folder path for downloads
+
     supportsBroadcastChannel: (typeof BroadcastChannel !== "undefined"),
 
     prime() {
@@ -535,17 +537,25 @@ const UI = {
     },
 
     addUploadHandlers() {
-        UI.addClickHandle('noVNC_upload_button', UI.toggleUploadPanel);
+        if (document.getElementById('noVNC_upload_button')) {
+            UI.addClickHandle('noVNC_upload_button', UI.toggleUploadPanel);
+        }
 
-        document.getElementById("noVNC_file_input")
-            .addEventListener('change', UI.handleFileSelect);
+        const fileInput = document.getElementById("noVNC_file_input");
+        if (fileInput) {
+            fileInput.addEventListener('change', UI.handleFileSelect);
+        }
     },
 
     addDownloadHandlers() {
-        UI.addClickHandle('noVNC_download_button', UI.toggleDownloadPanel);
+        if (document.getElementById('noVNC_download_button')) {
+            UI.addClickHandle('noVNC_download_button', UI.toggleDownloadPanel);
+        }
 
-        document.getElementById("noVNC_refresh_downloads_button")
-            .addEventListener('click', UI.refreshDownloadsList);
+        const refreshButton = document.getElementById("noVNC_refresh_downloads_button");
+        if (refreshButton) {
+            refreshButton.addEventListener('click', UI.refreshDownloadsList);
+        }
     },
 
     // Add a call to save settings when the element changes,
@@ -1549,20 +1559,33 @@ const UI = {
         UI.closeAllPanels();
         UI.openControlbar();
 
-        document.getElementById('noVNC_download_panel')
-            .classList.add("noVNC_open");
-        document.getElementById('noVNC_download_button')
-            .classList.add("noVNC_selected");
+        const panel = document.getElementById('noVNC_download_panel');
+        const button = document.getElementById('noVNC_download_button');
+
+        if (panel) {
+            panel.classList.add("noVNC_open");
+        }
+        if (button) {
+            button.classList.add("noVNC_selected");
+        }
+
+        // Reset to root folder when opening
+        UI.currentDownloadPath = '';
 
         // Refresh file list when opening
         UI.refreshDownloadsList();
     },
 
     closeDownloadPanel() {
-        document.getElementById('noVNC_download_panel')
-            .classList.remove("noVNC_open");
-        document.getElementById('noVNC_download_button')
-            .classList.remove("noVNC_selected");
+        const panel = document.getElementById('noVNC_download_panel');
+        const button = document.getElementById('noVNC_download_button');
+
+        if (panel) {
+            panel.classList.remove("noVNC_open");
+        }
+        if (button) {
+            button.classList.remove("noVNC_selected");
+        }
     },
 
     toggleDownloadPanel(e) {
@@ -1570,8 +1593,8 @@ const UI = {
             return false;
         }
 
-        if (document.getElementById('noVNC_download_panel')
-            .classList.contains("noVNC_open")) {
+        const panel = document.getElementById('noVNC_download_panel');
+        if (panel && panel.classList.contains("noVNC_open")) {
             UI.closeDownloadPanel();
         } else {
             UI.openDownloadPanel();
@@ -1581,24 +1604,77 @@ const UI = {
     refreshDownloadsList() {
         const downloadsList = document.getElementById('noVNC_download_files_list');
 
+        if (!downloadsList) {
+            console.log('Download files list element not found');
+            return;
+        }
+
         // Show loading message
         downloadsList.innerHTML = '<div style="padding: 10px; text-align: center;">Loading files...</div>';
 
+        // Build API URL with path parameter if we're in a subfolder
+        let apiUrl = '/api/downloads';
+        if (UI.currentDownloadPath) {
+            // Server expects path to start with /
+            apiUrl += '?path=' + encodeURIComponent('/' + UI.currentDownloadPath);
+        }
+
+        console.log('Fetching downloads from:', apiUrl, 'currentPath:', UI.currentDownloadPath);
+
         // Fetch file list from API
         const xhr = new XMLHttpRequest();
-        xhr.open('GET', '/api/downloads', true);
+        xhr.open('GET', apiUrl, true);
 
         xhr.addEventListener('load', () => {
             if (xhr.status === 200) {
                 try {
                     const response = JSON.parse(xhr.responseText);
 
-                    if (response.success && response.downloads && response.downloads.length > 0) {
-                        // Clear loading message
-                        downloadsList.innerHTML = '';
+                    // Handle both old format (success/downloads) and new format (files)
+                    const files = response.files || response.downloads || [];
 
+                    // Clear loading message
+                    downloadsList.innerHTML = '';
+
+                    // Add breadcrumb navigation
+                    const breadcrumb = document.createElement('div');
+                    breadcrumb.style.padding = '8px';
+                    breadcrumb.style.marginBottom = '8px';
+                    breadcrumb.style.borderBottom = '1px solid #444';
+                    breadcrumb.style.display = 'flex';
+                    breadcrumb.style.alignItems = 'center';
+                    breadcrumb.style.gap = '8px';
+
+                    // Add "up" button if not at root
+                    if (UI.currentDownloadPath) {
+                        const upBtn = document.createElement('button');
+                        upBtn.textContent = '← Back';
+                        upBtn.style.padding = '5px 10px';
+                        upBtn.style.fontSize = '12px';
+                        upBtn.style.cursor = 'pointer';
+                        upBtn.addEventListener('click', () => {
+                            // Go up one level
+                            const pathParts = UI.currentDownloadPath.split('/').filter(p => p);
+                            pathParts.pop();
+                            UI.currentDownloadPath = pathParts.join('/');
+                            UI.refreshDownloadsList();
+                        });
+                        breadcrumb.appendChild(upBtn);
+                    }
+
+                    // Show current path
+                    const pathLabel = document.createElement('span');
+                    pathLabel.textContent = UI.currentDownloadPath ? '/' + UI.currentDownloadPath : '/Downloads';
+                    pathLabel.style.color = '#cccccc';
+                    pathLabel.style.fontSize = '12px';
+                    pathLabel.style.fontWeight = 'bold';
+                    breadcrumb.appendChild(pathLabel);
+
+                    downloadsList.appendChild(breadcrumb);
+
+                    if (files.length > 0) {
                         // Display each file
-                        response.downloads.forEach(file => {
+                        files.forEach(file => {
                             const fileItem = document.createElement('div');
                             fileItem.className = 'noVNC_download_item';
                             fileItem.style.marginBottom = '8px';
@@ -1614,7 +1690,8 @@ const UI = {
                             fileInfo.style.minWidth = '0';
 
                             const fileName = document.createElement('div');
-                            fileName.textContent = file.filename;
+                            // Add folder icon for directories
+                            fileName.textContent = (file.is_dir ? '📁 ' : '') + file.filename;
                             fileName.style.fontSize = '13px';
                             fileName.style.fontWeight = 'bold';
                             fileName.style.color = '#ffffff';
@@ -1626,7 +1703,23 @@ const UI = {
                             fileDetails.style.marginTop = '3px';
 
                             if (file.is_dir) {
-                                fileDetails.textContent = 'Directory';
+                                fileDetails.textContent = 'Folder - Click to open';
+                                // Make directories clickable
+                                fileItem.style.cursor = 'pointer';
+                                fileItem.style.transition = 'background-color 0.2s';
+                                fileItem.addEventListener('mouseenter', () => {
+                                    fileItem.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                                });
+                                fileItem.addEventListener('mouseleave', () => {
+                                    fileItem.style.backgroundColor = '';
+                                });
+                                fileItem.addEventListener('click', () => {
+                                    // Navigate into directory
+                                    UI.currentDownloadPath = UI.currentDownloadPath
+                                        ? UI.currentDownloadPath + '/' + file.filename
+                                        : file.filename;
+                                    UI.refreshDownloadsList();
+                                });
                             } else {
                                 fileDetails.textContent = UI.formatFileSize(file.size);
                             }
@@ -1642,7 +1735,8 @@ const UI = {
                                 downloadBtn.style.padding = '5px 10px';
                                 downloadBtn.style.fontSize = '12px';
                                 downloadBtn.style.cursor = 'pointer';
-                                downloadBtn.addEventListener('click', () => {
+                                downloadBtn.addEventListener('click', (e) => {
+                                    e.stopPropagation(); // Prevent any parent click handlers
                                     UI.downloadFile(file.filename);
                                 });
                                 fileItem.appendChild(fileInfo);
@@ -1657,14 +1751,27 @@ const UI = {
                         downloadsList.innerHTML = '<div style="padding: 10px; text-align: center; color: #999;">No files available</div>';
                     }
                 } catch (e) {
-                    downloadsList.innerHTML = '<div style="padding: 10px; text-align: center; color: #f44336;">Error parsing response</div>';
+                    console.error('Error parsing downloads response:', e, xhr.responseText);
+                    downloadsList.innerHTML = '<div style="padding: 10px; text-align: center; color: #f44336;">Error parsing response: ' + e.message + '</div>';
                 }
             } else {
-                downloadsList.innerHTML = '<div style="padding: 10px; text-align: center; color: #f44336;">Failed to load files</div>';
+                // Try to parse error message from server
+                let errorMsg = 'Failed to load files (HTTP ' + xhr.status + ')';
+                try {
+                    const errorData = JSON.parse(xhr.responseText);
+                    if (errorData.error) {
+                        errorMsg = errorData.error;
+                    }
+                } catch (e) {
+                    // Ignore parse errors, use default message
+                }
+                console.error('Downloads API error:', xhr.status, xhr.responseText);
+                downloadsList.innerHTML = '<div style="padding: 10px; text-align: center; color: #f44336;">' + errorMsg + '</div>';
             }
         });
 
         xhr.addEventListener('error', () => {
+            console.error('Network error loading downloads');
             downloadsList.innerHTML = '<div style="padding: 10px; text-align: center; color: #f44336;">Network error</div>';
         });
 
@@ -1674,7 +1781,13 @@ const UI = {
     downloadFile(filename) {
         // Create a temporary anchor element and trigger download
         const a = document.createElement('a');
-        a.href = '/downloads/' + encodeURIComponent(filename);
+
+        // Build the full path including current directory
+        let fullPath = UI.currentDownloadPath
+            ? UI.currentDownloadPath + '/' + filename
+            : filename;
+
+        a.href = '/Downloads/' + encodeURIComponent(fullPath);
         a.download = filename;
         document.body.appendChild(a);
         a.click();
