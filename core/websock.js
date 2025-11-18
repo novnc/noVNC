@@ -56,6 +56,7 @@ export default class Websock {
         this._rQbufferSize = 1024 * 1024 * 4; // Receive queue buffer size (4 MiB)
         // called in init: this._rQ = new Uint8Array(this._rQbufferSize);
         this._rQ = null; // Receive queue
+        this._rQdv = null; // DataView for the receive queue buffer
 
         this._sQbufferSize = 1024 * 10;  // 10 KiB
         // called in init: this._sQ = new Uint8Array(this._sQbufferSize);
@@ -115,8 +116,27 @@ export default class Websock {
         return this._rQshift(4);
     }
 
-    // TODO(directxman12): test performance with these vs a DataView
+    // Use DataView for faster integer reads (with a fallback for uncommon sizes)
     _rQshift(bytes) {
+        if (!this._rQdv && this._rQ) {
+            this._rQdv = new DataView(this._rQ.buffer);
+        }
+
+        if (this._rQdv && (bytes === 1 || bytes === 2 || bytes === 4)) {
+            const offset = this._rQi;
+            this._rQi += bytes;
+
+            let res;
+            if (bytes === 1) {
+                res = this._rQdv.getUint8(offset);
+            } else if (bytes === 2) {
+                res = this._rQdv.getUint16(offset, false);
+            } else {
+                res = this._rQdv.getUint32(offset, false);
+            }
+            return res >>> 0;
+        }
+
         let res = 0;
         for (let byte = bytes - 1; byte >= 0; byte--) {
             res += this._rQ[this._rQi++] << (byte * 8);
@@ -242,6 +262,7 @@ export default class Websock {
 
     _allocateBuffers() {
         this._rQ = new Uint8Array(this._rQbufferSize);
+        this._rQdv = new DataView(this._rQ.buffer);
         this._sQ = new Uint8Array(this._sQbufferSize);
     }
 
@@ -337,6 +358,7 @@ export default class Websock {
             const oldRQbuffer = this._rQ.buffer;
             this._rQ = new Uint8Array(this._rQbufferSize);
             this._rQ.set(new Uint8Array(oldRQbuffer, this._rQi, this._rQlen - this._rQi));
+            this._rQdv = new DataView(this._rQ.buffer);
         } else {
             this._rQ.copyWithin(0, this._rQi, this._rQlen);
         }
