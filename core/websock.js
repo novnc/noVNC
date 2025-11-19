@@ -124,6 +124,10 @@ export default class Websock {
         return res >>> 0;
     }
 
+    rQlen() {
+        return this._rQlen - this._rQi;
+    }
+
     rQshiftStr(len) {
         let str = "";
         // Handle large arrays in steps to avoid long strings on the stack
