@@ -105,43 +105,21 @@ export default class Websock {
     }
 
     rQshift8() {
-        return this._rQshift(1);
+        const offset = this._rQi;
+        this._rQi += 1;
+        return this._rQdv.getUint8(offset);
     }
 
     rQshift16() {
-        return this._rQshift(2);
+        const offset = this._rQi;
+        this._rQi += 2;
+        return this._rQdv.getUint16(offset, false);
     }
 
     rQshift32() {
-        return this._rQshift(4);
-    }
-
-    // Use DataView for faster integer reads (with a fallback for uncommon sizes)
-    _rQshift(bytes) {
-        if (!this._rQdv && this._rQ) {
-            this._rQdv = new DataView(this._rQ.buffer);
-        }
-
-        if (this._rQdv && (bytes === 1 || bytes === 2 || bytes === 4)) {
-            const offset = this._rQi;
-            this._rQi += bytes;
-
-            let res;
-            if (bytes === 1) {
-                res = this._rQdv.getUint8(offset);
-            } else if (bytes === 2) {
-                res = this._rQdv.getUint16(offset, false);
-            } else {
-                res = this._rQdv.getUint32(offset, false);
-            }
-            return res >>> 0;
-        }
-
-        let res = 0;
-        for (let byte = bytes - 1; byte >= 0; byte--) {
-            res += this._rQ[this._rQi++] << (byte * 8);
-        }
-        return res >>> 0;
+        const offset = this._rQi;
+        this._rQi += 4;
+        return this._rQdv.getUint32(offset, false);
     }
 
     rQlen() {
