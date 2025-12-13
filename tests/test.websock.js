@@ -580,6 +580,7 @@ describe('Websock', function () {
 
         it('should compact the receive queue when fully read', function () {
             sock._rQ = new Uint8Array([0, 1, 2, 3, 4, 5, 0, 0, 0, 0]);
+            sock._rQdv = new DataView(sock._rQ.buffer);
             sock._rQlen = 6;
             sock._rQi = 6;
             const msg = { data: new Uint8Array([1, 2, 3]).buffer };
@@ -590,6 +591,7 @@ describe('Websock', function () {
 
         it('should compact the receive queue when we reach the end of the buffer', function () {
             sock._rQ = new Uint8Array(20);
+            sock._rQdv = new DataView(sock._rQ.buffer);
             sock._rQbufferSize = 20;
             sock._rQlen = 20;
             sock._rQi = 10;
@@ -601,6 +603,7 @@ describe('Websock', function () {
 
         it('should automatically resize the receive queue if the incoming message is larger than the buffer', function () {
             sock._rQ = new Uint8Array(20);
+            sock._rQdv = new DataView(sock._rQ.buffer);
             sock._rQlen = 0;
             sock._rQi = 0;
             sock._rQbufferSize = 20;
@@ -613,6 +616,7 @@ describe('Websock', function () {
 
         it('should automatically resize the receive queue if the incoming message is larger than 1/8th of the buffer and we reach the end of the buffer', function () {
             sock._rQ = new Uint8Array(20);
+            sock._rQdv = new DataView(sock._rQ.buffer);
             sock._rQlen = 16;
             sock._rQi = 15;
             sock._rQbufferSize = 20;
