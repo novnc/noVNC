@@ -22,6 +22,18 @@ const PAGE_TITLE = "noVNC";
 
 const LINGUAS = ["cs", "de", "el", "es", "fr", "hr", "it", "ja", "ko", "nl", "pl", "pt_BR", "ru", "sv", "tr", "zh_CN", "zh_TW"];
 
+// defined all function keys status
+const functionKeyDownStatus = {
+    'ShiftLeft': false,
+    'ShiftRight': false,
+    'ControlLeft': false,
+    'ControlRight': false,
+    'AltLeft': false,
+    'AltRight': false,
+    'MetaLeft': false,
+    'MetaRight': false,
+}
+
 const UI = {
 
     customSettings: {},
@@ -1095,6 +1107,17 @@ const UI = {
         UI.rfb.addEventListener("clipboard", UI.clipboardReceive);
         UI.rfb.addEventListener("bell", UI.bell);
         UI.rfb.addEventListener("desktopname", UI.updateDesktopName);
+        // Add listeners to important events from the RFB module
+        UI.rfb.addEventListener('disconnect', function (e) {
+            document.querySelector('#noVNC_container').removeEventListener('keydown', UI.pasteKeyDownListener, true);
+            document.querySelector('#noVNC_container').removeEventListener('keyup', UI.pasteKeyUpListener, true);
+        });
+
+        UI.rfb.addEventListener('connect', function (e) {
+            document.querySelector('#noVNC_container').addEventListener('keydown', UI.pasteKeyDownListener, true);
+            document.querySelector('#noVNC_container').addEventListener('keyup', UI.pasteKeyUpListener, true);
+        });
+
         UI.rfb.clipViewport = UI.getSetting('view_clip');
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
@@ -1725,6 +1748,73 @@ const UI = {
         // fade out the controlbar to highlight that
         // the focus has been moved to the screen
         UI.idleControlbar();
+    },
+
+    // check whether the current event is paste event Ctrl+v or Cmd+v
+    isPasteKeydownEvent(e) {
+        return e.keyCode === 86 && (e.ctrlKey || e.metaKey);
+    },
+
+    // before paste, up all function keys
+    upAllFunctionKeys() {
+        const allFunctionKeys = Object.keys(functionKeyDownStatus);
+        for (const functionKey of allFunctionKeys) {
+            if (functionKeyDownStatus[functionKey]) {
+                UI.rfb.sendKey(0, functionKey, false);
+                functionKeyDownStatus[functionKey] = false;
+            }
+        }
+    },
+
+    // paste keydown event listener
+    pasteKeyDownListener(e) {
+        if (e.code in functionKeyDownStatus) {
+            // record function key status
+            functionKeyDownStatus[e.code] = true;
+        }
+        if (!UI.isPasteKeydownEvent(e)) {
+            return;
+        }
+        if (navigator.clipboard) {
+            e.stopPropagation();
+            navigator.clipboard.readText().then(function (text) {
+                if (UI.rfb._rfbConnectionState === 'connected') {
+                    UI.pasteText(text)
+                }
+            }); 
+        }
+    },
+
+
+    // paste keyup event listener
+    pasteKeyUpListener(e) {
+        if (e.code in functionKeyDownStatus) {
+            functionKeyDownStatus[e.code] = false;
+        }
+    },
+
+    // paste text
+    pasteText(text) {
+        // we need up all function keys first
+        UI.upAllFunctionKeys();
+        for (const character of text) {
+            const code = character.charCodeAt();
+            const needs_shift = /[!@#$%^&*()_+{}:\"<>?~|]/.test(character) || (UI.rfb._remoteCapsLock ? /[a-z]/.test(character) : /[A-Z]/.test(character))
+            if (needs_shift) {
+                UI.rfb.sendKey(KeyTable.XK_Shift_L, character, true);
+            }
+            if (code === 10) {
+                // newline symbol \n
+                UI.rfb.sendKey(KeyTable.XK_Return, character, true);
+                UI.rfb.sendKey(KeyTable.XK_Return, character, false);
+            } else {
+                UI.rfb.sendKey(code, character, true);
+                UI.rfb.sendKey(code, character, false);
+            }
+            if (needs_shift) {
+                UI.rfb.sendKey(KeyTable.XK_Shift_L, character, false);
+            }
+        }
     },
 
 /* ------^-------
