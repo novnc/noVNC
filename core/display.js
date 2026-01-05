@@ -14,7 +14,7 @@ export default class Display {
     constructor(target) {
         this._drawCtx = null;
 
-        this._renderQ = [];  // queue drawing actions for in-oder rendering
+        this._renderQ = [];  // queue drawing actions for in-order rendering
         this._flushPromise = null;
 
         // the full frame buffer (logical canvas) size
