@@ -139,7 +139,7 @@ export default class RFB extends EventTargetMixin {
         this._fbWidth = 0;
         this._fbHeight = 0;
         this._fbPixelFormat = null;
-        this._forceRawEncoding = false; // FreshX-Modifications: 003.005 compat path
+        this._forceRawEncoding = false; // Modifications: 003.005 compat path
 
         this._fbName = "";
 
@@ -1523,7 +1523,7 @@ export default class RFB extends EventTargetMixin {
             case "003.005":  // non-standard (seen in impact.pcapng)
                 Log.Warn("Non-standard server version " + sversion + ", treating as RFB 3.3");
                 this._rfbVersion = 3.3;
-                this._forceRawEncoding = true; // FreshX-Modifications: force raw/16bpp
+                this._forceRawEncoding = true; // Modifications: force raw/16bpp
                 break;
             case "003.007":
                 this._rfbVersion = 3.7;
@@ -2173,7 +2173,7 @@ export default class RFB extends EventTargetMixin {
         const greenShift = this._sock.rQshift8();
         const blueShift  = this._sock.rQshift8();
         this._sock.rQskipBytes(3);  // padding
-        this._fbPixelFormat = { // FreshX-Modifications: store server pixel format
+        this._fbPixelFormat = { // Modifications: store server pixel format
             bpp: bpp,
             depth: depth,
             bigEndian: bigEndian,
@@ -2266,7 +2266,7 @@ export default class RFB extends EventTargetMixin {
 
         // In preference order
         encs.push(encodings.encodingCopyRect);
-        if (this._forceRawEncoding) { // FreshX-Modifications: raw-only encodings
+        if (this._forceRawEncoding) { // Modifications: raw-only encodings
             encs.push(encodings.encodingRaw);
             RFB.messages.clientEncodings(this._sock, encs);
             return;
@@ -3031,7 +3031,7 @@ export default class RFB extends EventTargetMixin {
             return decoder.decodeRect(this._FBU.x, this._FBU.y,
                                       this._FBU.width, this._FBU.height,
                                       this._sock, this._display,
-                                      this._fbDepth, this._fbPixelFormat); // FreshX-Modifications
+                                      this._fbDepth, this._fbPixelFormat); // Modifications
         } catch (err) {
             this._fail("Error decoding rect: " + err);
             return false;
