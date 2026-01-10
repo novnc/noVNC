@@ -37,6 +37,7 @@ module.exports = (config) => {
       { pattern: 'node_modules/sinon-chai/**', included: false },
       // modules to test
       { pattern: 'app/localization.js', included: false, type: 'module' },
+      { pattern: 'app/wakelock.js', included: false, type: 'module' },
       { pattern: 'app/webutil.js', included: false, type: 'module' },
       { pattern: 'core/**/*.js', included: false, type: 'module' },
       { pattern: 'vendor/pako/**/*.js', included: false, type: 'module' },
