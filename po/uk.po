@@ -1,0 +1,341 @@
+# Ukrainian translation of noVNC.
+# Copyright (C) 2025 The noVNC authors
+# This file is distributed under the same license as the noVNC package.
+# Denys Nykula <nykula@ukr.net>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: noVNC 1.6.0\n"
+"Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
+"POT-Creation-Date: 2025-10-31 09:17+0100\n"
+"PO-Revision-Date: 2025-11-22 20:21+0200\n"
+"Last-Translator: Denys Nykula <nykula@ukr.net>\n"
+"Language-Team: Ukrainian <uk@li.org>\n"
+"Language: uk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: ../app/ui.js:84
+msgid ""
+"Running without HTTPS is not recommended, crashes or other issues are likely."
+msgstr ""
+"Робота без HTTPS не рекомендується, ймовірні збої чи інші проблеми."
+
+#: ../app/ui.js:413
+msgid "Connecting..."
+msgstr "З'єднання..."
+
+#: ../app/ui.js:420
+msgid "Disconnecting..."
+msgstr "Від'єднання..."
+
+#: ../app/ui.js:426
+msgid "Reconnecting..."
+msgstr "Перез'єднання..."
+
+#: ../app/ui.js:431
+msgid "Internal error"
+msgstr "Внутрішня помилка"
+
+#: ../app/ui.js:1084
+msgid "Failed to connect to server: "
+msgstr "Не вдалося з'єднатися з сервером: "
+
+#: ../app/ui.js:1151
+msgid "Connected (encrypted) to "
+msgstr "З'єднано (з шифруванням) з "
+
+#: ../app/ui.js:1153
+msgid "Connected (unencrypted) to "
+msgstr "З'єднано (без шифрування) з "
+
+#: ../app/ui.js:1178
+msgid "Something went wrong, connection is closed"
+msgstr "Щось пішло не так, з'єднання закрито"
+
+#: ../app/ui.js:1181
+msgid "Failed to connect to server"
+msgstr "Не вдалося з'єднатися з сервером"
+
+#: ../app/ui.js:1193
+msgid "Disconnected"
+msgstr "Від'єднано"
+
+#: ../app/ui.js:1210
+msgid "New connection has been rejected with reason: "
+msgstr "Нове з'єднання відхилено. Причина: "
+
+#: ../app/ui.js:1213
+msgid "New connection has been rejected"
+msgstr "Нове з'єднання відхилено"
+
+#: ../app/ui.js:1225
+msgid "Are you sure you want to disconnect the session?"
+msgstr "Точно від'єднати сеанс?"
+
+#: ../app/ui.js:1297
+msgid "Credentials are required"
+msgstr "Треба особові дані"
+
+#: ../vnc.html:106
+msgid "noVNC encountered an error:"
+msgstr "Помилка noVNC:"
+
+#: ../vnc.html:116
+msgid "Hide/Show the control bar"
+msgstr "Сховати/показати панель керування"
+
+#: ../vnc.html:125
+msgid "Drag"
+msgstr "Посунути"
+
+#: ../vnc.html:125
+msgid "Move/Drag viewport"
+msgstr "Змістити область огляду"
+
+#: ../vnc.html:131
+msgid "Keyboard"
+msgstr "Клавіатура"
+
+#: ../vnc.html:131
+msgid "Show keyboard"
+msgstr "Показати клавіатуру"
+
+#: ../vnc.html:136
+msgid "Extra keys"
+msgstr "Додаткові клавіші"
+
+#: ../vnc.html:136
+msgid "Show extra keys"
+msgstr "Показати додаткові клавіші"
+
+#: ../vnc.html:141
+msgid "Ctrl"
+msgstr "Ctrl"
+
+#: ../vnc.html:141
+msgid "Toggle Ctrl"
+msgstr "Затиснути Ctrl"
+
+#: ../vnc.html:144
+msgid "Alt"
+msgstr "Alt"
+
+#: ../vnc.html:144
+msgid "Toggle Alt"
+msgstr "Затиснути Alt"
+
+#: ../vnc.html:147
+msgid "Toggle Windows"
+msgstr "Затиснути Windows"
+
+#: ../vnc.html:147
+msgid "Windows"
+msgstr "Windows"
+
+#: ../vnc.html:150
+msgid "Send Tab"
+msgstr "Натиснути Tab"
+
+#: ../vnc.html:150
+msgid "Tab"
+msgstr "Tab"
+
+#: ../vnc.html:153
+msgid "Esc"
+msgstr "Esc"
+
+#: ../vnc.html:153
+msgid "Send Escape"
+msgstr "Натиснути Escape"
+
+#: ../vnc.html:156
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+#: ../vnc.html:156
+msgid "Send Ctrl-Alt-Del"
+msgstr "Натиснути Ctrl+Alt+Del"
+
+#: ../vnc.html:163
+msgid "Shutdown/Reboot"
+msgstr "Вимкнути/перезавантажити"
+
+#: ../vnc.html:163
+msgid "Shutdown/Reboot..."
+msgstr "Вимкнути/перезавантажити..."
+
+#: ../vnc.html:169
+msgid "Power"
+msgstr "Живлення"
+
+#: ../vnc.html:171
+msgid "Shutdown"
+msgstr "Вимкнути"
+
+#: ../vnc.html:172
+msgid "Reboot"
+msgstr "Перезавантажити"
+
+#: ../vnc.html:173
+msgid "Reset"
+msgstr "Скинути"
+
+#: ../vnc.html:178 ../vnc.html:184
+msgid "Clipboard"
+msgstr "Буфер обміну"
+
+#: ../vnc.html:186
+msgid "Edit clipboard content in the textarea below."
+msgstr "Редагуйте вміст буфера обміну в текстовій зоні внизу."
+
+#: ../vnc.html:194
+msgid "Full screen"
+msgstr "Повний екран"
+
+#: ../vnc.html:199 ../vnc.html:205
+msgid "Settings"
+msgstr "Параметри"
+
+#: ../vnc.html:211
+msgid "Shared mode"
+msgstr "Спільний режим"
+
+#: ../vnc.html:218
+msgid "View only"
+msgstr "Лише перегляд"
+
+#: ../vnc.html:226
+msgid "Clip to window"
+msgstr "До розмірів вікна"
+
+#: ../vnc.html:231
+msgid "Scaling mode:"
+msgstr "Режим масштабування:"
+
+#: ../vnc.html:233
+msgid "None"
+msgstr "Вимкнено"
+
+#: ../vnc.html:234
+msgid "Local scaling"
+msgstr "Локальне масштабування"
+
+#: ../vnc.html:235
+msgid "Remote resizing"
+msgstr "Віддалене масштабування"
+
+#: ../vnc.html:240
+msgid "Advanced"
+msgstr "Додатково"
+
+#: ../vnc.html:243
+msgid "Quality:"
+msgstr "Якість:"
+
+#: ../vnc.html:247
+msgid "Compression level:"
+msgstr "Рівень стиснення:"
+
+#: ../vnc.html:252
+msgid "Repeater ID:"
+msgstr "Ідентифікатор репітера:"
+
+#: ../vnc.html:256
+msgid "WebSocket"
+msgstr "WebSocket"
+
+#: ../vnc.html:261
+msgid "Encrypt"
+msgstr "Шифрування"
+
+#: ../vnc.html:266
+msgid "Host:"
+msgstr "Сервер:"
+
+#: ../vnc.html:270
+msgid "Port:"
+msgstr "Порт:"
+
+#: ../vnc.html:274
+msgid "Path:"
+msgstr "Шлях:"
+
+#: ../vnc.html:283
+msgid "Automatic reconnect"
+msgstr "Автоматичне перез'єднання"
+
+#: ../vnc.html:288
+msgid "Reconnect delay (ms):"
+msgstr "Затримка перез'єднання (мс):"
+
+#: ../vnc.html:295
+msgid "Show dot when no cursor"
+msgstr "Показувати крапку, коли нема курсора"
+
+#: ../vnc.html:302
+msgid "Logging:"
+msgstr "Журнал:"
+
+#: ../vnc.html:311
+msgid "Version:"
+msgstr "Версія:"
+
+#: ../vnc.html:319
+msgid "Disconnect"
+msgstr "Від'єднати"
+
+#: ../vnc.html:342
+msgid "Connect"
+msgstr "З'єднати"
+
+#: ../vnc.html:351
+msgid "Server identity"
+msgstr "Ідентифікація сервера"
+
+#: ../vnc.html:354
+msgid "The server has provided the following identifying information:"
+msgstr "Сервер надає такі ідентифікаційні дані:"
+
+#: ../vnc.html:357
+msgid "Fingerprint:"
+msgstr "Відбиток:"
+
+#: ../vnc.html:361
+msgid ""
+"Please verify that the information is correct and press \"Approve\". "
+"Otherwise press \"Reject\"."
+msgstr ""
+"Перевірте, чи дані коректні, й натисніть «Схвалити». "
+"Інакше натисніть «Відхилити»."
+
+#: ../vnc.html:366
+msgid "Approve"
+msgstr "Схвалити"
+
+#: ../vnc.html:367
+msgid "Reject"
+msgstr "Відхилити"
+
+#: ../vnc.html:375
+msgid "Credentials"
+msgstr "Особові дані"
+
+#: ../vnc.html:379
+msgid "Username:"
+msgstr "Користувацьке ім'я:"
+
+#: ../vnc.html:383
+msgid "Password:"
+msgstr "Пароль:"
+
+#: ../vnc.html:387
+msgid "Send credentials"
+msgstr "Надіслати особові дані"
+
+#: ../vnc.html:396
+msgid "Cancel"
+msgstr "Скасувати"
