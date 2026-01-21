@@ -605,6 +605,22 @@ html {
     max-height: calc(100vh - 10em - 25px);
 }
 
+/* Recording */
+#noVNC_record_button.noVNC_recording {
+    border-color: #ff4444;
+    background-color: rgba(255, 68, 68, 0.3);
+}
+#noVNC_record_button.noVNC_recording img {
+    filter: brightness(0) saturate(100%) invert(35%) sepia(100%) saturate(3000%) hue-rotate(340deg) brightness(100%) contrast(100%);
+}
+#noVNC_record p {
+    margin: 5px 0;
+}
+#noVNC_record input[type=button] {
+    width: 100%;
+    margin-top: 5px;
+}
+
 /* Settings */
 #noVNC_settings {
 }

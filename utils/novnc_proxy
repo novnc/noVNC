@@ -34,12 +34,15 @@ usage() {
     echo "    --heartbeat SEC       send a ping to the client every SEC seconds"
     echo "    --timeout SEC         after SEC seconds exit when not connected"
     echo "    --idle-timeout SEC    server exits after SEC seconds if there are no"
+    echo "                          active connections"
     echo "                                    "
     echo "    --web-auth            enable authentication"
     echo "    --auth-plugin CLASS   authentication plugin to use"
     echo "    --auth-source ARG     plugin configuration"
     echo "                                    "
-    echo "                          active connections"
+    echo "    --password PASS       VNC password (passed to vnc.html URL)"
+    echo "    --autoconnect         auto-connect on page load"
+    echo "    --autorecord          auto-record on page load"
     echo "                                    "
     exit 2
 }
@@ -65,6 +68,9 @@ WEBAUTH_ARG=""
 AUTHPLUGIN_ARG=""
 AUTHSOURCE_ARG=""
 FILEONLY_ARG=""
+VNC_PASSWORD=""
+AUTOCONNECT=""
+AUTORECORD=""
 
 
 die() {
@@ -103,6 +109,9 @@ while [ "$*" ]; do
     --web-auth) WEBAUTH_ARG="--web-auth"                ;;
     --auth-plugin) AUTHPLUGIN_ARG="--auth-plugin ${OPTARG}"; shift ;;
     --auth-source) AUTHSOURCE_ARG="--auth-source ${OPTARG}"; shift ;;
+    --password) VNC_PASSWORD="${OPTARG}"; shift ;;
+    --autoconnect) AUTOCONNECT="1" ;;
+    --autorecord) AUTORECORD="1" ;;
     -h|--help) usage                              ;;
     -*) usage "Unknown chrooter option: ${param}" ;;
     *) break                                      ;;
@@ -223,10 +232,14 @@ if [ -z "$HOST" ]; then
 fi
 
 echo -e "\n\nNavigate to this URL:\n"
+URL_PARAMS="host=${HOST}&port=${PORT}"
+[ -n "$VNC_PASSWORD" ] && URL_PARAMS="${URL_PARAMS}&password=${VNC_PASSWORD}"
+[ -n "$AUTOCONNECT" ] && URL_PARAMS="${URL_PARAMS}&autoconnect=1"
+[ -n "$AUTORECORD" ] && URL_PARAMS="${URL_PARAMS}&autorecord=1"
 if [ "x$SSLONLY" == "x" ]; then
-    echo -e "    http://${HOST}:${PORT}/vnc.html?host=${HOST}&port=${PORT}\n"
+    echo -e "    http://${HOST}:${PORT}/vnc.html?${URL_PARAMS}\n"
 else
-    echo -e "    https://${HOST}:${PORT}/vnc.html?host=${HOST}&port=${PORT}\n"
+    echo -e "    https://${HOST}:${PORT}/vnc.html?${URL_PARAMS}\n"
 fi
 
 echo -e "Press Ctrl-C to exit\n\n"

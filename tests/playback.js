@@ -77,6 +77,119 @@ export default class RecordingPlayer {
         this._running = false;
 
         this.onfinish = () => {};
+        this.onclientevent = () => {};  // Callback for client events
+
+        this._lastButtonMask = 0;  // Track previous button state for down/up detection
+    }
+
+    // Decode client-to-server RFB message
+    _decodeClientMessage(data) {
+        if (data.length < 1) return null;
+
+        const msgType = data[0];
+
+        switch (msgType) {
+            case 0: // SetPixelFormat
+                return { type: 'SetPixelFormat' };
+
+            case 2: // SetEncodings
+                if (data.length >= 4) {
+                    const numEncodings = (data[2] << 8) | data[3];
+                    return { type: 'SetEncodings', count: numEncodings };
+                }
+                return { type: 'SetEncodings' };
+
+            case 3: // FramebufferUpdateRequest
+                if (data.length >= 10) {
+                    const incremental = data[1];
+                    const x = (data[2] << 8) | data[3];
+                    const y = (data[4] << 8) | data[5];
+                    const width = (data[6] << 8) | data[7];
+                    const height = (data[8] << 8) | data[9];
+                    return {
+                        type: 'FramebufferUpdateRequest',
+                        incremental: incremental === 1,
+                        x, y, width, height
+                    };
+                }
+                return { type: 'FramebufferUpdateRequest' };
+
+            case 4: // KeyEvent
+                if (data.length >= 8) {
+                    const down = data[1] === 1;
+                    const keysym = (data[4] << 24) | (data[5] << 16) | (data[6] << 8) | data[7];
+                    // Try to convert keysym to character
+                    let keyName = '0x' + keysym.toString(16);
+                    if (keysym >= 0x20 && keysym <= 0x7e) {
+                        keyName = String.fromCharCode(keysym);
+                    } else if (keysym >= 0xff00) {
+                        // Special keys
+                        const specialKeys = {
+                            0xff08: 'BackSpace', 0xff09: 'Tab', 0xff0d: 'Return',
+                            0xff1b: 'Escape', 0xff50: 'Home', 0xff51: 'Left',
+                            0xff52: 'Up', 0xff53: 'Right', 0xff54: 'Down',
+                            0xff55: 'PageUp', 0xff56: 'PageDown', 0xff57: 'End',
+                            0xff63: 'Insert', 0xffff: 'Delete',
+                            0xffe1: 'Shift_L', 0xffe2: 'Shift_R',
+                            0xffe3: 'Control_L', 0xffe4: 'Control_R',
+                            0xffe9: 'Alt_L', 0xffea: 'Alt_R',
+                            0xffeb: 'Super_L', 0xffec: 'Super_R',
+                        };
+                        keyName = specialKeys[keysym] || keyName;
+                    }
+                    return { type: 'KeyEvent', down, keysym, keyName };
+                }
+                return { type: 'KeyEvent' };
+
+            case 5: // PointerEvent
+                if (data.length >= 6) {
+                    const buttonMask = data[1];
+                    const x = (data[2] << 8) | data[3];
+                    const y = (data[4] << 8) | data[5];
+
+                    // Detect button changes by comparing with previous state
+                    const prevMask = this._lastButtonMask;
+                    const pressed = buttonMask & ~prevMask;  // Bits that are now 1 but were 0
+                    const released = prevMask & ~buttonMask; // Bits that are now 0 but were 1
+                    this._lastButtonMask = buttonMask;
+
+                    const events = [];
+                    // Check each button for down/up
+                    const buttonNames = ['left', 'middle', 'right', 'scrollUp', 'scrollDown'];
+                    for (let i = 0; i < 5; i++) {
+                        const bit = 1 << i;
+                        if (pressed & bit) {
+                            events.push({ button: buttonNames[i], action: 'down' });
+                        }
+                        if (released & bit) {
+                            events.push({ button: buttonNames[i], action: 'up' });
+                        }
+                    }
+
+                    return {
+                        type: 'PointerEvent',
+                        x, y,
+                        buttonMask,
+                        events: events,  // Array of {button, action} for changes
+                        isMove: events.length === 0
+                    };
+                }
+                return { type: 'PointerEvent' };
+
+            case 6: // ClientCutText
+                if (data.length >= 8) {
+                    const length = (data[4] << 24) | (data[5] << 16) | (data[6] << 8) | data[7];
+                    let text = '';
+                    for (let i = 8; i < Math.min(8 + length, data.length); i++) {
+                        text += String.fromCharCode(data[i]);
+                    }
+                    return { type: 'ClientCutText', text: text.substring(0, 50) + (length > 50 ? '...' : '') };
+                }
+                return { type: 'ClientCutText' };
+
+            default:
+                return { type: 'Unknown', msgType };
+        }
     }
 
     run(realtime, trafficManagement) {
@@ -105,8 +218,13 @@ export default class RecordingPlayer {
 
         let frame = this._frames[this._frameIndex];
 
-        // skip send frames
+        // Process and report client frames, then skip them
         while (this._frameIndex < this._frameLength && frame.fromClient) {
+            // Decode and report the client event
+            const decoded = this._decodeClientMessage(frame.data);
+            if (decoded) {
+                this.onclientevent(frame.timestamp, decoded);
+            }
             this._frameIndex++;
             frame = this._frames[this._frameIndex];
         }

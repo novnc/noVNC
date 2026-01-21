@@ -116,6 +116,7 @@ class IterationPlayer {
         this.onfinish = () => {};
         this.oniterationfinish = () => {};
         this.rfbdisconnected = () => {};
+        this.onclientevent = () => {};
     }
 
     start(realtime) {
@@ -130,6 +131,7 @@ class IterationPlayer {
     _nextIteration() {
         const player = new RecordingPlayer(this._frames, this._disconnected.bind(this));
         player.onfinish = this._iterationFinish.bind(this);
+        player.onclientevent = this.onclientevent;
 
         if (this._state !== 'running') { return; }
 
@@ -211,6 +213,28 @@ function start() {
 
         document.getElementById('startButton').disabled = false;
         document.getElementById('startButton').value = "Start";
+    };
+    // Log client input events (skip mouse moves and framebuffer requests to avoid spam)
+    player.onclientevent = (timestamp, event) => {
+        const timeStr = (timestamp / 1000).toFixed(2) + 's';
+        switch (event.type) {
+            case 'KeyEvent':
+                const action = event.down ? 'down' : 'up';
+                message(`[${timeStr}] Key ${action}: ${event.keyName}`);
+                break;
+            case 'PointerEvent':
+                // Only log button down/up, not moves
+                if (!event.isMove && event.events.length > 0) {
+                    for (const e of event.events) {
+                        message(`[${timeStr}] Mouse ${e.button} ${e.action} at (${event.x}, ${event.y})`);
+                    }
+                }
+                break;
+            case 'ClientCutText':
+                message(`[${timeStr}] Clipboard: "${event.text}"`);
+                break;
+            // Skip SetPixelFormat, SetEncodings, FramebufferUpdateRequest - too noisy
+        }
     };
     player.start(realtime);
 }

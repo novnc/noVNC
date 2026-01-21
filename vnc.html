@@ -190,6 +190,24 @@
             </div>
             </div>
 
+            <!-- Record session -->
+            <input type="image" alt="Record" src="app/images/record.svg"
+                id="noVNC_record_button" class="noVNC_button"
+                title="Record session">
+            <div class="noVNC_vcenter">
+            <div id="noVNC_record" class="noVNC_panel">
+                <div class="noVNC_heading">
+                    <img alt="" src="app/images/record.svg"> Recording
+                </div>
+                <p id="noVNC_record_status">Not recording</p>
+                <p id="noVNC_record_stats"></p>
+                <p id="noVNC_record_storage"></p>
+                <input type="button" id="noVNC_record_start_button" value="Start Recording">
+                <input type="button" id="noVNC_record_stop_button" value="Stop Recording" disabled>
+                <input type="button" id="noVNC_record_download_button" value="Download" disabled>
+            </div>
+            </div>
+
             <!-- Toggle fullscreen -->
             <input type="image" alt="Full screen" src="app/images/fullscreen.svg"
                 id="noVNC_fullscreen_button" class="noVNC_button noVNC_hidden"

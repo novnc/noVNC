@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Recording Buffer Benchmark</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #eee;
+        }
+        h1 { color: #00d4ff; }
+        .config {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .config label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        .config input[type="number"] {
+            width: 100px;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            background: #0f3460;
+            color: #fff;
+        }
+        .methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .method {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #0f3460;
+        }
+        .method h3 {
+            margin-top: 0;
+            color: #00d4ff;
+        }
+        .method p {
+            font-size: 0.9em;
+            color: #aaa;
+            margin-bottom: 15px;
+        }
+        button {
+            background: #e94560;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover { background: #ff6b6b; }
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            background: #0f3460;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            min-height: 60px;
+            white-space: pre-wrap;
+        }
+        .progress {
+            height: 20px;
+            background: #0f3460;
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff, #e94560);
+            width: 0%;
+            transition: width 0.1s;
+        }
+        #results {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        #results h3 { color: #00d4ff; margin-top: 0; }
+        #resultsTable {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        #resultsTable th, #resultsTable td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #0f3460;
+        }
+        #resultsTable th { color: #00d4ff; }
+        .success { color: #4ade80; }
+        .failure { color: #f87171; }
+    </style>
+</head>
+<body>
+    <h1>Recording Buffer Benchmark</h1>
+    <p>Test different storage methods for high-throughput VNC recording (~10MB/s)</p>
+
+    <div class="config">
+        <label>
+            Target data size (GB):
+            <input type="number" id="targetGB" value="0.5" min="0.1" max="10" step="0.1">
+        </label>
+        <label>
+            Simulated throughput (MB/s):
+            <input type="number" id="throughputMB" value="10" min="1" max="100" step="1">
+        </label>
+        <label>
+            Chunk size (KB):
+            <input type="number" id="chunkKB" value="64" min="1" max="1024" step="1">
+        </label>
+    </div>
+
+    <div class="methods">
+        <!-- Method 1: In-memory array -->
+        <div class="method">
+            <h3>1. In-Memory Array</h3>
+            <p>Current approach: Push Uint8Array chunks to a JavaScript array. Simple but memory-heavy.</p>
+            <button onclick="runBenchmark('memory')">Run Test</button>
+            <button onclick="stopBenchmark('memory')">Stop</button>
+            <button onclick="downloadData_('memory')" id="download-memory" disabled>Download</button>
+            <button onclick="clearData('memory')">Clear</button>
+            <div class="progress"><div class="progress-bar" id="progress-memory"></div></div>
+            <div class="status" id="status-memory">Ready</div>
+        </div>
+
+        <!-- Method 2: Pre-allocated ArrayBuffer -->
+        <div class="method">
+            <h3>2. Pre-allocated Buffer</h3>
+            <p>Allocate a large ArrayBuffer upfront and write into it. Avoids repeated allocations.</p>
+            <button onclick="runBenchmark('preallocated')">Run Test</button>
+            <button onclick="stopBenchmark('preallocated')">Stop</button>
+            <button onclick="downloadData_('preallocated')" id="download-preallocated" disabled>Download</button>
+            <button onclick="clearData('preallocated')">Clear</button>
+            <div class="progress"><div class="progress-bar" id="progress-preallocated"></div></div>
+            <div class="status" id="status-preallocated">Ready</div>
+        </div>
+
+        <!-- Method 3: Chunked arrays -->
+        <div class="method">
+            <h3>3. Chunked Arrays (64MB blocks)</h3>
+            <p>Store data in fixed-size 64MB ArrayBuffers. Balances memory efficiency with GC pressure.</p>
+            <button onclick="runBenchmark('chunked')">Run Test</button>
+            <button onclick="stopBenchmark('chunked')">Stop</button>
+            <button onclick="downloadData_('chunked')" id="download-chunked" disabled>Download</button>
+            <button onclick="clearData('chunked')">Clear</button>
+            <div class="progress"><div class="progress-bar" id="progress-chunked"></div></div>
+            <div class="status" id="status-chunked">Ready</div>
+        </div>
+
+        <!-- Method 4: File System Access API -->
+        <div class="method">
+            <h3>4. File Stream (OPFS)</h3>
+            <p>Stream to Origin Private File System. Keeps memory low but requires async writes.</p>
+            <button onclick="runBenchmark('opfs')">Run Test</button>
+            <button onclick="stopBenchmark('opfs')">Stop</button>
+            <button onclick="downloadData_('opfs')" id="download-opfs" disabled>Download</button>
+            <button onclick="clearData('opfs')">Clear</button>
+            <div class="progress"><div class="progress-bar" id="progress-opfs"></div></div>
+            <div class="status" id="status-opfs">Ready</div>
+        </div>
+
+        <!-- Method 5: IndexedDB -->
+        <div class="method">
+            <h3>5. IndexedDB Chunks</h3>
+            <p>Store chunks in IndexedDB. Persistent storage with automatic memory management.</p>
+            <button onclick="runBenchmark('indexeddb')">Run Test</button>
+            <button onclick="stopBenchmark('indexeddb')">Stop</button>
+            <button onclick="downloadData_('indexeddb')" id="download-indexeddb" disabled>Download</button>
+            <button onclick="clearData('indexeddb')">Clear</button>
+            <div class="progress"><div class="progress-bar" id="progress-indexeddb"></div></div>
+            <div class="status" id="status-indexeddb">Ready</div>
+        </div>
+
+        <!-- Method 6: Blob accumulation -->
+        <div class="method">
+            <h3>6. Blob Accumulation</h3>
+            <p>Periodically merge chunks into Blobs. Leverages browser's blob storage.</p>
+            <button onclick="runBenchmark('blob')">Run Test</button>
+            <button onclick="stopBenchmark('blob')">Stop</button>
+            <button onclick="downloadData_('blob')" id="download-blob" disabled>Download</button>
+            <button onclick="clearData('blob')">Clear</button>
+            <div class="progress"><div class="progress-bar" id="progress-blob"></div></div>
+            <div class="status" id="status-blob">Ready</div>
+        </div>
+    </div>
+
+    <div id="results">
+        <h3>Results</h3>
+        <table id="resultsTable">
+            <thead>
+                <tr>
+                    <th>Method</th>
+                    <th>Status</th>
+                    <th>Data Written</th>
+                    <th>Time</th>
+                    <th>Throughput</th>
+                    <th>Peak Memory</th>
+                </tr>
+            </thead>
+            <tbody id="resultsBody">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const benchmarks = {};
+        const results = [];
+        const downloadData = {};  // Store data for download after each test
+
+        function getConfig() {
+            return {
+                targetBytes: parseFloat(document.getElementById('targetGB').value) * 1024 * 1024 * 1024,
+                throughputBytesPerSec: parseFloat(document.getElementById('throughputMB').value) * 1024 * 1024,
+                chunkSize: parseFloat(document.getElementById('chunkKB').value) * 1024
+            };
+        }
+
+        function updateStatus(method, text) {
+            document.getElementById(`status-${method}`).textContent = text;
+        }
+
+        function updateProgress(method, percent) {
+            document.getElementById(`progress-${method}`).style.width = `${percent}%`;
+        }
+
+        function formatBytes(bytes) {
+            if (bytes >= 1024 * 1024 * 1024) return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+            if (bytes >= 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+            if (bytes >= 1024) return (bytes / 1024).toFixed(2) + ' KB';
+            return bytes + ' B';
+        }
+
+        function getMemoryUsage() {
+            if (performance.memory) {
+                return performance.memory.usedJSHeapSize;
+            }
+            return null;
+        }
+
+        function addResult(method, status, bytesWritten, timeMs, peakMemory) {
+            const throughput = timeMs > 0 ? (bytesWritten / (timeMs / 1000)) : 0;
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${method}</td>
+                <td class="${status === 'Success' ? 'success' : 'failure'}">${status}</td>
+                <td>${formatBytes(bytesWritten)}</td>
+                <td>${(timeMs / 1000).toFixed(2)}s</td>
+                <td>${formatBytes(throughput)}/s</td>
+                <td>${peakMemory ? formatBytes(peakMemory) : 'N/A'}</td>
+            `;
+            document.getElementById('resultsBody').appendChild(row);
+        }
+
+        function stopBenchmark(method) {
+            if (benchmarks[method]) {
+                benchmarks[method].stopped = true;
+            }
+        }
+
+        async function clearData(method) {
+            const data = downloadData[method];
+            if (data) {
+                // Special cleanup for persistent storage
+                if (data.type === 'opfs') {
+                    try {
+                        const root = await navigator.storage.getDirectory();
+                        await root.removeEntry('benchmark.bin');
+                    } catch (e) { /* ignore */ }
+                } else if (data.type === 'indexeddb') {
+                    await new Promise((resolve) => {
+                        const req = indexedDB.deleteDatabase(data.dbName);
+                        req.onsuccess = resolve;
+                        req.onerror = resolve;
+                    });
+                }
+            }
+
+            delete downloadData[method];
+            disableDownload(method);
+            updateStatus(method, 'Data cleared');
+            updateProgress(method, 0);
+        }
+
+        function enableDownload(method) {
+            document.getElementById(`download-${method}`).disabled = false;
+        }
+
+        function disableDownload(method) {
+            document.getElementById(`download-${method}`).disabled = true;
+        }
+
+        async function downloadData_(method) {
+            const data = downloadData[method];
+            if (!data) {
+                alert('No data available for download');
+                return;
+            }
+
+            updateStatus(method, 'Preparing download...');
+
+            try {
+                let blob;
+                const startTime = performance.now();
+
+                switch (data.type) {
+                    case 'array':
+                        // Array of Uint8Arrays
+                        updateStatus(method, `Creating blob from ${data.chunks.length} chunks...`);
+                        blob = new Blob(data.chunks, { type: 'application/octet-stream' });
+                        break;
+
+                    case 'buffer':
+                        // Single ArrayBuffer
+                        updateStatus(method, `Creating blob from buffer (${formatBytes(data.buffer.byteLength)})...`);
+                        blob = new Blob([data.buffer], { type: 'application/octet-stream' });
+                        break;
+
+                    case 'chunked':
+                        // Array of ArrayBuffers (blocks)
+                        updateStatus(method, `Creating blob from ${data.blocks.length} blocks...`);
+                        blob = new Blob(data.blocks, { type: 'application/octet-stream' });
+                        break;
+
+                    case 'opfs':
+                        // Read from OPFS
+                        updateStatus(method, 'Reading from OPFS...');
+                        const root = await navigator.storage.getDirectory();
+                        const fileHandle = await root.getFileHandle('benchmark.bin');
+                        const file = await fileHandle.getFile();
+                        blob = file;
+                        break;
+
+                    case 'indexeddb':
+                        // Read from IndexedDB
+                        updateStatus(method, 'Reading from IndexedDB...');
+                        blob = await readIndexedDBAsBlob(data.dbName, data.storeName);
+                        break;
+
+                    case 'blob':
+                        // Already a blob
+                        blob = data.blob;
+                        break;
+
+                    default:
+                        throw new Error('Unknown data type');
+                }
+
+                const prepTime = performance.now() - startTime;
+                updateStatus(method, `Download ready (prep took ${(prepTime/1000).toFixed(2)}s)\nSize: ${formatBytes(blob.size)}`);
+
+                // Trigger download
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `benchmark-${method}-${formatBytes(blob.size).replace(' ', '')}.bin`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                // Revoke after a delay to ensure download starts
+                setTimeout(() => URL.revokeObjectURL(url), 10000);
+
+            } catch (e) {
+                updateStatus(method, `Download error: ${e.message}`);
+            }
+        }
+
+        async function readIndexedDBAsBlob(dbName, storeName) {
+            const db = await new Promise((resolve, reject) => {
+                const req = indexedDB.open(dbName, 1);
+                req.onerror = () => reject(req.error);
+                req.onsuccess = () => resolve(req.result);
+            });
+
+            const chunks = await new Promise((resolve, reject) => {
+                const tx = db.transaction(storeName, 'readonly');
+                const store = tx.objectStore(storeName);
+                const req = store.getAll();
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
+            });
+
+            db.close();
+            return new Blob(chunks, { type: 'application/octet-stream' });
+        }
+
+        async function runBenchmark(method) {
+            const config = getConfig();
+            const state = {
+                stopped: false,
+                bytesWritten: 0,
+                startTime: performance.now(),
+                peakMemory: getMemoryUsage() || 0
+            };
+            benchmarks[method] = state;
+
+            updateStatus(method, 'Starting...');
+            updateProgress(method, 0);
+
+            // Generate a chunk of random-ish data (simulating VNC frame data)
+            const chunk = new Uint8Array(config.chunkSize);
+            for (let i = 0; i < chunk.length; i++) {
+                chunk[i] = Math.floor(Math.random() * 256);
+            }
+
+            try {
+                switch (method) {
+                    case 'memory':
+                        await benchmarkMemory(state, config, chunk);
+                        break;
+                    case 'preallocated':
+                        await benchmarkPreallocated(state, config, chunk);
+                        break;
+                    case 'chunked':
+                        await benchmarkChunked(state, config, chunk);
+                        break;
+                    case 'opfs':
+                        await benchmarkOPFS(state, config, chunk);
+                        break;
+                    case 'indexeddb':
+                        await benchmarkIndexedDB(state, config, chunk);
+                        break;
+                    case 'blob':
+                        await benchmarkBlob(state, config, chunk);
+                        break;
+                }
+
+                const elapsed = performance.now() - state.startTime;
+                if (state.stopped) {
+                    addResult(method, 'Stopped', state.bytesWritten, elapsed, state.peakMemory);
+                } else {
+                    addResult(method, 'Success', state.bytesWritten, elapsed, state.peakMemory);
+                }
+                updateStatus(method, `Complete: ${formatBytes(state.bytesWritten)} in ${(elapsed/1000).toFixed(2)}s`);
+
+            } catch (e) {
+                const elapsed = performance.now() - state.startTime;
+                addResult(method, `Failed: ${e.message}`, state.bytesWritten, elapsed, state.peakMemory);
+                updateStatus(method, `Error: ${e.message}`);
+            }
+
+            updateProgress(method, 100);
+        }
+
+        // Method 1: Simple in-memory array
+        async function benchmarkMemory(state, config, chunk) {
+            disableDownload('memory');
+            const frames = [];
+            const chunksNeeded = Math.ceil(config.targetBytes / config.chunkSize);
+            const updateInterval = Math.max(1, Math.floor(chunksNeeded / 100));
+
+            for (let i = 0; i < chunksNeeded && !state.stopped; i++) {
+                frames.push(chunk.slice()); // Copy the chunk
+                state.bytesWritten += chunk.length;
+
+                if (i % updateInterval === 0) {
+                    const progress = (state.bytesWritten / config.targetBytes) * 100;
+                    updateProgress('memory', progress);
+                    updateStatus('memory', `Writing: ${formatBytes(state.bytesWritten)} / ${formatBytes(config.targetBytes)}\nFrames: ${frames.length}`);
+
+                    const mem = getMemoryUsage();
+                    if (mem) state.peakMemory = Math.max(state.peakMemory, mem);
+
+                    // Yield to browser
+                    await new Promise(r => setTimeout(r, 0));
+                }
+            }
+
+            // Store for download
+            downloadData['memory'] = { type: 'array', chunks: frames };
+            enableDownload('memory');
+        }
+
+        // Method 2: Pre-allocated ArrayBuffer
+        async function benchmarkPreallocated(state, config, chunk) {
+            disableDownload('preallocated');
+            updateStatus('preallocated', 'Allocating buffer...');
+
+            // Try to allocate the full buffer
+            let buffer;
+            try {
+                buffer = new ArrayBuffer(config.targetBytes);
+            } catch (e) {
+                throw new Error(`Failed to allocate ${formatBytes(config.targetBytes)}: ${e.message}`);
+            }
+
+            const view = new Uint8Array(buffer);
+            const chunksNeeded = Math.ceil(config.targetBytes / config.chunkSize);
+            const updateInterval = Math.max(1, Math.floor(chunksNeeded / 100));
+            let offset = 0;
+
+            for (let i = 0; i < chunksNeeded && !state.stopped; i++) {
+                const remaining = config.targetBytes - offset;
+                const writeSize = Math.min(chunk.length, remaining);
+                view.set(chunk.subarray(0, writeSize), offset);
+                offset += writeSize;
+                state.bytesWritten = offset;
+
+                if (i % updateInterval === 0) {
+                    const progress = (state.bytesWritten / config.targetBytes) * 100;
+                    updateProgress('preallocated', progress);
+                    updateStatus('preallocated', `Writing: ${formatBytes(state.bytesWritten)} / ${formatBytes(config.targetBytes)}`);
+
+                    const mem = getMemoryUsage();
+                    if (mem) state.peakMemory = Math.max(state.peakMemory, mem);
+
+                    await new Promise(r => setTimeout(r, 0));
+                }
+            }
+
+            // Store for download (trim to actual bytes written if stopped early)
+            downloadData['preallocated'] = { type: 'buffer', buffer: buffer.slice(0, state.bytesWritten) };
+            enableDownload('preallocated');
+        }
+
+        // Method 3: Chunked arrays (64MB blocks)
+        async function benchmarkChunked(state, config, chunk) {
+            disableDownload('chunked');
+            const BLOCK_SIZE = 64 * 1024 * 1024; // 64MB blocks
+            const blocks = [];
+            let currentBlock = new Uint8Array(BLOCK_SIZE);
+            let blockOffset = 0;
+
+            const chunksNeeded = Math.ceil(config.targetBytes / config.chunkSize);
+            const updateInterval = Math.max(1, Math.floor(chunksNeeded / 100));
+
+            for (let i = 0; i < chunksNeeded && !state.stopped; i++) {
+                const remaining = BLOCK_SIZE - blockOffset;
+
+                if (remaining >= chunk.length) {
+                    currentBlock.set(chunk, blockOffset);
+                    blockOffset += chunk.length;
+                } else {
+                    // Fill current block and start new one
+                    currentBlock.set(chunk.subarray(0, remaining), blockOffset);
+                    blocks.push(currentBlock);
+
+                    currentBlock = new Uint8Array(BLOCK_SIZE);
+                    blockOffset = chunk.length - remaining;
+                    currentBlock.set(chunk.subarray(remaining), 0);
+                }
+
+                state.bytesWritten += chunk.length;
+
+                if (i % updateInterval === 0) {
+                    const progress = (state.bytesWritten / config.targetBytes) * 100;
+                    updateProgress('chunked', progress);
+                    updateStatus('chunked', `Writing: ${formatBytes(state.bytesWritten)} / ${formatBytes(config.targetBytes)}\nBlocks: ${blocks.length + 1}`);
+
+                    const mem = getMemoryUsage();
+                    if (mem) state.peakMemory = Math.max(state.peakMemory, mem);
+
+                    await new Promise(r => setTimeout(r, 0));
+                }
+            }
+
+            // Add final partial block (trimmed to actual size)
+            if (blockOffset > 0) {
+                blocks.push(currentBlock.slice(0, blockOffset));
+            }
+
+            // Store for download
+            downloadData['chunked'] = { type: 'chunked', blocks: blocks };
+            enableDownload('chunked');
+        }
+
+        // Method 4: Origin Private File System
+        async function benchmarkOPFS(state, config, chunk) {
+            disableDownload('opfs');
+            if (!navigator.storage || !navigator.storage.getDirectory) {
+                throw new Error('OPFS not supported in this browser');
+            }
+
+            const root = await navigator.storage.getDirectory();
+            const fileHandle = await root.getFileHandle('benchmark.bin', { create: true });
+            const writable = await fileHandle.createWritable();
+
+            const chunksNeeded = Math.ceil(config.targetBytes / config.chunkSize);
+            const updateInterval = Math.max(1, Math.floor(chunksNeeded / 100));
+
+            for (let i = 0; i < chunksNeeded && !state.stopped; i++) {
+                await writable.write(chunk);
+                state.bytesWritten += chunk.length;
+
+                if (i % updateInterval === 0) {
+                    const progress = (state.bytesWritten / config.targetBytes) * 100;
+                    updateProgress('opfs', progress);
+                    updateStatus('opfs', `Writing: ${formatBytes(state.bytesWritten)} / ${formatBytes(config.targetBytes)}`);
+
+                    const mem = getMemoryUsage();
+                    if (mem) state.peakMemory = Math.max(state.peakMemory, mem);
+                }
+            }
+
+            await writable.close();
+
+            // Keep file for download (don't delete)
+            downloadData['opfs'] = { type: 'opfs' };
+            enableDownload('opfs');
+        }
+
+        // Method 5: IndexedDB
+        async function benchmarkIndexedDB(state, config, chunk) {
+            disableDownload('indexeddb');
+            const dbName = 'benchmark_db';
+            const storeName = 'chunks';
+
+            // Delete existing database
+            await new Promise((resolve, reject) => {
+                const req = indexedDB.deleteDatabase(dbName);
+                req.onsuccess = resolve;
+                req.onerror = resolve; // Ignore errors
+            });
+
+            // Create database
+            const db = await new Promise((resolve, reject) => {
+                const req = indexedDB.open(dbName, 1);
+                req.onerror = () => reject(req.error);
+                req.onsuccess = () => resolve(req.result);
+                req.onupgradeneeded = (e) => {
+                    e.target.result.createObjectStore(storeName, { autoIncrement: true });
+                };
+            });
+
+            const chunksNeeded = Math.ceil(config.targetBytes / config.chunkSize);
+            const updateInterval = Math.max(1, Math.floor(chunksNeeded / 100));
+            const BATCH_SIZE = 100; // Write in batches for better performance
+
+            let batch = [];
+            for (let i = 0; i < chunksNeeded && !state.stopped; i++) {
+                batch.push(chunk.slice());
+                state.bytesWritten += chunk.length;
+
+                if (batch.length >= BATCH_SIZE || i === chunksNeeded - 1) {
+                    // Write batch to IndexedDB
+                    await new Promise((resolve, reject) => {
+                        const tx = db.transaction(storeName, 'readwrite');
+                        const store = tx.objectStore(storeName);
+                        for (const item of batch) {
+                            store.add(item);
+                        }
+                        tx.oncomplete = resolve;
+                        tx.onerror = () => reject(tx.error);
+                    });
+                    batch = [];
+                }
+
+                if (i % updateInterval === 0) {
+                    const progress = (state.bytesWritten / config.targetBytes) * 100;
+                    updateProgress('indexeddb', progress);
+                    updateStatus('indexeddb', `Writing: ${formatBytes(state.bytesWritten)} / ${formatBytes(config.targetBytes)}`);
+
+                    const mem = getMemoryUsage();
+                    if (mem) state.peakMemory = Math.max(state.peakMemory, mem);
+                }
+            }
+
+            db.close();
+
+            // Keep database for download (don't delete)
+            downloadData['indexeddb'] = { type: 'indexeddb', dbName, storeName };
+            enableDownload('indexeddb');
+        }
+
+        // Method 6: Blob accumulation
+        async function benchmarkBlob(state, config, chunk) {
+            disableDownload('blob');
+            const MERGE_THRESHOLD = 10 * 1024 * 1024; // Merge every 10MB
+            let pendingChunks = [];
+            let pendingSize = 0;
+            let blobs = [];
+
+            const chunksNeeded = Math.ceil(config.targetBytes / config.chunkSize);
+            const updateInterval = Math.max(1, Math.floor(chunksNeeded / 100));
+
+            for (let i = 0; i < chunksNeeded && !state.stopped; i++) {
+                pendingChunks.push(chunk.slice());
+                pendingSize += chunk.length;
+                state.bytesWritten += chunk.length;
+
+                // Periodically merge into a blob
+                if (pendingSize >= MERGE_THRESHOLD) {
+                    const blob = new Blob(pendingChunks, { type: 'application/octet-stream' });
+                    blobs.push(blob);
+                    pendingChunks = [];
+                    pendingSize = 0;
+                }
+
+                if (i % updateInterval === 0) {
+                    const progress = (state.bytesWritten / config.targetBytes) * 100;
+                    updateProgress('blob', progress);
+                    updateStatus('blob', `Writing: ${formatBytes(state.bytesWritten)} / ${formatBytes(config.targetBytes)}\nBlobs: ${blobs.length}`);
+
+                    const mem = getMemoryUsage();
+                    if (mem) state.peakMemory = Math.max(state.peakMemory, mem);
+
+                    await new Promise(r => setTimeout(r, 0));
+                }
+            }
+
+            // Final merge
+            if (pendingChunks.length > 0) {
+                blobs.push(new Blob(pendingChunks, { type: 'application/octet-stream' }));
+            }
+
+            // Create final blob (for download capability)
+            const finalBlob = new Blob(blobs, { type: 'application/octet-stream' });
+            updateStatus('blob', `Complete: ${formatBytes(state.bytesWritten)}\nFinal blob: ${formatBytes(finalBlob.size)}`);
+
+            // Store for download
+            downloadData['blob'] = { type: 'blob', blob: finalBlob };
+            enableDownload('blob');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demonstration Collector</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        h1 {
+            margin-bottom: 10px;
+            color: #fff;
+        }
+        .subtitle {
+            color: #888;
+            margin-bottom: 40px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+        button {
+            padding: 20px 40px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .collect-btn {
+            background: #4CAF50;
+            color: white;
+        }
+        .collect-btn:hover:not(:disabled) {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        .collect-btn.recording {
+            background: #f44336;
+            animation: pulse 1.5s infinite;
+        }
+        .download-btn {
+            background: #2196F3;
+            color: white;
+        }
+        .download-btn:hover:not(:disabled) {
+            background: #1976D2;
+            transform: translateY(-2px);
+        }
+        .status {
+            text-align: center;
+            padding: 15px;
+            background: #252540;
+            border-radius: 8px;
+            min-height: 80px;
+        }
+        .status-label {
+            color: #888;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .status-value {
+            font-size: 16px;
+            font-family: monospace;
+        }
+        .storage-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .config {
+            background: #252540;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .config label {
+            display: block;
+            margin-bottom: 8px;
+            color: #888;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        .config input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background: #1a1a2e;
+            color: #fff;
+            font-size: 14px;
+        }
+        .config input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <h1>Demonstration Collector</h1>
+    <p class="subtitle">Record VNC sessions for training data</p>
+
+    <div class="container">
+        <div class="config">
+            <label>VNC URL (host:port)</label>
+            <input type="text" id="vncUrl" placeholder="localhost:6081" value="localhost:6081">
+        </div>
+        <div class="config">
+            <label>VNC Password (optional)</label>
+            <input type="password" id="vncPassword" placeholder="Leave empty if none">
+        </div>
+
+        <button class="collect-btn" id="collectBtn" onclick="toggleCollection()">
+            Collect Demonstration
+        </button>
+
+        <button class="download-btn" id="downloadBtn" onclick="downloadDemo()">
+            Download Demonstration
+        </button>
+
+        <div class="status">
+            <div class="status-label">Status</div>
+            <div class="status-value" id="statusText">Ready</div>
+            <div class="storage-info" id="storageInfo"></div>
+        </div>
+    </div>
+
+    <script>
+        let vncWindow = null;
+        let isCollecting = false;
+        let statusCheckInterval = null;
+
+        // Update storage info on load and periodically
+        updateStorageInfo();
+        setInterval(updateStorageInfo, 2000);
+
+        async function updateStorageInfo() {
+            const storageElem = document.getElementById('storageInfo');
+            try {
+                const s = await navigator.storage.estimate();
+                const usageGB = (s.usage / 1e9).toFixed(3);
+                const quotaGB = (s.quota / 1e9).toFixed(1);
+                storageElem.textContent = `Storage: ${usageGB}GB / ${quotaGB}GB`;
+
+                // Also check if there's a recording file
+                await checkRecordingFile();
+            } catch (e) {
+                storageElem.textContent = 'Storage: unavailable';
+            }
+        }
+
+        async function checkRecordingFile() {
+            const downloadBtn = document.getElementById('downloadBtn');
+            const statusText = document.getElementById('statusText');
+
+            try {
+                const root = await navigator.storage.getDirectory();
+                const fileHandle = await root.getFileHandle('vnc-recording.bin');
+                const file = await fileHandle.getFile();
+
+                if (file.size > 0 && !isCollecting) {
+                    const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                    downloadBtn.disabled = false;
+                    if (!isCollecting) {
+                        statusText.textContent = `Recording available: ${sizeMB} MB`;
+                    }
+                }
+            } catch (e) {
+                // No recording file exists
+                if (!isCollecting) {
+                    downloadBtn.disabled = true;
+                }
+            }
+        }
+
+        function toggleCollection() {
+            if (isCollecting) {
+                stopCollection();
+            } else {
+                startCollection();
+            }
+        }
+
+        function startCollection() {
+            const vncUrl = document.getElementById('vncUrl').value || 'localhost:6081';
+            const password = document.getElementById('vncPassword').value;
+
+            // Parse host and port
+            const [host, port] = vncUrl.includes(':') ? vncUrl.split(':') : [vncUrl, '6081'];
+
+            // Build the vnc.html URL with autoconnect and autorecord
+            let url = `vnc.html?host=${encodeURIComponent(host)}&port=${encodeURIComponent(port)}&autoconnect=1&autorecord=1`;
+            if (password) {
+                url += `&password=${encodeURIComponent(password)}`;
+            }
+
+            // Open in a popup window (PiP-like)
+            const width = 1024;
+            const height = 768;
+            const left = window.screen.width - width - 50;
+            const top = 50;
+
+            vncWindow = window.open(
+                url,
+                'vnc_demo',
+                `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=no`
+            );
+
+            if (vncWindow) {
+                isCollecting = true;
+                updateUI();
+
+                // Monitor if window is closed
+                statusCheckInterval = setInterval(() => {
+                    if (vncWindow.closed) {
+                        stopCollection();
+                    }
+                }, 500);
+            } else {
+                alert('Failed to open VNC window. Please allow popups for this site.');
+            }
+        }
+
+        function stopCollection() {
+            isCollecting = false;
+
+            if (statusCheckInterval) {
+                clearInterval(statusCheckInterval);
+                statusCheckInterval = null;
+            }
+
+            if (vncWindow && !vncWindow.closed) {
+                vncWindow.close();
+            }
+            vncWindow = null;
+
+            updateUI();
+
+            // Wait a moment for OPFS to sync, then check for file
+            setTimeout(updateStorageInfo, 500);
+        }
+
+        function updateUI() {
+            const collectBtn = document.getElementById('collectBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const statusText = document.getElementById('statusText');
+
+            if (isCollecting) {
+                collectBtn.textContent = 'Stop Collection';
+                collectBtn.classList.add('recording');
+                downloadBtn.disabled = true;
+                statusText.textContent = 'Recording in progress...';
+            } else {
+                collectBtn.textContent = 'Collect Demonstration';
+                collectBtn.classList.remove('recording');
+                statusText.textContent = 'Ready';
+            }
+        }
+
+        async function downloadDemo() {
+            const statusText = document.getElementById('statusText');
+            statusText.textContent = 'Preparing download...';
+
+            try {
+                const root = await navigator.storage.getDirectory();
+                const fileHandle = await root.getFileHandle('vnc-recording.bin');
+                const file = await fileHandle.getFile();
+
+                if (file.size === 0) {
+                    statusText.textContent = 'No recording data found';
+                    return;
+                }
+
+                statusText.textContent = 'Converting to playback format...';
+
+                // Convert binary OPFS format to JS playback format
+                const jsContent = await convertToPlaybackFormat(file);
+
+                // Download as .js file
+                const blob = new Blob([jsContent], { type: 'application/javascript' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `demo_${new Date().toISOString().replace(/[:.]/g, '-')}.js`;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                statusText.textContent = 'Download complete!';
+
+                // Ask if user wants to clear the recording
+                if (confirm('Download complete! Clear the recording to free up storage?')) {
+                    await clearRecording();
+                }
+            } catch (e) {
+                console.error('Download error:', e);
+                statusText.textContent = 'Error: ' + e.message;
+            }
+        }
+
+        async function convertToPlaybackFormat(file) {
+            const statusText = document.getElementById('statusText');
+            const totalSize = file.size;
+
+            console.log('Converting file, size:', totalSize);
+
+            if (totalSize === 0) {
+                throw new Error('Recording file is empty');
+            }
+
+            // Read entire file into memory (simpler than chunked approach)
+            const buffer = await file.arrayBuffer();
+            const view = new DataView(buffer);
+            let pos = 0;
+            let frames = [];
+            let frameCount = 0;
+
+            while (pos + 9 <= buffer.byteLength) {
+                const fromClient = view.getUint8(pos) === 1;
+                const timestamp = view.getUint32(pos + 1, false);  // big endian
+                const dataLen = view.getUint32(pos + 5, false);    // big endian
+
+                console.log(`Frame ${frameCount}: fromClient=${fromClient}, timestamp=${timestamp}, dataLen=${dataLen}, pos=${pos}`);
+
+                if (dataLen > 100 * 1024 * 1024) {
+                    // Sanity check - frame shouldn't be larger than 100MB
+                    throw new Error(`Invalid frame at pos ${pos}: dataLen=${dataLen} is too large`);
+                }
+
+                if (pos + 9 + dataLen > buffer.byteLength) {
+                    console.warn(`Truncated frame at pos ${pos}, needed ${dataLen} bytes but only ${buffer.byteLength - pos - 9} available`);
+                    break;
+                }
+
+                const data = new Uint8Array(buffer, pos + 9, dataLen);
+
+                // Convert to base64
+                let binary = '';
+                for (let i = 0; i < data.length; i++) {
+                    binary += String.fromCharCode(data[i]);
+                }
+                const base64 = btoa(binary);
+
+                // Format: "{timestamp{base64data" for server, "}timestamp{base64data" for client
+                const prefix = fromClient ? '}' : '{';
+                frames.push(`"${prefix}${timestamp}{${base64}"`);
+
+                pos += 9 + dataLen;
+                frameCount++;
+
+                // Update status every 100 frames
+                if (frameCount % 100 === 0) {
+                    const percent = ((pos / totalSize) * 100).toFixed(0);
+                    statusText.textContent = `Converting: ${percent}% (${frameCount} frames)`;
+                    // Yield to UI
+                    await new Promise(r => setTimeout(r, 0));
+                }
+            }
+
+            console.log(`Conversion complete: ${frameCount} frames`);
+            frames.push('"EOF"');
+
+            return `/* Recorded VNC session - ${new Date().toISOString()} */\n` +
+                   `/* ${frameCount} frames, ${(file.size / 1024 / 1024).toFixed(2)} MB */\n` +
+                   `var VNC_frame_data = [\n${frames.join(',\n')}\n];\n`;
+        }
+
+        async function clearRecording() {
+            try {
+                const root = await navigator.storage.getDirectory();
+                await root.removeEntry('vnc-recording.bin');
+                document.getElementById('statusText').textContent = 'Recording cleared';
+                document.getElementById('downloadBtn').disabled = true;
+                await updateStorageInfo();
+            } catch (e) {
+                console.error('Clear error:', e);
+            }
+        }
+
+        // Handle page unload
+        window.addEventListener('beforeunload', () => {
+            if (vncWindow && !vncWindow.closed) {
+                vncWindow.close();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -34,6 +34,16 @@ const UI = {
     idleControlbarTimeout: null,
     closeControlbarTimeout: null,
 
+    // Recording state
+    recording: false,
+    recordingPending: false,  // True if recording should start on next connect
+    recordingStartTime: null,
+    recordingFrameCount: 0,
+    recordingBytesWritten: 0,
+    recordingFileHandle: null,
+    recordingWritable: null,
+    recordingWriteQueue: Promise.resolve(),  // Chain writes to ensure order
+
     controlbarGrabbed: false,
     controlbarDrag: false,
     controlbarMouseDownClientY: 0,
@@ -121,6 +131,7 @@ const UI = {
         UI.addConnectionControlHandlers();
         UI.addClipboardHandlers();
         UI.addSettingsHandlers();
+        UI.addRecordingHandlers();
         document.getElementById("noVNC_status")
             .addEventListener('click', UI.hideStatus);
 
@@ -132,6 +143,14 @@ const UI = {
         UI.updateVisualState('init');
 
         document.documentElement.classList.remove("noVNC_loading");
+
+        // Check for autorecord setting
+        let autorecord = UI.getSetting('autorecord');
+        if (autorecord === 'true' || autorecord == '1') {
+            UI.recordingPending = true;
+            document.getElementById('noVNC_record_button').classList.add('noVNC_selected');
+            document.getElementById('noVNC_record_button').classList.add('noVNC_recording');
+        }
 
         let autoconnect = UI.getSetting('autoconnect');
         if (autoconnect === 'true' || autoconnect == '1') {
@@ -189,6 +208,7 @@ const UI = {
         UI.initSetting('repeaterID', '');
         UI.initSetting('reconnect', false);
         UI.initSetting('reconnect_delay', 5000);
+        UI.initSetting('autorecord', false);
     },
     // Adds a link to the label elements on the corresponding input elements
     setupSettingLabels() {
@@ -379,6 +399,32 @@ const UI = {
         UI.addSettingChangeHandler('logging', UI.updateLogging);
         UI.addSettingChangeHandler('reconnect');
         UI.addSettingChangeHandler('reconnect_delay');
+    },
+
+    addRecordingHandlers() {
+        document.getElementById("noVNC_record_button")
+            .addEventListener('click', UI.toggleRecordingPanel);
+        document.getElementById("noVNC_record_start_button")
+            .addEventListener('click', UI.startRecording);
+        document.getElementById("noVNC_record_stop_button")
+            .addEventListener('click', UI.stopRecording);
+        document.getElementById("noVNC_record_download_button")
+            .addEventListener('click', UI.downloadRecording);
+
+        // Ensure recording is properly closed when page unloads
+        const closeRecordingFile = () => {
+            if (UI.recording && UI.recordingWritable) {
+                UI.recording = false;
+                UI.recordingWriteQueue.then(() => {
+                    if (UI.recordingWritable) {
+                        UI.recordingWritable.close();
+                        UI.recordingWritable = null;
+                    }
+                });
+            }
+        };
+        window.addEventListener('beforeunload', closeRecordingFile);
+        window.addEventListener('pagehide', closeRecordingFile);
     },
 
     addFullscreenHandlers() {
@@ -867,6 +913,7 @@ const UI = {
         UI.closePowerPanel();
         UI.closeClipboardPanel();
         UI.closeExtraKeys();
+        UI.closeRecordingPanel();
     },
 
 /* ------^-------
@@ -1010,6 +1057,282 @@ const UI = {
 /* ------^-------
  *  /CLIPBOARD
  * ==============
+ *   RECORDING
+ * ------v------*/
+
+    openRecordingPanel() {
+        UI.closeAllPanels();
+        UI.openControlbar();
+
+        UI.updateRecordingStats();
+
+        document.getElementById('noVNC_record')
+            .classList.add("noVNC_open");
+        document.getElementById('noVNC_record_button')
+            .classList.add("noVNC_selected");
+    },
+
+    closeRecordingPanel() {
+        document.getElementById('noVNC_record')
+            .classList.remove("noVNC_open");
+        document.getElementById('noVNC_record_button')
+            .classList.remove("noVNC_selected");
+    },
+
+    toggleRecordingPanel() {
+        if (document.getElementById('noVNC_record')
+            .classList.contains("noVNC_open")) {
+            UI.closeRecordingPanel();
+        } else {
+            UI.openRecordingPanel();
+        }
+    },
+
+    updateRecordingStats() {
+        const statusElem = document.getElementById('noVNC_record_status');
+        const statsElem = document.getElementById('noVNC_record_stats');
+
+        if (UI.recording) {
+            const elapsed = Math.floor((Date.now() - UI.recordingStartTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            statusElem.textContent = `Recording: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            statusElem.style.color = '#ff4444';
+
+            const mbytes = (UI.recordingBytesWritten / (1024 * 1024)).toFixed(2);
+            statsElem.textContent = `Frames: ${UI.recordingFrameCount}, Size: ${mbytes} MB (OPFS)`;
+        } else if (UI.recordingPending) {
+            statusElem.textContent = 'Waiting for connection...';
+            statusElem.style.color = '#ffaa00';
+            statsElem.textContent = 'Recording will start when you connect';
+        } else {
+            statusElem.textContent = 'Not recording';
+            statusElem.style.color = '';
+
+            if (UI.recordingFrameCount > 0) {
+                const mbytes = (UI.recordingBytesWritten / (1024 * 1024)).toFixed(2);
+                statsElem.textContent = `Recorded: ${UI.recordingFrameCount} frames, ${mbytes} MB`;
+            } else {
+                statsElem.textContent = '';
+            }
+        }
+
+        // Update storage usage (async)
+        UI.updateStorageUsage();
+    },
+
+    async updateStorageUsage() {
+        const storageElem = document.getElementById('noVNC_record_storage');
+        if (!storageElem) return;
+
+        try {
+            const s = await navigator.storage.estimate();
+            const usageGB = (s.usage / 1e9).toFixed(2);
+            const quotaGB = (s.quota / 1e9).toFixed(1);
+            const percent = (s.usage / s.quota * 100).toFixed(1);
+            storageElem.textContent = `Storage: ${usageGB}GB / ${quotaGB}GB (${percent}%)`;
+        } catch (e) {
+            storageElem.textContent = 'Storage: unavailable';
+        }
+    },
+
+    async startRecording() {
+        if (UI.recording) {
+            return;
+        }
+
+        // If already connected, user needs to reconnect to capture from beginning
+        if (UI.connected) {
+            UI.showStatus(_("Disconnect and reconnect to record from the beginning"), 'warn');
+            return;
+        }
+
+        // Delete any existing recording file
+        try {
+            const root = await navigator.storage.getDirectory();
+            await root.removeEntry('vnc-recording.bin');
+        } catch (e) {
+            // File doesn't exist, that's fine
+        }
+
+        // Set pending - recording will start when connection is made
+        UI.recordingPending = true;
+        UI.recordingFrameCount = 0;
+        UI.recordingBytesWritten = 0;
+
+        // Update UI to show pending state
+        document.getElementById('noVNC_record_button').classList.add('noVNC_selected');
+        document.getElementById('noVNC_record_button').classList.add('noVNC_recording');
+        document.getElementById('noVNC_record_start_button').disabled = true;
+        document.getElementById('noVNC_record_stop_button').disabled = false;
+        document.getElementById('noVNC_record_download_button').disabled = true;
+        document.getElementById('noVNC_record_status').textContent = 'Waiting for connection...';
+        document.getElementById('noVNC_record_status').style.color = '#ffaa00';
+
+        UI.showStatus(_("Recording will start when you connect"), 'normal');
+    },
+
+    async stopRecording() {
+        if (!UI.recording && !UI.recordingPending) {
+            return;
+        }
+
+        Log.Info("Stopping recording, captured " + UI.recordingFrameCount + " frames");
+
+        // Setting recording to false stops the wrapped handlers from capturing
+        UI.recording = false;
+        UI.recordingPending = false;
+
+        // Wait for pending writes and close the OPFS file
+        if (UI.recordingWritable) {
+            try {
+                await UI.recordingWriteQueue;  // Wait for all pending writes
+                await UI.recordingWritable.close();
+            } catch (e) {
+                Log.Error("Error closing recording file: " + e);
+            }
+            UI.recordingWritable = null;
+            UI.recordingFileHandle = null;
+        }
+
+        // Stop stats update
+        if (UI.recordingStatsInterval) {
+            clearInterval(UI.recordingStatsInterval);
+            UI.recordingStatsInterval = null;
+        }
+
+        // Update UI
+        document.getElementById('noVNC_record_button').classList.remove('noVNC_recording');
+        if (!document.getElementById('noVNC_record').classList.contains('noVNC_open')) {
+            document.getElementById('noVNC_record_button').classList.remove('noVNC_selected');
+        }
+        document.getElementById('noVNC_record_start_button').disabled = false;
+        document.getElementById('noVNC_record_stop_button').disabled = true;
+        document.getElementById('noVNC_record_download_button').disabled = (UI.recordingFrameCount === 0);
+
+        UI.updateRecordingStats();
+
+        UI.showStatus(_("Recording stopped: ") + UI.recordingFrameCount + _(" frames captured"), 'normal');
+    },
+
+    async downloadRecording() {
+        if (UI.recordingFrameCount === 0) {
+            UI.showStatus(_("No recording to download"), 'error');
+            return;
+        }
+
+        Log.Info("Generating recording file with " + UI.recordingFrameCount + " frames");
+        UI.showStatus(_("Preparing download..."), 'normal');
+
+        try {
+            // Open the OPFS recording file for reading
+            const root = await navigator.storage.getDirectory();
+            const fileHandle = await root.getFileHandle('vnc-recording.bin');
+            const file = await fileHandle.getFile();
+
+            // Create a streaming response that converts binary to JS format
+            const reader = file.stream().getReader();
+            const textEncoder = new TextEncoder();
+
+            let buffer = new Uint8Array(0);
+            let framesProcessed = 0;
+            let headerWritten = false;
+
+            const jsStream = new ReadableStream({
+                async pull(controller) {
+                    // Write header first
+                    if (!headerWritten) {
+                        const header = '/* noVNC recording - generated by noVNC client-side recorder */\n' +
+                                       '/* eslint-disable */\n' +
+                                       'var VNC_frame_data = [\n';
+                        controller.enqueue(textEncoder.encode(header));
+                        headerWritten = true;
+                    }
+
+                    // Read and process frames
+                    while (true) {
+                        // Try to parse a frame from buffer
+                        // Binary format: fromClient(1) + timestamp(4) + dataLen(4) + data(dataLen)
+                        if (buffer.length >= 9) {
+                            const fromClient = buffer[0] === 1;
+                            const timestamp = (buffer[1] << 24) | (buffer[2] << 16) | (buffer[3] << 8) | buffer[4];
+                            const dataLen = (buffer[5] << 24) | (buffer[6] << 16) | (buffer[7] << 8) | buffer[8];
+
+                            if (buffer.length >= 9 + dataLen) {
+                                // We have a complete frame
+                                const data = buffer.slice(9, 9 + dataLen);
+                                buffer = buffer.slice(9 + dataLen);
+
+                                // Convert to JS format
+                                const prefix = fromClient ? '}' : '{';
+                                let binary = '';
+                                for (let j = 0; j < data.length; j++) {
+                                    binary += String.fromCharCode(data[j]);
+                                }
+                                const base64Data = btoa(binary);
+                                const frameStr = prefix + timestamp + '{' + base64Data;
+                                const escaped = JSON.stringify(frameStr);
+                                const line = escaped + ',\n';
+
+                                controller.enqueue(textEncoder.encode(line));
+                                framesProcessed++;
+
+                                // Update status periodically
+                                if (framesProcessed % 1000 === 0) {
+                                    UI.showStatus(_("Processing: ") + framesProcessed + "/" + UI.recordingFrameCount + _(" frames"), 'normal');
+                                }
+
+                                continue; // Try to parse another frame
+                            }
+                        }
+
+                        // Need more data
+                        const { done, value } = await reader.read();
+                        if (done) {
+                            // Write footer and close
+                            controller.enqueue(textEncoder.encode('"EOF"\n];\n'));
+                            controller.close();
+                            return;
+                        }
+
+                        // Append to buffer
+                        const newBuffer = new Uint8Array(buffer.length + value.length);
+                        newBuffer.set(buffer);
+                        newBuffer.set(value, buffer.length);
+                        buffer = newBuffer;
+                    }
+                }
+            });
+
+            // Create blob from stream and trigger download
+            const response = new Response(jsStream);
+            const blob = await response.blob();
+
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+
+            const now = new Date();
+            const dateStr = now.toISOString().replace(/[:.]/g, '-').slice(0, 19);
+            a.download = 'vnc-recording-' + dateStr + '.js';
+
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            setTimeout(() => URL.revokeObjectURL(url), 10000);
+
+            UI.showStatus(_("Recording downloaded: ") + framesProcessed + _(" frames"), 'normal');
+
+        } catch (e) {
+            Log.Error("Error downloading recording: " + e);
+            UI.showStatus(_("Download error: ") + e.message, 'error');
+        }
+    },
+
+/* ------^-------
+ *  /RECORDING
+ * ==============
  *  CONNECTION
  * ------v------*/
 
@@ -1023,7 +1346,7 @@ const UI = {
             .classList.remove("noVNC_open");
     },
 
-    connect(event, password) {
+    async connect(event, password) {
 
         // Ignore when rfb already exists
         if (typeof UI.rfb !== 'undefined') {
@@ -1072,6 +1395,98 @@ const UI = {
             url.protocol = (window.location.protocol === "https:") ? 'wss:' : 'ws:';
         }
 
+        // If recording is pending, set up OPFS file and wrap WebSocket
+        let OriginalWebSocket = null;
+        if (UI.recordingPending) {
+            try {
+                // Set up OPFS file for recording
+                const root = await navigator.storage.getDirectory();
+                UI.recordingFileHandle = await root.getFileHandle('vnc-recording.bin', { create: true });
+                UI.recordingWritable = await UI.recordingFileHandle.createWritable();
+                UI.recordingWriteQueue = Promise.resolve();
+
+                UI.recording = true;
+                UI.recordingPending = false;
+                UI.recordingStartTime = Date.now();
+                UI.recordingFrameCount = 0;
+                UI.recordingBytesWritten = 0;
+
+                // Helper to write a frame to OPFS (binary format)
+                // Format: fromClient(1) + timestamp(4) + dataLen(4) + data(dataLen)
+                const writeFrame = (fromClient, timestamp, data) => {
+                    if (!UI.recording || !UI.recordingWritable) return;
+
+                    const header = new Uint8Array(9);
+                    header[0] = fromClient ? 1 : 0;
+                    header[1] = (timestamp >> 24) & 0xff;
+                    header[2] = (timestamp >> 16) & 0xff;
+                    header[3] = (timestamp >> 8) & 0xff;
+                    header[4] = timestamp & 0xff;
+                    header[5] = (data.length >> 24) & 0xff;
+                    header[6] = (data.length >> 16) & 0xff;
+                    header[7] = (data.length >> 8) & 0xff;
+                    header[8] = data.length & 0xff;
+
+                    // Chain writes to ensure order
+                    UI.recordingWriteQueue = UI.recordingWriteQueue.then(async () => {
+                        try {
+                            await UI.recordingWritable.write(header);
+                            await UI.recordingWritable.write(data);
+                            UI.recordingFrameCount++;
+                            UI.recordingBytesWritten += 9 + data.length;
+                        } catch (e) {
+                            Log.Error("Error writing frame: " + e);
+                        }
+                    });
+                };
+
+                // Wrap WebSocket constructor temporarily
+                OriginalWebSocket = window.WebSocket;
+                window.WebSocket = function(wsUrl, protocols) {
+                    const ws = new OriginalWebSocket(wsUrl, protocols);
+
+                    // Capture server-to-client messages
+                    ws.addEventListener('message', function(e) {
+                        if (UI.recording) {
+                            const timestamp = Date.now() - UI.recordingStartTime;
+                            const data = new Uint8Array(e.data);
+                            writeFrame(false, timestamp, data);
+                        }
+                    });
+
+                    // Wrap send for client-to-server messages
+                    const originalSend = ws.send.bind(ws);
+                    ws.send = function(data) {
+                        if (UI.recording) {
+                            const timestamp = Date.now() - UI.recordingStartTime;
+                            let u8data;
+                            if (data instanceof ArrayBuffer) {
+                                u8data = new Uint8Array(data);
+                            } else if (data instanceof Uint8Array) {
+                                u8data = data;
+                            } else {
+                                u8data = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+                            }
+                            writeFrame(true, timestamp, u8data);
+                        }
+                        originalSend(data);
+                    };
+
+                    return ws;
+                };
+                // Copy static properties
+                window.WebSocket.CONNECTING = OriginalWebSocket.CONNECTING;
+                window.WebSocket.OPEN = OriginalWebSocket.OPEN;
+                window.WebSocket.CLOSING = OriginalWebSocket.CLOSING;
+                window.WebSocket.CLOSED = OriginalWebSocket.CLOSED;
+
+            } catch (e) {
+                Log.Error("Failed to set up recording: " + e);
+                UI.showStatus(_("Recording setup failed: ") + e.message, 'error');
+                UI.recordingPending = false;
+            }
+        }
+
         try {
             UI.rfb = new RFB(document.getElementById('noVNC_container'),
                              url.href,
@@ -1083,6 +1498,28 @@ const UI = {
             UI.updateVisualState('disconnected');
             UI.showStatus(_("Failed to connect to server: ") + exc, 'error');
             return;
+        }
+
+        // Restore original WebSocket if we wrapped it
+        if (OriginalWebSocket) {
+            window.WebSocket = OriginalWebSocket;
+            // Update recording UI
+            document.getElementById('noVNC_record_button').classList.add('noVNC_selected');
+            document.getElementById('noVNC_record_button').classList.add('noVNC_recording');
+            document.getElementById('noVNC_record_start_button').disabled = true;
+            document.getElementById('noVNC_record_stop_button').disabled = false;
+            document.getElementById('noVNC_record_download_button').disabled = true;
+
+            UI.updateRecordingStats();
+
+            // Start periodic stats update
+            UI.recordingStatsInterval = setInterval(() => {
+                if (document.getElementById('noVNC_record').classList.contains('noVNC_open')) {
+                    UI.updateRecordingStats();
+                }
+            }, 1000);
+
+            UI.showStatus(_("Recording started (OPFS)"), 'normal');
         }
 
         UI.rfb.addEventListener("connect", UI.connectFinished);
@@ -1106,6 +1543,11 @@ const UI = {
     },
 
     disconnect() {
+        // Stop recording if active or pending
+        if (UI.recording || UI.recordingPending) {
+            UI.stopRecording();
+        }
+
         UI.rfb.disconnect();
 
         UI.connected = false;
@@ -1160,6 +1602,11 @@ const UI = {
 
     disconnectFinished(e) {
         const wasConnected = UI.connected;
+
+        // Stop recording if active or pending (handles unexpected disconnects)
+        if (UI.recording || UI.recordingPending) {
+            UI.stopRecording();
+        }
 
         // This variable is ideally set when disconnection starts, but
         // when the disconnection isn't clean or if it is initiated by
