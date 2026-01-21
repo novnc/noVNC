@@ -42,7 +42,12 @@ usage() {
     echo "                                    "
     echo "    --password PASS       VNC password (passed to vnc.html URL)"
     echo "    --autoconnect         auto-connect on page load"
-    echo "    --autorecord          auto-record on page load"
+    echo "    --autorecord          auto-record on page load (local OPFS storage)"
+    echo "                                    "
+    echo "    --record-server       start recording server for external recording"
+    echo "    --record-port PORT    recording server port (default: 6090)"
+    echo "    --record-output FILE  recording output file (default: recording.bin)"
+    echo "    --record-js           also convert recording to JS format"
     echo "                                    "
     exit 2
 }
@@ -71,6 +76,11 @@ FILEONLY_ARG=""
 VNC_PASSWORD=""
 AUTOCONNECT=""
 AUTORECORD=""
+RECORD_SERVER=""
+RECORD_PORT="6090"
+RECORD_OUTPUT="recording.bin"
+RECORD_JS=""
+recording_server_pid=""
 
 
 die() {
@@ -82,6 +92,10 @@ cleanup() {
     trap - TERM QUIT INT EXIT
     trap "true" CHLD   # Ignore cleanup messages
     echo
+    if [ -n "${recording_server_pid}" ]; then
+        echo "Terminating recording server (${recording_server_pid})"
+        kill ${recording_server_pid} 2>/dev/null
+    fi
     if [ -n "${proxy_pid}" ]; then
         echo "Terminating WebSockets proxy (${proxy_pid})"
         kill ${proxy_pid}
@@ -112,6 +126,10 @@ while [ "$*" ]; do
     --password) VNC_PASSWORD="${OPTARG}"; shift ;;
     --autoconnect) AUTOCONNECT="1" ;;
     --autorecord) AUTORECORD="1" ;;
+    --record-server) RECORD_SERVER="1" ;;
+    --record-port) RECORD_PORT="${OPTARG}"; shift ;;
+    --record-output) RECORD_OUTPUT="${OPTARG}"; shift ;;
+    --record-js) RECORD_JS="1" ;;
     -h|--help) usage                              ;;
     -*) usage "Unknown chrooter option: ${param}" ;;
     *) break                                      ;;
@@ -216,6 +234,28 @@ WEB=`realpath "${WEB}"`
 [ -n "${CERT}" ] && CERT=`realpath "${CERT}"`
 [ -n "${KEY}" ] && KEY=`realpath "${KEY}"`
 [ -n "${RECORD}" ] && RECORD=`realpath "${RECORD}"`
+[ -n "${RECORD_OUTPUT}" ] && RECORD_OUTPUT=`realpath "${RECORD_OUTPUT}"`
+
+# Start recording server if requested
+if [ -n "${RECORD_SERVER}" ]; then
+    RECORD_SCRIPT="${HERE}/recording_server.py"
+    if [ ! -f "${RECORD_SCRIPT}" ]; then
+        die "Recording server script not found: ${RECORD_SCRIPT}"
+    fi
+
+    echo "Starting recording server on port ${RECORD_PORT}..."
+    RECORD_JS_ARG=""
+    [ -n "${RECORD_JS}" ] && RECORD_JS_ARG="--js"
+    python3 "${RECORD_SCRIPT}" --port "${RECORD_PORT}" --output "${RECORD_OUTPUT}" ${RECORD_JS_ARG} &
+    recording_server_pid="$!"
+    sleep 1
+
+    if [ -z "$recording_server_pid" ] || ! ps -eo pid= | grep -w "$recording_server_pid" > /dev/null; then
+        recording_server_pid=
+        die "Failed to start recording server"
+    fi
+    echo "Recording server started (PID: ${recording_server_pid})"
+fi
 
 echo "Starting webserver and WebSockets proxy on${HOST:+ host ${HOST}} port ${PORT}"
 ${WEBSOCKIFY} ${SYSLOG_ARG} ${SSLONLY} ${FILEONLY_ARG} --web ${WEB} ${CERT:+--cert ${CERT}} ${KEY:+--key ${KEY}} ${LISTEN} ${VNC_DEST} ${HEARTBEAT_ARG} ${IDLETIMEOUT_ARG} ${RECORD:+--record ${RECORD}} ${TIMEOUT_ARG} ${WEBAUTH_ARG} ${AUTHPLUGIN_ARG} ${AUTHSOURCE_ARG} &
@@ -236,6 +276,11 @@ URL_PARAMS="host=${HOST}&port=${PORT}"
 [ -n "$VNC_PASSWORD" ] && URL_PARAMS="${URL_PARAMS}&password=${VNC_PASSWORD}"
 [ -n "$AUTOCONNECT" ] && URL_PARAMS="${URL_PARAMS}&autoconnect=1"
 [ -n "$AUTORECORD" ] && URL_PARAMS="${URL_PARAMS}&autorecord=1"
+# If recording server is running, add record_url (autorecord must also be set for streaming)
+if [ -n "$RECORD_SERVER" ]; then
+    RECORD_URL="ws://${HOST}:${RECORD_PORT}"
+    URL_PARAMS="${URL_PARAMS}&record_url=${RECORD_URL}&autorecord=1"
+fi
 if [ "x$SSLONLY" == "x" ]; then
     echo -e "    http://${HOST}:${PORT}/vnc.html?${URL_PARAMS}\n"
 else

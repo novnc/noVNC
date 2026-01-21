@@ -43,6 +43,7 @@ const UI = {
     recordingFileHandle: null,
     recordingWritable: null,
     recordingWriteQueue: Promise.resolve(),  // Chain writes to ensure order
+    recordingWebSocket: null,  // WebSocket for streaming to external server
 
     controlbarGrabbed: false,
     controlbarDrag: false,
@@ -209,6 +210,7 @@ const UI = {
         UI.initSetting('reconnect', false);
         UI.initSetting('reconnect_delay', 5000);
         UI.initSetting('autorecord', false);
+        UI.initSetting('record_url', '');  // WebSocket URL to stream recording to
     },
     // Adds a link to the label elements on the corresponding input elements
     setupSettingLabels() {
@@ -1183,6 +1185,16 @@ const UI = {
         UI.recording = false;
         UI.recordingPending = false;
 
+        // Close recording WebSocket if streaming to external server
+        if (UI.recordingWebSocket) {
+            try {
+                UI.recordingWebSocket.close();
+            } catch (e) {
+                Log.Error("Error closing recording WebSocket: " + e);
+            }
+            UI.recordingWebSocket = null;
+        }
+
         // Wait for pending writes and close the OPFS file
         if (UI.recordingWritable) {
             try {
@@ -1395,15 +1407,36 @@ const UI = {
             url.protocol = (window.location.protocol === "https:") ? 'wss:' : 'ws:';
         }
 
-        // If recording is pending, set up OPFS file and wrap WebSocket
+        // If recording is pending, set up recording destination and wrap WebSocket
         let OriginalWebSocket = null;
         if (UI.recordingPending) {
             try {
-                // Set up OPFS file for recording
-                const root = await navigator.storage.getDirectory();
-                UI.recordingFileHandle = await root.getFileHandle('vnc-recording.bin', { create: true });
-                UI.recordingWritable = await UI.recordingFileHandle.createWritable();
-                UI.recordingWriteQueue = Promise.resolve();
+                const recordUrl = UI.getSetting('record_url');
+
+                if (recordUrl) {
+                    // Stream recording to external WebSocket server
+                    Log.Info("Setting up recording to external server: " + recordUrl);
+                    UI.recordingWebSocket = new WebSocket(recordUrl);
+                    UI.recordingWebSocket.binaryType = 'arraybuffer';
+
+                    await new Promise((resolve, reject) => {
+                        UI.recordingWebSocket.onopen = () => {
+                            Log.Info("Recording WebSocket connected");
+                            resolve();
+                        };
+                        UI.recordingWebSocket.onerror = (e) => {
+                            reject(new Error("Failed to connect to recording server"));
+                        };
+                        // Timeout after 5 seconds
+                        setTimeout(() => reject(new Error("Recording server connection timeout")), 5000);
+                    });
+                } else {
+                    // Set up OPFS file for local recording
+                    const root = await navigator.storage.getDirectory();
+                    UI.recordingFileHandle = await root.getFileHandle('vnc-recording.bin', { create: true });
+                    UI.recordingWritable = await UI.recordingFileHandle.createWritable();
+                    UI.recordingWriteQueue = Promise.resolve();
+                }
 
                 UI.recording = true;
                 UI.recordingPending = false;
@@ -1411,10 +1444,10 @@ const UI = {
                 UI.recordingFrameCount = 0;
                 UI.recordingBytesWritten = 0;
 
-                // Helper to write a frame to OPFS (binary format)
+                // Helper to write a frame (binary format)
                 // Format: fromClient(1) + timestamp(4) + dataLen(4) + data(dataLen)
                 const writeFrame = (fromClient, timestamp, data) => {
-                    if (!UI.recording || !UI.recordingWritable) return;
+                    if (!UI.recording) return;
 
                     const header = new Uint8Array(9);
                     header[0] = fromClient ? 1 : 0;
@@ -1427,17 +1460,27 @@ const UI = {
                     header[7] = (data.length >> 8) & 0xff;
                     header[8] = data.length & 0xff;
 
-                    // Chain writes to ensure order
-                    UI.recordingWriteQueue = UI.recordingWriteQueue.then(async () => {
-                        try {
-                            await UI.recordingWritable.write(header);
-                            await UI.recordingWritable.write(data);
-                            UI.recordingFrameCount++;
-                            UI.recordingBytesWritten += 9 + data.length;
-                        } catch (e) {
-                            Log.Error("Error writing frame: " + e);
-                        }
-                    });
+                    if (UI.recordingWebSocket && UI.recordingWebSocket.readyState === WebSocket.OPEN) {
+                        // Stream to external server
+                        const frame = new Uint8Array(9 + data.length);
+                        frame.set(header, 0);
+                        frame.set(data, 9);
+                        UI.recordingWebSocket.send(frame);
+                        UI.recordingFrameCount++;
+                        UI.recordingBytesWritten += frame.length;
+                    } else if (UI.recordingWritable) {
+                        // Write to OPFS
+                        UI.recordingWriteQueue = UI.recordingWriteQueue.then(async () => {
+                            try {
+                                await UI.recordingWritable.write(header);
+                                await UI.recordingWritable.write(data);
+                                UI.recordingFrameCount++;
+                                UI.recordingBytesWritten += 9 + data.length;
+                            } catch (e) {
+                                Log.Error("Error writing frame: " + e);
+                            }
+                        });
+                    }
                 };
 
                 // Wrap WebSocket constructor temporarily
@@ -1484,6 +1527,10 @@ const UI = {
                 Log.Error("Failed to set up recording: " + e);
                 UI.showStatus(_("Recording setup failed: ") + e.message, 'error');
                 UI.recordingPending = false;
+                if (UI.recordingWebSocket) {
+                    UI.recordingWebSocket.close();
+                    UI.recordingWebSocket = null;
+                }
             }
         }
 
