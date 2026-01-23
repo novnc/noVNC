@@ -185,6 +185,10 @@ export default class RFB extends EventTargetMixin {
             encoding: null,
         };
 
+        // Debug: track FBU frame count
+        this._debugFBUCount = 0;
+        this._debugRectCount = 0;
+
         // Mouse state
         this._mousePos = {};
         this._mouseButtonMask = 0;
@@ -2660,6 +2664,14 @@ export default class RFB extends EventTargetMixin {
             this._sock.rQskipBytes(1);  // Padding
             this._FBU.rects = this._sock.rQshift16();
 
+            // Debug: print for server frame #19
+            if (this._debugFBUCount === 19) {
+                console.log(`\n=== SERVER FRAME #19 ===`);
+                console.log(`FBU has ${this._FBU.rects} rects`);
+                this._debugRectCount = 0;
+            }
+            this._debugFBUCount++;
+
             // Make sure the previous frame is fully rendered first
             // to avoid building up an excessive queue
             if (this._display.pending()) {
@@ -3022,19 +3034,39 @@ export default class RFB extends EventTargetMixin {
         }
 
         // Force BGR mode for specific server types
-        const forceBGR = this._fbName === "Virtualization" || 
+        const forceBGR = this._fbName === "Virtualization" ||
                          (this._fbName && this._fbName.indexOf("Virtualization") !== -1);
-        
+
         if (forceBGR) {
             Log.Info("Forcing BGR mode for Virtualization server");
         }
 
+        // Debug: track bytes consumed for frame #19, first 10 rects
+        const isDebugFrame = (this._debugFBUCount - 1) === 19;
+        const rQiBefore = this._sock._rQi;
+
         try {
-            return decoder.decodeRect(this._FBU.x, this._FBU.y,
+            const result = decoder.decodeRect(this._FBU.x, this._FBU.y,
                                       this._FBU.width, this._FBU.height,
                                       this._sock, this._display,
-                                      this._fbDepth, 
+                                      this._fbDepth,
                                       this._BGRmode || forceBGR);  // Always enable BGR mode for Virtualization
+
+            // Debug: print rect info for frame #19, first 10 rects
+            if (isDebugFrame && this._debugRectCount < 10 && result) {
+                const byteLen = this._sock._rQi - rQiBefore;
+                const encNames = {
+                    0: 'Raw', 1: 'CopyRect', 2: 'RRE', 5: 'Hextile',
+                    7: 'Tight', 16: 'ZRLE', [-223]: 'DesktopSize',
+                    [-224]: 'LastRect', [-232]: 'Cursor', [-239]: 'DesktopName',
+                    [-260]: 'TightPNG'
+                };
+                const decoderName = encNames[this._FBU.encoding] || `Unknown(${this._FBU.encoding})`;
+                console.log(`  Rect[${this._debugRectCount}]: x=${this._FBU.x}, y=${this._FBU.y}, w=${this._FBU.width}, h=${this._FBU.height}, decoder=${decoderName}, byteLen=${byteLen}`);
+                this._debugRectCount++;
+            }
+
+            return result;
         } catch (err) {
             this._fail("Error decoding rect: " + err);
             return false;

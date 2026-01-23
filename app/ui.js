@@ -18,9 +18,371 @@ import Keyboard from "../core/input/keyboard.js";
 import RFB from "../core/rfb.js";
 import * as WebUtil from "./webutil.js";
 
+// Import mediabunny for MP4 encoding (dynamically loaded when needed)
+let mediabunnyModule = null;
+async function loadMediabunny() {
+    if (!mediabunnyModule) {
+        mediabunnyModule = await import('https://cdn.jsdelivr.net/npm/mediabunny@1.29.1/+esm');
+    }
+    return mediabunnyModule;
+}
+
 const PAGE_TITLE = "noVNC";
 
 const LINGUAS = ["cs", "de", "el", "es", "fr", "it", "ja", "ko", "nl", "pl", "pt_BR", "ru", "sv", "tr", "zh_CN", "zh_TW"];
+
+// FakeWebSocket for playing back recordings (same as playback.js)
+class FakeWebSocket {
+    constructor() {
+        this.binaryType = "arraybuffer";
+        this.protocol = "";
+        this.readyState = "open";
+        this.onerror = () => {};
+        this.onmessage = () => {};
+        this.onopen = () => {};
+        this.onclose = () => {};
+    }
+    send() {}
+    close() {}
+}
+
+// Parse binary recording data from OPFS file
+// Format: fromClient(1) + timestamp(4) + dataLen(4) + data(dataLen)
+async function parseRecordingFrames(file, onProgress) {
+    const frames = [];
+    const serverFrameIndices = [];
+    const buffer = await file.arrayBuffer();
+    const data = new Uint8Array(buffer);
+    let offset = 0;
+
+    while (offset + 9 <= data.length) {
+        const fromClient = data[offset] === 1;
+        const timestamp = (data[offset + 1] << 24) | (data[offset + 2] << 16) | (data[offset + 3] << 8) | data[offset + 4];
+        const dataLen = (data[offset + 5] << 24) | (data[offset + 6] << 16) | (data[offset + 7] << 8) | data[offset + 8];
+
+        if (offset + 9 + dataLen > data.length) break;
+
+        const frameData = data.slice(offset + 9, offset + 9 + dataLen);
+        frames.push({
+            fromClient,
+            timestamp,
+            data: frameData
+        });
+
+        if (!fromClient) {
+            serverFrameIndices.push(frames.length - 1);
+        }
+
+        offset += 9 + dataLen;
+
+        if (onProgress && frames.length % 100 === 0) {
+            onProgress(`Parsed ${frames.length} frames...`);
+        }
+    }
+
+    return { frames, serverFrameIndices };
+}
+
+// Convert dataURL to ImageBitmap
+async function dataUrlToImageBitmap(dataUrl) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = async () => {
+            try {
+                const bitmap = await createImageBitmap(img);
+                resolve(bitmap);
+            } catch (e) {
+                reject(e);
+            }
+        };
+        img.onerror = (e) => reject(new Error('Failed to load image: ' + e));
+        img.src = dataUrl;
+    });
+}
+
+// RecordingPlayer - plays through frames and captures after each server frame
+class RecordingPlayer {
+    constructor(frames, serverFrameIndices, targetContainer) {
+        this._frames = frames;
+        this._serverFrameIndices = serverFrameIndices;
+        this._frameLength = frames.length;
+        this._frameIndex = 0;
+        this._serverFramePos = 0;
+        this._running = false;
+        this._captures = [];
+        this._targetContainer = targetContainer;
+
+        this._ws = null;
+        this._rfb = null;
+
+        this.onprogress = () => {};
+    }
+
+    async run() {
+        return new Promise((resolve) => {
+            this._ws = new FakeWebSocket();
+            this._rfb = new RFB(this._targetContainer, this._ws);
+            this._rfb.viewOnly = true;
+
+            this._rfb.addEventListener("disconnect", () => {});
+            this._rfb.addEventListener("credentialsrequired", () => {
+                this._rfb.sendCredentials({ username: "", password: "", target: "" });
+            });
+
+            this._frameIndex = 0;
+            this._serverFramePos = 0;
+            this._running = true;
+            this._captures = [];
+
+            this._resolvePromise = resolve;
+            this._queueNextPacket();
+        });
+    }
+
+    _queueNextPacket() {
+        if (!this._running) return;
+
+        // Skip client frames
+        while (this._frameIndex < this._frameLength &&
+               this._frames[this._frameIndex].fromClient) {
+            this._frameIndex++;
+        }
+
+        if (this._frameIndex >= this._frameLength) {
+            this._finish();
+            return;
+        }
+
+        setTimeout(() => this._doPacket(), 0);
+    }
+
+    async _doPacket() {
+        if (!this._running) return;
+
+        // Wait if RFB is flushing
+        if (this._rfb._flushing) {
+            await this._rfb._display.flush();
+        }
+
+        const frame = this._frames[this._frameIndex];
+
+        // Send frame to RFB via fake websocket
+        this._ws.onmessage({ data: frame.data });
+
+        // Wait for display to settle
+        if (this._rfb._display && this._rfb._display.pending()) {
+            await this._rfb._display.flush();
+        }
+
+        // Small delay to ensure rendering is complete
+        await new Promise(r => setTimeout(r, 5));
+
+        // Capture screenshot
+        let dataUrl = '';
+        let vncWidth = 0;
+        let vncHeight = 0;
+        try {
+            if (this._rfb._display) {
+                dataUrl = this._rfb._display.toDataURL('image/png');
+                vncWidth = this._rfb._fbWidth || 0;
+                vncHeight = this._rfb._fbHeight || 0;
+            }
+        } catch (e) {
+            Log.Warn('Capture failed:', e);
+        }
+
+        this._captures.push({
+            index: this._serverFramePos,
+            frameIndex: this._frameIndex,
+            timestamp: frame.timestamp,
+            dataUrl,
+            vncWidth,
+            vncHeight
+        });
+
+        this._serverFramePos++;
+
+        // Progress callback
+        if (this._serverFramePos % 10 === 0) {
+            this.onprogress(this._serverFramePos, this._serverFrameIndices.length);
+        }
+
+        this._frameIndex++;
+        this._queueNextPacket();
+    }
+
+    _finish() {
+        this._running = false;
+
+        if (this._rfb._display && this._rfb._display.pending()) {
+            this._rfb._display.flush().then(() => {
+                this._resolvePromise(this._captures);
+            });
+        } else {
+            this._resolvePromise(this._captures);
+        }
+    }
+}
+
+// Encode captures to MP4 video using mediabunny
+async function encodeCapturesToMp4(captures, onProgress) {
+    const { Output, Mp4OutputFormat, BufferTarget, VideoSampleSource, VideoSample, QUALITY_HIGH } = await loadMediabunny();
+
+    // Filter valid captures
+    const validCaptures = captures.filter(c => c.dataUrl && c.dataUrl.length > 100);
+    if (validCaptures.length === 0) {
+        throw new Error('No valid frames to encode');
+    }
+
+    // Get dimensions from captures
+    let width = 0;
+    let height = 0;
+    for (let i = validCaptures.length - 1; i >= 0; i--) {
+        if (validCaptures[i].vncWidth && validCaptures[i].vncHeight) {
+            width = validCaptures[i].vncWidth;
+            height = validCaptures[i].vncHeight;
+            break;
+        }
+    }
+
+    // Fallback to captured image dimensions
+    if (width === 0 || height === 0) {
+        const firstBitmap = await dataUrlToImageBitmap(validCaptures[0].dataUrl);
+        width = firstBitmap.width;
+        height = firstBitmap.height;
+        firstBitmap.close();
+    }
+
+    // Ensure dimensions are even (required for H.264)
+    const encodedWidth = width % 2 === 0 ? width : width + 1;
+    const encodedHeight = height % 2 === 0 ? height : height + 1;
+
+    onProgress && onProgress(`Encoding ${validCaptures.length} frames at ${encodedWidth}x${encodedHeight}...`);
+
+    // Create output with mediabunny
+    const output = new Output({
+        format: new Mp4OutputFormat(),
+        target: new BufferTarget(),
+    });
+
+    const videoSource = new VideoSampleSource({
+        codec: 'avc',
+        bitrate: QUALITY_HIGH,
+    });
+
+    output.addVideoTrack(videoSource);
+    await output.start();
+
+    // Create canvas for frame rendering
+    const frameCanvas = new OffscreenCanvas(encodedWidth, encodedHeight);
+    const frameCtx = frameCanvas.getContext('2d', { alpha: true });
+
+    // Find first opaque frame
+    let firstOpaqueTimestamp = null;
+    frameCtx.clearRect(0, 0, encodedWidth, encodedHeight);
+
+    for (let i = 0; i < validCaptures.length; i++) {
+        const cap = validCaptures[i];
+        try {
+            const bitmap = await dataUrlToImageBitmap(cap.dataUrl);
+            frameCtx.drawImage(bitmap, 0, 0, encodedWidth, encodedHeight);
+            bitmap.close();
+
+            // Check if frame is opaque
+            const imageData = frameCtx.getImageData(0, 0, encodedWidth, encodedHeight);
+            let isOpaque = true;
+            for (let j = 3; j < imageData.data.length; j += 400) {
+                if (imageData.data[j] < 255) { isOpaque = false; break; }
+            }
+
+            if (isOpaque) {
+                firstOpaqueTimestamp = cap.timestamp;
+                break;
+            }
+        } catch (e) {
+            Log.Warn(`Error checking frame ${i}:`, e);
+        }
+    }
+
+    if (firstOpaqueTimestamp === null) {
+        firstOpaqueTimestamp = validCaptures[0].timestamp;
+    }
+
+    // Encode at max 24 FPS
+    const maxFps = 24;
+    const frameIntervalMs = 1000 / maxFps;
+    const firstTimestamp = firstOpaqueTimestamp;
+    const lastTimestamp = validCaptures[validCaptures.length - 1].timestamp;
+    const totalDurationMs = lastTimestamp - firstTimestamp;
+    const totalFrames = Math.ceil(totalDurationMs / frameIntervalMs) + 1;
+
+    let captureIdx = 0;
+    for (let frameNum = 0; frameNum < totalFrames; frameNum++) {
+        const frameStartMs = frameNum * frameIntervalMs;
+        const frameEndMs = (frameNum + 1) * frameIntervalMs;
+
+        // Find last capture in this frame's time window
+        let lastCaptureInBucket = null;
+        while (captureIdx < validCaptures.length) {
+            const capTimeMs = validCaptures[captureIdx].timestamp - firstTimestamp;
+            if (capTimeMs < 0) {
+                captureIdx++;
+                continue;
+            }
+            if (capTimeMs < frameEndMs) {
+                lastCaptureInBucket = validCaptures[captureIdx];
+                captureIdx++;
+            } else {
+                break;
+            }
+        }
+
+        if (!lastCaptureInBucket && frameNum > 0) {
+            for (let i = captureIdx - 1; i >= 0; i--) {
+                if (validCaptures[i].dataUrl && validCaptures[i].dataUrl.length > 100) {
+                    lastCaptureInBucket = validCaptures[i];
+                    break;
+                }
+            }
+        }
+
+        if (!lastCaptureInBucket) continue;
+
+        if (frameNum % 20 === 0) {
+            onProgress && onProgress(`Encoding frame ${frameNum + 1}/${totalFrames}...`);
+        }
+
+        try {
+            const bitmap = await dataUrlToImageBitmap(lastCaptureInBucket.dataUrl);
+            frameCtx.clearRect(0, 0, encodedWidth, encodedHeight);
+            frameCtx.drawImage(bitmap, 0, 0, encodedWidth, encodedHeight);
+            bitmap.close();
+
+            const timestamp = frameStartMs / 1000;
+            const duration = frameIntervalMs / 1000;
+
+            const sample = new VideoSample(frameCanvas, {
+                timestamp,
+                duration,
+            });
+            await videoSource.add(sample);
+            sample.close();
+        } catch (e) {
+            Log.Warn(`Failed to encode frame ${frameNum}:`, e);
+        }
+    }
+
+    videoSource.close();
+    await output.finalize();
+
+    return {
+        mp4Buffer: output.target.buffer,
+        startTimestampOffset: firstOpaqueTimestamp,
+        width: encodedWidth,
+        height: encodedHeight,
+        duration: totalDurationMs
+    };
+}
 
 const UI = {
 
@@ -44,6 +406,12 @@ const UI = {
     recordingWritable: null,
     recordingWriteQueue: Promise.resolve(),  // Chain writes to ensure order
     recordingWebSocket: null,  // WebSocket for streaming to external server
+    recordingEvents: [],  // Input events captured during recording (for mp4 format)
+    recordingKeyBuffer: [],  // Buffer for grouping rapid keystrokes
+    recordingLastKeyTime: 0,  // Last key timestamp for buffering
+    recordingLastMousePos: { x: 0, y: 0 },  // Last mouse position
+    recordingDragStart: null,  // Drag start position
+    recordingEventHandlers: null,  // Event handlers for cleanup
 
     controlbarGrabbed: false,
     controlbarDrag: false,
@@ -211,6 +579,8 @@ const UI = {
         UI.initSetting('reconnect_delay', 5000);
         UI.initSetting('autorecord', false);
         UI.initSetting('record_url', '');  // WebSocket URL to stream recording to
+        UI.initSetting('record_format', 'bin');  // Recording format: bin, mp4, or js
+        UI.initSetting('record_streaming', true);  // Stream to server (only for bin format)
     },
     // Adds a link to the label elements on the corresponding input elements
     setupSettingLabels() {
@@ -804,6 +1174,9 @@ const UI = {
         }
         // Check Query string followed by cookie
         let val = WebUtil.getConfigVar(name);
+        if (name.startsWith('record')) {
+            Log.Info("initSetting: " + name + " = " + val + " (from URL: " + (val !== null) + ", default: " + defVal + ")");
+        }
         if (val === null) {
             val = WebUtil.readSetting(name, defVal);
         }
@@ -1185,6 +1558,18 @@ const UI = {
         UI.recording = false;
         UI.recordingPending = false;
 
+        const recordUrl = UI.getSetting('record_url');
+        const recordFormat = UI.getSetting('record_format') || 'bin';
+        const recordStreaming = UI.getSetting('record_streaming');
+        const wasStreaming = recordStreaming && recordFormat === 'bin' && recordUrl && UI.recordingWebSocket;
+
+        Log.Info("stopRecording settings: record_url='" + recordUrl + "', format='" + recordFormat + "', streaming=" + recordStreaming);
+
+        // Clean up input event capture for MP4 format
+        if (recordFormat === 'mp4') {
+            UI.cleanupInputEventCapture();
+        }
+
         // Close recording WebSocket if streaming to external server
         if (UI.recordingWebSocket) {
             try {
@@ -1213,6 +1598,35 @@ const UI = {
             UI.recordingStatsInterval = null;
         }
 
+        // If not streaming and we have a record URL, encode and upload
+        // For mp4 format, always upload (even with 0 events); for other formats, check frame count
+        const hasData = recordFormat === 'mp4' ? true : UI.recordingFrameCount > 0;
+
+        Log.Info("stopRecording: wasStreaming=" + wasStreaming + ", recordUrl=" + recordUrl +
+                 ", hasData=" + hasData + ", format=" + recordFormat +
+                 ", events=" + (UI.recordingEvents ? UI.recordingEvents.length : 0) +
+                 ", frames=" + UI.recordingFrameCount);
+
+        if (!wasStreaming && recordUrl && hasData) {
+            UI.showStatus(_("Processing and uploading recording..."), 'normal');
+            try {
+                await UI.encodeAndUploadRecording(recordFormat, recordUrl);
+            } catch (e) {
+                Log.Error("Error uploading recording: " + e);
+                UI.showStatus(_("Upload error: ") + e.message, 'error');
+            }
+        } else if (!wasStreaming && recordUrl && !hasData) {
+            Log.Warn("No data to upload: events=" + (UI.recordingEvents ? UI.recordingEvents.length : 0) +
+                     ", frames=" + UI.recordingFrameCount);
+        } else if (!wasStreaming && !recordUrl) {
+            Log.Warn("No record_url configured, skipping upload");
+        } else if (wasStreaming) {
+            Log.Info("Streaming mode was active, data already sent");
+        }
+
+        // Hide floating stop button
+        UI.hideFloatingRecordButton();
+
         // Update UI
         document.getElementById('noVNC_record_button').classList.remove('noVNC_recording');
         if (!document.getElementById('noVNC_record').classList.contains('noVNC_open')) {
@@ -1225,6 +1639,598 @@ const UI = {
         UI.updateRecordingStats();
 
         UI.showStatus(_("Recording stopped: ") + UI.recordingFrameCount + _(" frames captured"), 'normal');
+    },
+
+    // Set up input event capture for MP4 recording
+    setupInputEventCapture() {
+        Log.Info("setupInputEventCapture called, rfb=" + !!UI.rfb + ", canvas=" + !!(UI.rfb && UI.rfb._canvas));
+        if (!UI.rfb || !UI.rfb._canvas) {
+            Log.Warn("setupInputEventCapture: rfb or canvas not available");
+            return;
+        }
+
+        UI.recordingEvents = [];
+        UI.recordingKeyBuffer = [];
+        UI.recordingLastKeyTime = 0;
+        UI.recordingLastMousePos = { x: 0, y: 0 };
+        UI.recordingLastButtonMask = 0;
+        UI.recordingDragStart = null;
+
+        const canvas = UI.rfb._canvas;
+        Log.Info("Setting up event capture on canvas: " + canvas.width + "x" + canvas.height);
+
+        // Capture mouse events
+        const mouseHandler = (e) => {
+            if (!UI.recording) return;
+
+            const timestamp = Date.now() - UI.recordingStartTime;
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.round((e.clientX - rect.left) * (canvas.width / rect.width));
+            const y = Math.round((e.clientY - rect.top) * (canvas.height / rect.height));
+
+            UI.recordingLastMousePos = { x, y };
+
+            if (e.type === 'mousedown') {
+                if (e.button === 0) {
+                    // Left button - could be click or drag start
+                    UI.recordingDragStart = { x, y, timestamp };
+                } else if (e.button === 2) {
+                    // Right click
+                    UI.recordingEvents.push({
+                        timestamp,
+                        type: 'click',
+                        data: { x, y, button: 'right' }
+                    });
+                }
+            } else if (e.type === 'mouseup' && e.button === 0 && UI.recordingDragStart) {
+                const dx = Math.abs(x - UI.recordingDragStart.x);
+                const dy = Math.abs(y - UI.recordingDragStart.y);
+
+                if (dx > 10 || dy > 10) {
+                    // Drag
+                    UI.recordingEvents.push({
+                        timestamp: UI.recordingDragStart.timestamp,
+                        type: 'drag',
+                        data: {
+                            start: { x: UI.recordingDragStart.x, y: UI.recordingDragStart.y },
+                            end: { x, y }
+                        }
+                    });
+                } else {
+                    // Click
+                    UI.recordingEvents.push({
+                        timestamp,
+                        type: 'click',
+                        data: { x, y, button: 'left' }
+                    });
+                }
+                UI.recordingDragStart = null;
+            }
+        };
+
+        // Capture wheel/scroll events
+        const wheelHandler = (e) => {
+            if (!UI.recording) return;
+
+            const timestamp = Date.now() - UI.recordingStartTime;
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.round((e.clientX - rect.left) * (canvas.width / rect.width));
+            const y = Math.round((e.clientY - rect.top) * (canvas.height / rect.height));
+
+            UI.recordingEvents.push({
+                timestamp,
+                type: 'scroll',
+                data: {
+                    direction: e.deltaY > 0 ? 'down' : 'up',
+                    x, y
+                }
+            });
+        };
+
+        // Capture keyboard events by wrapping RFB.sendKey
+        // noVNC intercepts keyboard events, so we need to hook into RFB's key sending
+        const originalSendKey = UI.rfb.sendKey.bind(UI.rfb);
+        UI.rfb.sendKey = (keysym, code, down) => {
+            if (UI.recording && down) {
+                const timestamp = Date.now() - UI.recordingStartTime;
+
+                // Flush key buffer if time gap > 500ms
+                if (UI.recordingKeyBuffer.length && timestamp - UI.recordingLastKeyTime > 500) {
+                    UI.flushKeyBuffer();
+                }
+
+                // Convert keysym to character/key name
+                const key = UI.keysymToChar(keysym);
+                const specialKeys = ['Enter', 'Tab', 'Escape', 'Backspace', 'Delete', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown'];
+
+                if (specialKeys.includes(key) || (key.startsWith('F') && key.length <= 3)) {
+                    UI.flushKeyBuffer();
+                    UI.recordingEvents.push({
+                        timestamp,
+                        type: 'key',
+                        data: { key, action: 'press' }
+                    });
+                } else if (key.length === 1) {
+                    UI.recordingKeyBuffer.push(key);
+                    UI.recordingLastKeyTime = timestamp;
+                }
+            }
+            return originalSendKey(keysym, code, down);
+        };
+
+        canvas.addEventListener('mousedown', mouseHandler);
+        canvas.addEventListener('mouseup', mouseHandler);
+        canvas.addEventListener('wheel', wheelHandler);
+
+        // Store handlers for cleanup
+        UI.recordingEventHandlers = { mouseHandler, wheelHandler, canvas, originalSendKey };
+    },
+
+    // Flush buffered keystrokes into a type event
+    flushKeyBuffer() {
+        if (UI.recordingKeyBuffer.length === 0) return;
+
+        UI.recordingEvents.push({
+            timestamp: UI.recordingLastKeyTime,
+            type: 'type',
+            data: { text: UI.recordingKeyBuffer.join('') }
+        });
+        UI.recordingKeyBuffer = [];
+    },
+
+    // Convert keysym to readable character/key name
+    keysymToChar(keysym) {
+        // Common special keysyms
+        const keysymMap = {
+            0xff08: 'Backspace', 0xff09: 'Tab', 0xff0d: 'Enter', 0xff1b: 'Escape',
+            0xff50: 'Home', 0xff51: 'ArrowLeft', 0xff52: 'ArrowUp', 0xff53: 'ArrowRight', 0xff54: 'ArrowDown',
+            0xff55: 'PageUp', 0xff56: 'PageDown', 0xff57: 'End', 0xff63: 'Insert',
+            0xffff: 'Delete', 0x0020: ' ',
+            0xffe1: 'Shift', 0xffe2: 'Shift', 0xffe3: 'Control', 0xffe4: 'Control',
+            0xffe9: 'Alt', 0xffea: 'Alt', 0xffeb: 'Super', 0xffec: 'Super',
+        };
+
+        if (keysymMap[keysym]) return keysymMap[keysym];
+
+        // Printable ASCII
+        if (keysym >= 0x20 && keysym <= 0x7e) {
+            return String.fromCharCode(keysym);
+        }
+
+        // Function keys
+        if (keysym >= 0xffbe && keysym <= 0xffc9) {
+            return 'F' + (keysym - 0xffbe + 1);
+        }
+
+        return '';
+    },
+
+    // Show floating recording button
+    showFloatingRecordButton() {
+        // Remove existing button if any
+        UI.hideFloatingRecordButton();
+
+        const btn = document.createElement('div');
+        btn.id = 'noVNC_floating_record_btn';
+        btn.innerHTML = '⏹ Stop Recording';
+        btn.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(220, 53, 69, 0.85);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            user-select: none;
+            z-index: 99999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            backdrop-filter: blur(4px);
+            transition: background 0.2s, transform 0.1s;
+        `;
+
+        // Hover effect
+        btn.addEventListener('mouseenter', () => {
+            btn.style.background = 'rgba(200, 35, 51, 0.95)';
+        });
+        btn.addEventListener('mouseleave', () => {
+            btn.style.background = 'rgba(220, 53, 69, 0.85)';
+        });
+
+        // Drag functionality
+        let isDragging = false;
+        let dragStartX, dragStartY, btnStartX, btnStartY;
+
+        btn.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            btnStartX = btn.offsetLeft;
+            btnStartY = btn.offsetTop;
+            btn.style.cursor = 'grabbing';
+            btn.style.transform = 'scale(0.98)';
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const dx = e.clientX - dragStartX;
+            const dy = e.clientY - dragStartY;
+            btn.style.right = 'auto';
+            btn.style.left = (btnStartX + dx) + 'px';
+            btn.style.top = (btnStartY + dy) + 'px';
+        });
+
+        document.addEventListener('mouseup', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            btn.style.cursor = 'move';
+            btn.style.transform = 'scale(1)';
+
+            // If barely moved, treat as click
+            const dx = Math.abs(e.clientX - dragStartX);
+            const dy = Math.abs(e.clientY - dragStartY);
+            if (dx < 5 && dy < 5) {
+                UI.stopRecording();
+            }
+        });
+
+        document.body.appendChild(btn);
+    },
+
+    // Hide floating recording button
+    hideFloatingRecordButton() {
+        const btn = document.getElementById('noVNC_floating_record_btn');
+        if (btn) {
+            btn.remove();
+        }
+    },
+
+    // Clean up input event capture
+    cleanupInputEventCapture() {
+        if (UI.recordingEventHandlers) {
+            const { mouseHandler, wheelHandler, canvas, originalSendKey } = UI.recordingEventHandlers;
+            if (canvas) {
+                canvas.removeEventListener('mousedown', mouseHandler);
+                canvas.removeEventListener('mouseup', mouseHandler);
+                canvas.removeEventListener('wheel', wheelHandler);
+            }
+            // Restore original sendKey
+            if (originalSendKey && UI.rfb) {
+                UI.rfb.sendKey = originalSendKey;
+            }
+            UI.recordingEventHandlers = null;
+        }
+
+        // Flush any remaining key buffer
+        if (UI.recordingKeyBuffer && UI.recordingKeyBuffer.length > 0) {
+            UI.flushKeyBuffer();
+        }
+    },
+
+    async encodeAndUploadRecording(format, uploadUrl) {
+        Log.Info("encodeAndUploadRecording: format=" + format + ", url=" + uploadUrl);
+
+        // Check for mixed content (ws:// from https://)
+        if (window.location.protocol === 'https:' && uploadUrl && uploadUrl.startsWith('ws://')) {
+            // Localhost is usually allowed even from https
+            if (!uploadUrl.includes('localhost') && !uploadUrl.includes('127.0.0.1')) {
+                Log.Warn("Warning: Attempting to connect to ws:// from https:// page. This may be blocked by the browser.");
+            }
+        }
+
+        let uploadData;
+
+        try {
+            if (format === 'mp4') {
+                // For MP4 format: encode video from OPFS recording + JSON events
+                UI.cleanupInputEventCapture();
+
+                UI.showStatus(_("Reading recording from storage..."), 'normal');
+                Log.Info("Reading recording from OPFS...");
+
+                // Read the bin recording from OPFS
+                const root = await navigator.storage.getDirectory();
+                const fileHandle = await root.getFileHandle('vnc-recording.bin');
+                const file = await fileHandle.getFile();
+
+                UI.showStatus(_("Parsing recording frames..."), 'normal');
+                Log.Info("Parsing recording frames...");
+
+                // Parse frames from binary recording
+                const { frames, serverFrameIndices } = await parseRecordingFrames(file, (status) => {
+                    UI.showStatus(_(status), 'normal');
+                });
+
+                Log.Info(`Parsed ${frames.length} frames (${serverFrameIndices.length} server frames)`);
+
+                if (serverFrameIndices.length === 0) {
+                    throw new Error('No server frames found in recording');
+                }
+
+                UI.showStatus(_("Creating playback container..."), 'normal');
+
+                // Create a hidden container for RFB playback
+                const playbackContainer = document.createElement('div');
+                playbackContainer.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:1920px;height:1080px;overflow:hidden;';
+                document.body.appendChild(playbackContainer);
+
+                UI.showStatus(_("Playing back recording to capture frames..."), 'normal');
+                Log.Info("Playing back recording to capture frames...");
+
+                // Play through recording and capture frames
+                const player = new RecordingPlayer(frames, serverFrameIndices, playbackContainer);
+                player.onprogress = (current, total) => {
+                    UI.showStatus(_("Capturing frame ") + current + "/" + total + "...", 'normal');
+                };
+
+                const captures = await player.run();
+
+                // Clean up playback container
+                document.body.removeChild(playbackContainer);
+
+                Log.Info(`Captured ${captures.length} frames`);
+
+                UI.showStatus(_("Encoding video (this may take a moment)..."), 'normal');
+                Log.Info("Encoding video...");
+
+                // Encode captures to MP4
+                const { mp4Buffer, startTimestampOffset, width, height, duration } = await encodeCapturesToMp4(captures, (status) => {
+                    UI.showStatus(_(status), 'normal');
+                });
+
+                Log.Info(`Video encoded: ${mp4Buffer.byteLength} bytes, ${width}x${height}, ${duration}ms`);
+
+                // Adjust event timestamps relative to video start
+                const adjustedEvents = (UI.recordingEvents || []).map(event => ({
+                    ...event,
+                    timestamp: event.timestamp - startTimestampOffset
+                })).filter(event => event.timestamp >= 0);
+
+                Log.Info(`Events: ${adjustedEvents.length} (adjusted from ${(UI.recordingEvents || []).length})`);
+
+                // Create JSON with events and metadata
+                const eventsJson = JSON.stringify({
+                    events: adjustedEvents,
+                    metadata: {
+                        width,
+                        height,
+                        duration,
+                        startTime: UI.recordingStartTime
+                    }
+                });
+
+                Log.Info("Events JSON length: " + eventsJson.length);
+
+                const jsonBytes = new TextEncoder().encode(eventsJson);
+
+                // Format: [4 bytes JSON length][JSON data][MP4 data]
+                const header = new Uint8Array(4);
+                header[0] = (jsonBytes.length >> 24) & 0xff;
+                header[1] = (jsonBytes.length >> 16) & 0xff;
+                header[2] = (jsonBytes.length >> 8) & 0xff;
+                header[3] = jsonBytes.length & 0xff;
+
+                // Combine header + JSON + MP4
+                const mp4Bytes = new Uint8Array(mp4Buffer);
+                const combined = new Uint8Array(4 + jsonBytes.length + mp4Bytes.length);
+                combined.set(header, 0);
+                combined.set(jsonBytes, 4);
+                combined.set(mp4Bytes, 4 + jsonBytes.length);
+
+                Log.Info(`Upload data: ${combined.length} bytes (header: 4, JSON: ${jsonBytes.length}, MP4: ${mp4Bytes.length})`);
+
+                uploadData = combined.buffer;
+
+                UI.showStatus(_("Uploading recording..."), 'normal');
+            } else {
+                // For bin and js formats, read from OPFS
+                const root = await navigator.storage.getDirectory();
+                const fileHandle = await root.getFileHandle('vnc-recording.bin');
+                const file = await fileHandle.getFile();
+
+                if (format === 'bin') {
+                    uploadData = await file.arrayBuffer();
+                } else if (format === 'js') {
+                    uploadData = await UI.convertRecordingToJS(file);
+                } else {
+                    throw new Error("Unknown format: " + format);
+                }
+            }
+        } catch (e) {
+            Log.Error("Error preparing upload data: " + e);
+            throw e;
+        }
+
+        // Upload via WebSocket
+        const uploadSizeMB = (uploadData.byteLength / (1024 * 1024)).toFixed(2);
+        Log.Info("Uploading " + format + " recording (" + uploadData.byteLength + " bytes / " + uploadSizeMB + " MB) to " + uploadUrl);
+        UI.showStatus(_("Connecting to upload server..."), 'normal');
+
+        let ws;
+        try {
+            ws = new WebSocket(uploadUrl);
+            ws.binaryType = 'arraybuffer';
+        } catch (e) {
+            Log.Error("Failed to create WebSocket to " + uploadUrl + ": " + e);
+            throw e;
+        }
+
+        await new Promise((resolve, reject) => {
+            let resolved = false;
+            ws.onopen = () => {
+                Log.Info("Upload WebSocket connected, sending " + uploadData.byteLength + " bytes");
+                UI.showStatus(_("Sending ") + uploadSizeMB + _(" MB to server..."), 'normal');
+                try {
+                    ws.send(uploadData);
+                    Log.Info("Data sent successfully, waiting before close...");
+                    UI.showStatus(_("Data sent, finalizing upload..."), 'normal');
+                    // Wait a bit before closing to ensure server receives the data
+                    setTimeout(() => {
+                        Log.Info("Closing upload WebSocket");
+                        ws.close();
+                    }, 500);
+                } catch (e) {
+                    Log.Error("Send error: " + e);
+                    if (!resolved) { resolved = true; reject(e); }
+                }
+            };
+            ws.onerror = () => {
+                Log.Error("Upload WebSocket error");
+                UI.showStatus(_("Upload connection error"), 'error');
+                if (!resolved) { resolved = true; reject(new Error("Upload failed")); }
+            };
+            ws.onclose = () => {
+                Log.Info("Upload WebSocket closed");
+                if (!resolved) { resolved = true; resolve(); }
+            };
+            setTimeout(() => {
+                if (!resolved) {
+                    resolved = true;
+                    UI.showStatus(_("Upload timeout"), 'error');
+                    reject(new Error("Upload timeout"));
+                }
+            }, 120000);  // 2 minute timeout for large files
+        });
+
+        UI.showStatus(_("Recording uploaded successfully (") + uploadSizeMB + _(" MB)"), 'normal');
+    },
+
+    async convertRecordingToJS(file) {
+        const reader = file.stream().getReader();
+        const textEncoder = new TextEncoder();
+        const chunks = [];
+
+        // Write header
+        chunks.push(textEncoder.encode('/* noVNC recording - generated by noVNC client-side recorder */\n'));
+        chunks.push(textEncoder.encode('/* eslint-disable */\n'));
+        chunks.push(textEncoder.encode('var VNC_frame_data = [\n'));
+
+        let buffer = new Uint8Array(0);
+
+        while (true) {
+            // Try to parse frames from buffer
+            while (buffer.length >= 9) {
+                const fromClient = buffer[0] === 1;
+                const timestamp = (buffer[1] << 24) | (buffer[2] << 16) | (buffer[3] << 8) | buffer[4];
+                const dataLen = (buffer[5] << 24) | (buffer[6] << 16) | (buffer[7] << 8) | buffer[8];
+
+                if (buffer.length < 9 + dataLen) break;
+
+                const data = buffer.slice(9, 9 + dataLen);
+                buffer = buffer.slice(9 + dataLen);
+
+                // Convert to JS format
+                const prefix = fromClient ? '}' : '{';
+                let binary = '';
+                for (let j = 0; j < data.length; j++) {
+                    binary += String.fromCharCode(data[j]);
+                }
+                const base64Data = btoa(binary);
+                const frameStr = prefix + timestamp + '{' + base64Data;
+                const escaped = JSON.stringify(frameStr);
+                chunks.push(textEncoder.encode(escaped + ',\n'));
+            }
+
+            // Read more data
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const newBuffer = new Uint8Array(buffer.length + value.length);
+            newBuffer.set(buffer);
+            newBuffer.set(value, buffer.length);
+            buffer = newBuffer;
+        }
+
+        // Write footer
+        chunks.push(textEncoder.encode('"EOF"\n];\n'));
+
+        // Combine chunks
+        const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+        const result = new Uint8Array(totalLength);
+        let offset = 0;
+        for (const chunk of chunks) {
+            result.set(chunk, offset);
+            offset += chunk.length;
+        }
+
+        return result.buffer;
+    },
+
+    async encodeRecordingToMP4(file) {
+        // Dynamically import mediabunny
+        const { Output, Mp4OutputFormat, BufferTarget, VideoSampleSource, VideoSample, QUALITY_HIGH } =
+            await import('https://cdn.jsdelivr.net/npm/mediabunny@1.29.1/+esm');
+
+        UI.showStatus(_("Decoding frames for MP4 encoding..."), 'normal');
+
+        // First pass: collect all server frames and find screen dimensions
+        const reader = file.stream().getReader();
+        let buffer = new Uint8Array(0);
+        const serverFrames = [];  // { timestamp, data }
+
+        while (true) {
+            while (buffer.length >= 9) {
+                const fromClient = buffer[0] === 1;
+                const timestamp = (buffer[1] << 24) | (buffer[2] << 16) | (buffer[3] << 8) | buffer[4];
+                const dataLen = (buffer[5] << 24) | (buffer[6] << 16) | (buffer[7] << 8) | buffer[8];
+
+                if (buffer.length < 9 + dataLen) break;
+
+                const data = buffer.slice(9, 9 + dataLen);
+                buffer = buffer.slice(9 + dataLen);
+
+                if (!fromClient) {
+                    serverFrames.push({ timestamp, data: new Uint8Array(data) });
+                }
+            }
+
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const newBuffer = new Uint8Array(buffer.length + value.length);
+            newBuffer.set(buffer);
+            newBuffer.set(value, buffer.length);
+            buffer = newBuffer;
+        }
+
+        if (serverFrames.length === 0) {
+            throw new Error("No server frames to encode");
+        }
+
+        // Use RFB to decode frames - we need to replay them through the decoder
+        // For now, we'll use a simplified approach that requires the RFB instance
+        // This is a placeholder - full implementation would need RFB replay capability
+
+        // Get dimensions from UI.rfb if available, otherwise use defaults
+        let width = 1024;
+        let height = 768;
+        if (UI.rfb && UI.rfb._fbWidth && UI.rfb._fbHeight) {
+            width = UI.rfb._fbWidth;
+            height = UI.rfb._fbHeight;
+        }
+
+        UI.showStatus(_("Encoding MP4 (") + serverFrames.length + _(" frames)..."), 'normal');
+
+        // Create MP4 output
+        const output = new Output(new Mp4OutputFormat(), new BufferTarget());
+        const videoSource = new VideoSampleSource({
+            width,
+            height,
+            frameRate: 24,
+            quality: QUALITY_HIGH
+        });
+        output.addSource(videoSource);
+        await output.start();
+
+        // For each frame, we need the decoded image
+        // Since we can't easily replay through RFB here, we'll need to skip MP4 encoding
+        // or implement a full RFB decoder replay
+        // For now, throw an informative error
+        throw new Error("MP4 encoding requires RFB replay capability - use 'bin' or 'js' format for upload, or use debug_demo.html for MP4 encoding");
     },
 
     async downloadRecording() {
@@ -1412,10 +2418,17 @@ const UI = {
         if (UI.recordingPending) {
             try {
                 const recordUrl = UI.getSetting('record_url');
+                const recordFormat = UI.getSetting('record_format') || 'bin';
+                const recordStreaming = UI.getSetting('record_streaming');
 
-                if (recordUrl) {
+                // Only bin format supports streaming
+                const shouldStream = recordStreaming && recordFormat === 'bin' && recordUrl;
+
+                Log.Info("Recording setup: format=" + recordFormat + ", streaming=" + recordStreaming + ", url=" + recordUrl + ", shouldStream=" + shouldStream);
+
+                if (shouldStream) {
                     // Stream recording to external WebSocket server
-                    Log.Info("Setting up recording to external server: " + recordUrl);
+                    Log.Info("Setting up streaming recording to external server: " + recordUrl);
                     UI.recordingWebSocket = new WebSocket(recordUrl);
                     UI.recordingWebSocket.binaryType = 'arraybuffer';
 
@@ -1431,7 +2444,8 @@ const UI = {
                         setTimeout(() => reject(new Error("Recording server connection timeout")), 5000);
                     });
                 } else {
-                    // Set up OPFS file for local recording
+                    // Set up OPFS file for local recording (will encode/upload at end)
+                    Log.Info("Setting up local recording (format: " + recordFormat + ", will upload at end)");
                     const root = await navigator.storage.getDirectory();
                     UI.recordingFileHandle = await root.getFileHandle('vnc-recording.bin', { create: true });
                     UI.recordingWritable = await UI.recordingFileHandle.createWritable();
@@ -1443,6 +2457,9 @@ const UI = {
                 UI.recordingStartTime = Date.now();
                 UI.recordingFrameCount = 0;
                 UI.recordingBytesWritten = 0;
+                UI.recordingEvents = [];  // Initialize events array for mp4 format
+
+                Log.Info("Recording started: format=" + recordFormat + ", streaming=" + shouldStream);
 
                 // Helper to write a frame (binary format)
                 // Format: fromClient(1) + timestamp(4) + dataLen(4) + data(dataLen)
@@ -1567,6 +2584,9 @@ const UI = {
             }, 1000);
 
             UI.showStatus(_("Recording started (OPFS)"), 'normal');
+
+            // Show floating stop button
+            UI.showFloatingRecordButton();
         }
 
         UI.rfb.addEventListener("connect", UI.connectFinished);
@@ -1579,6 +2599,14 @@ const UI = {
         UI.rfb.addEventListener("clipboard", UI.clipboardReceive);
         UI.rfb.addEventListener("bell", UI.bell);
         UI.rfb.addEventListener("desktopname", UI.updateDesktopName);
+
+        // Set up input event capture for MP4 recording format
+        const recordFormat = UI.getSetting('record_format');
+        Log.Info("Post-RFB setup: recording=" + UI.recording + ", format=" + recordFormat);
+        if (UI.recording && recordFormat === 'mp4') {
+            Log.Info("Setting up input event capture for MP4 format");
+            UI.setupInputEventCapture();
+        }
         UI.rfb.clipViewport = UI.getSetting('view_clip');
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
