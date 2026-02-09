@@ -16,6 +16,7 @@ export default class Display {
 
         this._renderQ = [];  // queue drawing actions for in-order rendering
         this._flushPromise = null;
+        this._pendingFrames = [];  // video frames awaiting decoder output
 
         // the full frame buffer (logical canvas) size
         this._fbWidth = 0;
@@ -479,6 +480,22 @@ export default class Display {
         }
     }
 
+    _drawVideoFrame(pendingFrame, rect) {
+        let frame = pendingFrame.frame;
+        if (!frame) {
+            return;
+        }
+        if (frame.codedWidth < rect.width || frame.codedHeight < rect.height) {
+            Log.Warn("Decoded video frame does not cover its full rectangle area. Expecting at least " +
+                      rect.width + "x" + rect.height + " but got " +
+                      frame.codedWidth + "x" + frame.codedHeight);
+        }
+        this.drawImage(frame,
+            0, 0, rect.width, rect.height,
+            rect.x, rect.y, rect.width, rect.height);
+        frame.close();
+    }
+
     _renderQPush(action) {
         this._renderQ.push(action);
         if (this._renderQ.length === 1) {
@@ -501,7 +518,21 @@ export default class Display {
             const a = this._renderQ[0];
             switch (a.type) {
                 case 'flip':
-                    this.flip(true);
+                    if (this._pendingFrames.length > 0) {
+                        // Wait for all pending video frames to be
+                        // decoded before flipping, so they are
+                        // visible on screen.
+                        let display = this;
+                        let frames = this._pendingFrames;
+                        this._pendingFrames = [];
+                        Promise.all(frames.map(f => f.promise)).then(() => {
+                            display.flip(true);
+                            display._scanRenderQ();
+                        });
+                        ready = false;
+                    } else {
+                        this.flip(true);
+                    }
                     break;
                 case 'copy':
                     this.copyImage(a.oldX, a.oldY, a.x, a.y, a.width, a.height, true);
@@ -533,32 +564,20 @@ export default class Display {
                     }
                     break;
                 case 'frame':
-                    if (a.frame.ready) {
-                        // The encoded frame may be larger than the rect due to
-                        // limitations of the encoder, so we need to crop the
-                        // frame.
-                        let frame = a.frame.frame;
-                        if (frame.codedWidth < a.width || frame.codedHeight < a.height) {
-                            Log.Warn("Decoded video frame does not cover its full rectangle area. Expecting at least " +
-                                      a.width + "x" + a.height + " but got " +
-                                      frame.codedWidth + "x" + frame.codedHeight);
-                        }
-                        const sx = 0;
-                        const sy = 0;
-                        const sw = a.width;
-                        const sh = a.height;
-                        const dx = a.x;
-                        const dy = a.y;
-                        const dw = sw;
-                        const dh = sh;
-                        this.drawImage(frame, sx, sy, sw, sh, dx, dy, dw, dh);
-                        frame.close();
-                    } else {
+                    if (!a.frame.ready) {
+                        // Don't block the queue — the video decoder
+                        // pipeline needs continued input to produce
+                        // output. Register a callback to draw later,
+                        // and let the queue keep feeding the decoder.
                         let display = this;
-                        a.frame.promise.then(() => {
-                            display._scanRenderQ();
+                        let pendingFrame = a.frame;
+                        let rect = { x: a.x, y: a.y, width: a.width, height: a.height };
+                        pendingFrame.promise.then(() => {
+                            display._drawVideoFrame(pendingFrame, rect);
                         });
-                        ready = false;
+                        this._pendingFrames.push(pendingFrame);
+                    } else {
+                        this._drawVideoFrame(a.frame, a);
                     }
                     break;
             }
