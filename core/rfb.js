@@ -314,7 +314,7 @@ export default class RFB extends EventTargetMixin {
 
     get viewOnly() { return this._viewOnly; }
     set viewOnly(viewOnly) {
-        this._viewOnly = viewOnly;
+        this._viewOnly = this._cursor.viewOnly = viewOnly;
 
         if (this._rfbConnectionState === "connecting" ||
             this._rfbConnectionState === "connected") {
@@ -2261,6 +2261,7 @@ export default class RFB extends EventTargetMixin {
 
         encs.push(encodings.pseudoEncodingDesktopSize);
         encs.push(encodings.pseudoEncodingLastRect);
+        encs.push(encodings.pseudoEncodingPointerPos);
         encs.push(encodings.pseudoEncodingQEMUExtendedKeyEvent);
         encs.push(encodings.pseudoEncodingQEMULedEvent);
         encs.push(encodings.pseudoEncodingExtendedDesktopSize);
@@ -2711,6 +2712,9 @@ export default class RFB extends EventTargetMixin {
             case encodings.pseudoEncodingQEMULedEvent:
                 return this._handleLedEvent();
 
+            case encodings.pseudoEncodingPointerPos:
+                return this._handlePointerPos();
+
             default:
                 return this._handleDataRect();
         }
@@ -2899,6 +2903,15 @@ export default class RFB extends EventTargetMixin {
         let capsLock = data & 4 ? true : false;
         this._remoteCapsLock = capsLock;
         this._remoteNumLock = numLock;
+
+        return true;
+    }
+
+    _handlePointerPos() {
+        const x = this._FBU.x;
+        const y = this._FBU.y;
+
+        this._cursor.moveRemote(x, y, this._display.scale);
 
         return true;
     }
