@@ -39,6 +39,7 @@
     "chai": "latest",
     "commander": "latest",
     "eslint": "latest",
+    "@eslint/js": "latest",
     "fs-extra": "latest",
     "globals": "latest",
     "jsdom": "latest",
