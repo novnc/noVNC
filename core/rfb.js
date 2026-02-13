@@ -2949,7 +2949,7 @@ export default class RFB extends EventTargetMixin {
 
         // We need to handle errors when we requested the resize.
         if (this._FBU.x === 1 && this._FBU.y !== 0) {
-            let msg = "";
+            let msg;
             // The y-position indicates the status code from the server
             switch (this._FBU.y) {
                 case 1:

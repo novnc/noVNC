@@ -181,11 +181,11 @@ class DES {
     // Encrypt 8 bytes of text
     enc8(text) {
         const b = text.slice();
-        let i = 0, l, r, x; // left, right, accumulator
+        let l, r, x; // left, right, accumulator
 
         // Squash 8 bytes to 2 ints
-        l = b[i++]<<24 | b[i++]<<16 | b[i++]<<8 | b[i++];
-        r = b[i++]<<24 | b[i++]<<16 | b[i++]<<8 | b[i++];
+        l = b[0]<<24 | b[1]<<16 | b[2]<<8 | b[3];
+        r = b[4]<<24 | b[5]<<16 | b[6]<<8 | b[7];
 
         x = ((l >>> 4) ^ r) & 0x0f0f0f0f;
         r ^= x;
@@ -252,7 +252,7 @@ class DES {
 
         // Spread ints to bytes
         x = [r, l];
-        for (i = 0; i < 8; i++) {
+        for (let i = 0; i < 8; i++) {
             b[i] = (x[i>>>2] >>> (8 * (3 - (i % 4)))) % 256;
             if (b[i] < 0) { b[i] += 256; } // unsigned
         }

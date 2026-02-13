@@ -138,10 +138,8 @@ const UI = {
 
         let autoconnect = UI.getSetting('autoconnect');
         if (autoconnect === 'true' || autoconnect == '1') {
-            autoconnect = true;
             UI.connect();
         } else {
-            autoconnect = false;
             // Show the connect panel on first load unless autoconnecting
             UI.openConnectPanel();
         }
@@ -1213,7 +1211,7 @@ const UI = {
     },
 
     securityFailed(e) {
-        let msg = "";
+        let msg;
         // On security failures we might get a string with a reason
         // directly from the server. Note that we can't control if
         // this string is translated or not.
