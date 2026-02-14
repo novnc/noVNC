@@ -131,12 +131,15 @@ export default class RFB extends EventTargetMixin {
         // Server capabilities
         this._rfbVersion = 0;
         this._rfbMaxVersion = 3.8;
+        this._rfbServerVersion = null;
         this._rfbTightVNC = false;
         this._rfbVeNCryptState = 0;
         this._rfbXvpVer = 0;
 
         this._fbWidth = 0;
         this._fbHeight = 0;
+        this._fbPixelFormat = null;
+        this._forceRawEncoding = false; // Modifications: 003.005 compat path
 
         this._fbName = "";
 
@@ -1506,6 +1509,7 @@ export default class RFB extends EventTargetMixin {
         }
 
         const sversion = this._sock.rQshiftStr(12).substr(4, 7);
+        this._rfbServerVersion = sversion;
         Log.Info("Server ProtocolVersion: " + sversion);
         let isRepeater = 0;
         switch (sversion) {
@@ -1515,6 +1519,11 @@ export default class RFB extends EventTargetMixin {
             case "003.003":
             case "003.006":  // UltraVNC
                 this._rfbVersion = 3.3;
+                break;
+            case "003.005":  // non-standard (seen in impact.pcapng)
+                Log.Warn("Non-standard server version " + sversion + ", treating as RFB 3.3");
+                this._rfbVersion = 3.3;
+                this._forceRawEncoding = true; // Modifications: force raw/16bpp
                 break;
             case "003.007":
                 this._rfbVersion = 3.7;
@@ -2164,6 +2173,18 @@ export default class RFB extends EventTargetMixin {
         const greenShift = this._sock.rQshift8();
         const blueShift  = this._sock.rQshift8();
         this._sock.rQskipBytes(3);  // padding
+        this._fbPixelFormat = { // Modifications: store server pixel format
+            bpp: bpp,
+            depth: depth,
+            bigEndian: bigEndian,
+            trueColor: trueColor,
+            redMax: redMax,
+            greenMax: greenMax,
+            blueMax: blueMax,
+            redShift: redShift,
+            greenShift: greenShift,
+            blueShift: blueShift,
+        };
 
         // NB(directxman12): we don't want to call any callbacks or print messages until
         //                   *after* we're past the point where we could backtrack
@@ -2226,6 +2247,11 @@ export default class RFB extends EventTargetMixin {
             Log.Warn("Intel AMT KVM only supports 8/16 bit depths. Using low color mode.");
             this._fbDepth = 8;
         }
+        if (this._forceRawEncoding && this._fbPixelFormat &&
+            this._fbPixelFormat.depth === 16 && this._fbPixelFormat.trueColor) {
+            Log.Warn("Forcing 16bpp pixel format due to non-standard RFB version");
+            this._fbDepth = 16;
+        }
 
         RFB.messages.pixelFormat(this._sock, this._fbDepth, true);
         this._sendEncodings();
@@ -2240,6 +2266,11 @@ export default class RFB extends EventTargetMixin {
 
         // In preference order
         encs.push(encodings.encodingCopyRect);
+        if (this._forceRawEncoding) { // Modifications: raw-only encodings
+            encs.push(encodings.encodingRaw);
+            RFB.messages.clientEncodings(this._sock, encs);
+            return;
+        }
         // Only supported with full depth support
         if (this._fbDepth == 24) {
             if (supportsWebCodecsH264Decode) {
@@ -3000,7 +3031,7 @@ export default class RFB extends EventTargetMixin {
             return decoder.decodeRect(this._FBU.x, this._FBU.y,
                                       this._FBU.width, this._FBU.height,
                                       this._sock, this._display,
-                                      this._fbDepth);
+                                      this._fbDepth, this._fbPixelFormat); // Modifications
         } catch (err) {
             this._fail("Error decoding rect: " + err);
             return false;
