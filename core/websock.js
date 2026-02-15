@@ -68,6 +68,34 @@ export default class Websock {
             close: () => {},
             error: () => {}
         };
+
+        // Bandwidth tracking
+        this._bytesReceived = 0;
+        this._bytesSent = 0;
+        this._bandwidthStartTime = performance.now();
+    }
+
+    // Bandwidth statistics
+    getBandwidthStats() {
+        const now = performance.now();
+        const elapsed = (now - this._bandwidthStartTime) / 1000; // seconds
+        if (elapsed < 0.1) return { down: 0, up: 0, totalDown: 0, totalUp: 0 };
+
+        const downKbps = (this._bytesReceived * 8 / 1000) / elapsed;
+        const upKbps = (this._bytesSent * 8 / 1000) / elapsed;
+
+        return {
+            down: downKbps,
+            up: upKbps,
+            totalDown: this._bytesReceived,
+            totalUp: this._bytesSent
+        };
+    }
+
+    resetBandwidthStats() {
+        this._bytesReceived = 0;
+        this._bytesSent = 0;
+        this._bandwidthStartTime = performance.now();
     }
 
     // Getters and setters
@@ -220,6 +248,7 @@ export default class Websock {
 
     flush() {
         if (this._sQlen > 0 && this.readyState === 'open') {
+            this._bytesSent += this._sQlen;
             this._websocket.send(new Uint8Array(this._sQ.buffer, 0, this._sQlen));
             this._sQlen = 0;
         }
@@ -354,6 +383,7 @@ export default class Websock {
             this._rQi = 0;
         }
         const u8 = new Uint8Array(e.data);
+        this._bytesReceived += u8.length;
         if (u8.length > this._rQbufferSize - this._rQlen) {
             this._expandCompactRQ(u8.length);
         }
