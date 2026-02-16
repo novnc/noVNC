@@ -1791,11 +1791,11 @@ const UI = {
     updateClipboard() {
         browserAsyncClipboardSupport()
             .then((support) => {
-                if (support === 'unsupported') {
+                if (support === 'unsupported' || support === 'denied') {
                     // Use fallback clipboard panel
                     return;
                 }
-                if (support === 'denied' || support === 'available') {
+                if (support === 'available') {
                     UI.closeClipboardPanel();
                     document.getElementById('noVNC_clipboard_button')
                         .classList.add('noVNC_hidden');
