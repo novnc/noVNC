@@ -180,6 +180,7 @@ const UI = {
         UI.initSetting('autoconnect', false);
         UI.initSetting('view_clip', false);
         UI.initSetting('resize', 'off');
+        UI.initSetting('crop_rect');
         UI.initSetting('quality', 6);
         UI.initSetting('compression', 2);
         UI.initSetting('shared', true);
@@ -362,6 +363,8 @@ const UI = {
         UI.addSettingChangeHandler('resize');
         UI.addSettingChangeHandler('resize', UI.applyResizeMode);
         UI.addSettingChangeHandler('resize', UI.updateViewClip);
+        UI.addSettingChangeHandler('crop_rect');
+        UI.addSettingChangeHandler('crop_rect', UI.updateCropRect);
         UI.addSettingChangeHandler('quality');
         UI.addSettingChangeHandler('quality', UI.updateQuality);
         UI.addSettingChangeHandler('compression');
@@ -466,6 +469,17 @@ const UI = {
             .classList.remove('noVNC_open');
         document.getElementById('noVNC_credentials_dlg')
             .classList.remove('noVNC_open');
+    },
+
+    showConnectedStatus(e) {
+        let msg;
+        if (UI.getSetting('encrypt')) {
+            msg = _("Connected (encrypted) to ") + UI.desktopName;
+        } else {
+            msg = _("Connected (unencrypted) to ") + UI.desktopName;
+        }
+        msg += ' [' + UI.rfb.cropRect + ']';
+        UI.showStatus(msg);
     },
 
     showStatus(text, statusType, time) {
@@ -1103,9 +1117,11 @@ const UI = {
         UI.rfb.addEventListener("clipboard", UI.clipboardReceive);
         UI.rfb.addEventListener("bell", UI.bell);
         UI.rfb.addEventListener("desktopname", UI.updateDesktopName);
+        UI.rfb.addEventListener("croprectchanged", UI.showConnectedStatus);
         UI.rfb.clipViewport = UI.getSetting('view_clip');
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
+        UI.rfb.cropRect = UI.getSetting('crop_rect');
         UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
         UI.rfb.compressionLevel = parseInt(UI.getSetting('compression'));
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
@@ -1153,14 +1169,7 @@ const UI = {
     connectFinished(e) {
         UI.connected = true;
         UI.inhibitReconnect = false;
-
-        let msg;
-        if (UI.getSetting('encrypt')) {
-            msg = _("Connected (encrypted) to ") + UI.desktopName;
-        } else {
-            msg = _("Connected (unencrypted) to ") + UI.desktopName;
-        }
-        UI.showStatus(msg);
+        UI.showConnectedStatus();
         UI.updateVisualState('connected');
 
         UI.updateBeforeUnload();
@@ -1468,6 +1477,12 @@ const UI = {
         }
 
         viewDragButton.disabled = !UI.rfb.clippingViewport;
+    },
+
+    updateCropRect() {
+        if (!UI.connected) return;
+
+        UI.rfb.cropRect = UI.getSetting('crop_rect');
     },
 
 /* ------^-------
