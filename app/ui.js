@@ -46,6 +46,7 @@ const UI = {
     inhibitReconnect: true,
     reconnectCallback: null,
     reconnectPassword: null,
+    firstReconnectTime: 0,
 
     wakeLockManager: new WakeLockManager(),
 
@@ -965,6 +966,9 @@ const UI = {
             UI.closePowerPanel();
         }
     },
+    resetFirstReconnection(){
+        UI.firstReconnectTime = 0;
+    },
 
 /* ------^-------
  *    /POWER
@@ -1129,6 +1133,22 @@ const UI = {
 
     reconnect() {
         UI.reconnectCallback = null;
+        const maxTime = UI.getSetting('reconnect_max_time') ?? 600000; // 20s - 20 * 1000 ms
+
+        // Initialize first reconnect time if it's the first attempt
+        if (UI.firstReconnectTime === null) {
+            UI.firstReconnectTime = Date.now();
+        }
+        const elapsedTime = Date.now() - UI.firstReconnectTime;
+
+                // Check if we've exceeded the max reconnect time
+        if ((Date.now() - UI.firstReconnectTime) >= maxTime) {
+            // hiding the previous status message
+            UI.hideStatus();
+            UI.showStatus(_("Maximum reconnect attempts reached. Failed to connect to the server."), 'error', 1000*60*240); // Show for 4 hours
+            UI.updateVisualState('disconnected');
+            return;
+        }
 
         // if reconnect has been disabled in the meantime, do nothing.
         if (UI.inhibitReconnect) {
@@ -1162,6 +1182,8 @@ const UI = {
         }
         UI.showStatus(msg);
         UI.updateVisualState('connected');
+        // Here we can reset the retry count
+        UI.resetFirstReconnection();
 
         UI.updateBeforeUnload();
 
