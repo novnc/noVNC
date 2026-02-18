@@ -697,16 +697,15 @@ html {
 }
 
 /* noVNC Touch Device only buttons */
-:root:not(.noVNC_connected) #noVNC_mobile_buttons {
+:root:not(.noVNC_connected) #noVNC_keyboard_button {
     display: none;
 }
 @media not all and (any-pointer: coarse) {
-    /* FIXME: The button for the virtual keyboard is the only button in this
-              group of "mobile buttons". It is bad to assume that no touch
-              devices have physical keyboards available. Hopefully we can get
-              a media query for this:
+    /* FIXME: It is bad to assume that no touch devices have physical
+              keyboards available. Hopefully we can get a media query
+              for this:
               https://github.com/w3c/csswg-drafts/issues/3871 */
-    :root.noVNC_connected #noVNC_mobile_buttons {
+    :root.noVNC_connected #noVNC_keyboard_button {
         display: none;
     }
 }
