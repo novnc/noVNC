@@ -613,6 +613,14 @@ html {
     background-color: var(--novnc-darkgrey);
     border: none;
     padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px 0;
+}
+#noVNC_modifiers > * {
+    margin: 0;
 }
 
 /* Shutdown/Reboot */
