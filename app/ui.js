@@ -605,7 +605,9 @@ const UI = {
 
     showControlbarHint(show, animate=true) {
         const anchor = document.getElementById('noVNC_control_bar_anchor');
-        const positionClasses = new Set(["noVNC_left", "noVNC_right"]);
+        const positionClasses = new Set(
+            ["noVNC_left", "noVNC_right", "noVNC_top", "noVNC_bottom"]
+        );
         const anchorPosClass = [...anchor.classList].find(
             cls => positionClasses.has(cls)
         );

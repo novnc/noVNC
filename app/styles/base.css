@@ -132,6 +132,21 @@ html {
 .noVNC_vcenter > * {
     pointer-events: auto;
 }
+.noVNC_hcenter {
+    display: flex !important;
+    flex-direction: row;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+    pointer-events: none;
+}
+.noVNC_hcenter > * {
+    pointer-events: auto;
+}
 
 /* ----------------------------------------
  * Layering
@@ -392,12 +407,17 @@ html {
     left: auto;
     right: -50px;
 }
+.noVNC_hint_anchor.noVNC_top {
+    top: -50px;
+    bottom: auto;
+}
+.noVNC_hint_anchor.noVNC_bottom {
+    top: auto;
+    bottom: -50px;
+}
 .noVNC_control_bar_hint {
     position: relative;
     transform: scale(0);
-    width: 100px;
-    height: 50%;
-    max-height: 600px;
 
     visibility: hidden;
     opacity: 0;
@@ -406,6 +426,16 @@ html {
     box-shadow: 0 0 10px black, inset 0 0 10px 10px var(--novnc-darkblue);
     border-radius: 12px;
     transition-delay: 0s;
+}
+:is(.noVNC_left, .noVNC_right) .noVNC_control_bar_hint {
+    width: 100px;
+    height: 50%;
+    max-height: 600px;
+}
+:is(.noVNC_top, .noVNC_bottom) .noVNC_control_bar_hint {
+    width: 50%;
+    height: 100px;
+    max-width: 600px;
 }
 .noVNC_control_bar_hint.noVNC_active {
     visibility: visible;
