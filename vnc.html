@@ -110,14 +110,15 @@
     </div>
 
     <!-- noVNC control bar -->
-    <div id="noVNC_control_bar_anchor" class="noVNC_vcenter">
+    <div id="noVNC_control_bar_anchor" class="noVNC_left noVNC_vcenter">
 
         <div id="noVNC_control_bar">
             <div id="noVNC_control_bar_handle" title="Hide/Show the control bar"><div></div></div>
 
             <div class="noVNC_scroll">
 
-            <h1 class="noVNC_logo" translate="no"><span>no</span><br>VNC</h1>
+            <img class="noVNC_logo" src="app/images/icons/novnc-icon-35x21.svg"
+                 alt="noVNC">
 
             <hr>
 
@@ -127,10 +128,8 @@
                 title="Move/Drag viewport">
 
             <!--noVNC touch device only buttons-->
-            <div id="noVNC_mobile_buttons">
-                <input type="image" alt="Keyboard" src="app/images/keyboard.svg"
-                    id="noVNC_keyboard_button" class="noVNC_button" title="Show keyboard">
-            </div>
+            <input type="image" alt="Keyboard" src="app/images/keyboard.svg"
+                   id="noVNC_keyboard_button" class="noVNC_button" title="Show keyboard">
 
             <!-- Extra manual keys -->
             <input type="image" alt="Extra keys" src="app/images/toggleextrakeys.svg"
@@ -332,8 +331,20 @@
 
     </div> <!-- End of noVNC_control_bar -->
 
-    <div id="noVNC_hint_anchor" class="noVNC_vcenter">
-        <div id="noVNC_control_bar_hint">
+    <div class="noVNC_hint_anchor noVNC_left noVNC_vcenter">
+        <div class="noVNC_control_bar_hint">
+        </div>
+    </div>
+    <div class="noVNC_hint_anchor noVNC_right noVNC_vcenter">
+        <div class="noVNC_control_bar_hint">
+        </div>
+    </div>
+    <div class="noVNC_hint_anchor noVNC_top noVNC_hcenter">
+        <div class="noVNC_control_bar_hint">
+        </div>
+    </div>
+    <div class="noVNC_hint_anchor noVNC_bottom noVNC_hcenter">
+        <div class="noVNC_control_bar_hint">
         </div>
     </div>
 

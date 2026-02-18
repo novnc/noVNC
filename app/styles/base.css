@@ -132,6 +132,21 @@ html {
 .noVNC_vcenter > * {
     pointer-events: auto;
 }
+.noVNC_hcenter {
+    display: flex !important;
+    flex-direction: row;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+    pointer-events: none;
+}
+.noVNC_hcenter > * {
+    pointer-events: auto;
+}
 
 /* ----------------------------------------
  * Layering
@@ -222,111 +237,222 @@ html {
     /* The anchor is needed to get z-stacking to work */
     position: fixed;
     z-index: 10;
-
     transition: 0.5s ease-in-out;
-
-    /* Edge misrenders animations wihthout this */
-    transform: translateX(0);
 }
 :root.noVNC_connected #noVNC_control_bar_anchor.noVNC_idle {
     opacity: 0.8;
+}
+#noVNC_control_bar_anchor:is(.noVNC_left, .noVNC_right) {
+    /* Edge misrenders animations wihthout this */
+    transform: translateX(0);
+}
+#noVNC_control_bar_anchor:is(.noVNC_top, .noVNC_bottom) {
+    /* Edge misrenders animations wihthout this */
+    transform: translateY(0);
+}
+#noVNC_control_bar_anchor.noVNC_left {
+    left: 0;
+    right: auto;
 }
 #noVNC_control_bar_anchor.noVNC_right {
     left: auto;
     right: 0;
 }
+#noVNC_control_bar_anchor.noVNC_top {
+    top: 0;
+    bottom: auto;
+}
+#noVNC_control_bar_anchor.noVNC_bottom {
+    top: auto;
+    bottom: 0;
+}
 
 #noVNC_control_bar {
     position: relative;
-    left: -100%;
-
     transition: 0.5s ease-in-out;
-
     background-color: var(--novnc-blue);
-    border-radius: 0 12px 12px 0;
-
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none; /* Disable iOS image long-press popup */
 }
-#noVNC_control_bar.noVNC_open {
-    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
-    left: 0;
-}
-#noVNC_control_bar::before {
-    /* This extra element is to get a proper shadow */
-    content: "";
-    position: absolute;
-    z-index: -1;
-    height: 100%;
-    width: 30px;
-    left: -30px;
-    transition: box-shadow 0.5s ease-in-out;
-}
-#noVNC_control_bar.noVNC_open::before {
-    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+.noVNC_left #noVNC_control_bar {
+    left: -100%;
+    border-radius: 0 12px 12px 0;
 }
 .noVNC_right #noVNC_control_bar {
     left: 100%;
     border-radius: 12px 0 0 12px;
 }
-.noVNC_right #noVNC_control_bar.noVNC_open {
+.noVNC_top #noVNC_control_bar {
+    /* FIXME: We want to mirror the left and right modes here and use a
+              relative top offset (-100%), but it doesn't resolve
+              correctly against the anchor height reference */
+    top: -55px;
+    border-radius: 0 0 12px 12px;
+}
+.noVNC_bottom #noVNC_control_bar {
+    /* FIXME: We want to mirror the left and right modes here and use a
+              relative top offset (100%), but it doesn't resolve
+              correctly against the anchor height reference */
+    top: 55px;
+    border-radius: 12px 12px 0 0;
+}
+:is(.noVNC_left, .noVNC_right) #noVNC_control_bar.noVNC_open {
     left: 0;
 }
+:is(.noVNC_top, .noVNC_bottom) #noVNC_control_bar.noVNC_open {
+    top: 0;
+}
+#noVNC_control_bar.noVNC_open {
+    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+}
+
+#noVNC_control_bar::before {
+    /* This extra element is to get a proper shadow */
+    content: "";
+    position: absolute;
+    z-index: -1;
+    transition: box-shadow 0.5s ease-in-out;
+}
+.noVNC_left #noVNC_control_bar::before {
+    left: -30px;
+    right: auto;
+}
 .noVNC_right #noVNC_control_bar::before {
-    visibility: hidden;
+    left: auto;
+    right: -30px;
+}
+.noVNC_top #noVNC_control_bar::before {
+    top: -30px;
+    bottom: auto;
+}
+.noVNC_bottom #noVNC_control_bar::before {
+    top: auto;
+    bottom: -30px;
+}
+:is(.noVNC_left, .noVNC_right) #noVNC_control_bar::before {
+    height: 100%;
+    width: 30px;
+}
+:is(.noVNC_top, .noVNC_bottom) #noVNC_control_bar::before {
+    height: 30px;
+    width: 100%;
+}
+#noVNC_control_bar.noVNC_open::before {
+    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
 }
 
 #noVNC_control_bar_handle {
     position: absolute;
-    left: -15px;
-    top: 0;
-    transform: translateY(35px);
-    width: calc(100% + 30px);
-    height: 50px;
     z-index: -1;
     cursor: pointer;
     border-radius: 6px;
     background-color: var(--novnc-darkblue);
-    background-image: url("../images/handle_bg.svg");
-    background-repeat: no-repeat;
-    background-position: right;
     box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.5);
 }
+:root:not(.noVNC_connected) #noVNC_control_bar_handle {
+    display: none;
+}
+.noVNC_left #noVNC_control_bar_handle {
+    transform: translateY(35px);
+    top: 0;
+    left: -15px;
+    width: calc(100% + 30px);
+    height: 50px;
+}
+.noVNC_right #noVNC_control_bar_handle {
+    transform: translateY(35px);
+    top: 0;
+    left: -15px;
+    width: calc(100% + 30px);
+    height: 50px;
+}
+.noVNC_top #noVNC_control_bar_handle {
+    transform: translateX(35px);
+    top: -15px;
+    left: 0;
+    width: 50px;
+    height: calc(100% + 30px);
+}
+.noVNC_bottom #noVNC_control_bar_handle {
+    transform: translateX(35px);
+    bottom: -15px;
+    left: 0;
+    width: 50px;
+    height: calc(100% + 30px);
+}
+
+#noVNC_control_bar_handle:before {
+    content: "";
+    background: url("../images/handle_bg.svg");
+    background-repeat: no-repeat;
+    position: absolute;
+    top: 0;
+    width: 15px;
+    height: 50px;
+}
+.noVNC_left #noVNC_control_bar_handle:before {
+    right: 0px;
+}
+.noVNC_right #noVNC_control_bar_handle:before {
+    left: 0;
+}
+.noVNC_top #noVNC_control_bar_handle:before {
+    transform-origin: bottom left;
+    left: 0;
+    transform: rotate(90deg) translateX(20px);
+}
+.noVNC_bottom #noVNC_control_bar_handle:before {
+    transform-origin: bottom left;
+    left: 0;
+    transform: rotate(90deg) translateX(-50px);
+}
+
 #noVNC_control_bar_handle:after {
     content: "";
     transition: transform 0.5s ease-in-out;
     background: url("../images/handle.svg");
     position: absolute;
-    top: 22px; /* (50px-6px)/2 */
-    right: 5px;
     width: 5px;
     height: 6px;
 }
-#noVNC_control_bar.noVNC_open #noVNC_control_bar_handle:after {
-    transform: translateX(1px) rotate(180deg);
-}
-:root:not(.noVNC_connected) #noVNC_control_bar_handle {
-    display: none;
-}
-.noVNC_right #noVNC_control_bar_handle {
-    background-position: left;
+.noVNC_left #noVNC_control_bar_handle:after {
+    top: 22px; /* (50px-6px)/2 */
+    right: 5px;
+    transform: none;
 }
 .noVNC_right #noVNC_control_bar_handle:after {
+    top: 22px; /* (50px-6px)/2 */
     left: 5px;
-    right: 0;
+    transform: rotate(180deg);
+}
+.noVNC_top #noVNC_control_bar_handle:after {
+    left: 22px;
+    bottom: 5px;
+    transform: translateY(1px) rotate(90deg);
+}
+.noVNC_bottom #noVNC_control_bar_handle:after {
+    left: 22px;
+    top: 5px;
+    transform: rotate(-90deg);
+}
+
+.noVNC_left #noVNC_control_bar.noVNC_open #noVNC_control_bar_handle:after {
     transform: translateX(1px) rotate(180deg);
 }
 .noVNC_right #noVNC_control_bar.noVNC_open #noVNC_control_bar_handle:after {
-    transform: none;
+    transform: translateX(-1px);
 }
+.noVNC_top #noVNC_control_bar.noVNC_open #noVNC_control_bar_handle:after {
+    transform: translateY(2px) rotate(-90deg);
+}
+.noVNC_bottom #noVNC_control_bar.noVNC_open #noVNC_control_bar_handle:after {
+    transform: translateY(-1px) rotate(90deg);
+}
+
 /* Larger touch area for the handle, used when a touch screen is available */
 #noVNC_control_bar_handle div {
     position: absolute;
-    right: -35px;
-    top: 0;
-    width: 50px;
-    height: 100%;
     display: none;
 }
 @media (any-pointer: coarse) {
@@ -334,39 +460,81 @@ html {
         display: initial;
     }
 }
+.noVNC_left #noVNC_control_bar_handle div {
+    top: 0;
+    width: 50px;
+    height: 100%;
+    left: auto;
+    right: -35px;
+}
 .noVNC_right #noVNC_control_bar_handle div {
+    top: 0;
+    width: 50px;
+    height: 100%;
     left: -35px;
     right: auto;
 }
+.noVNC_top #noVNC_control_bar_handle div {
+    left: 0;
+    width: 100%;
+    height: 50px;
+    top: auto;
+    bottom: -35px;
+}
+.noVNC_bottom #noVNC_control_bar_handle div {
+    left: 0;
+    width: 100%;
+    height: 50px;
+    top: -35px;
+    bottom: auto;
+}
 
-#noVNC_control_bar > .noVNC_scroll {
+:is(.noVNC_left, .noVNC_right) > #noVNC_control_bar > .noVNC_scroll {
     max-height: 100vh; /* Chrome is buggy with 100% */
     overflow-x: hidden;
     overflow-y: auto;
-    padding: 0 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px 0;
 }
-
-#noVNC_control_bar > .noVNC_scroll > * {
-    display: block;
-    margin: 10px auto;
+:is(.noVNC_top, .noVNC_bottom) > #noVNC_control_bar > .noVNC_scroll {
+    max-width: 100vw; /* Chrome is buggy with 100% */
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0 10px;
 }
 
 /* Control bar hint */
-#noVNC_hint_anchor {
+.noVNC_hint_anchor {
     position: fixed;
-    right: -50px;
-    left: auto;
 }
-#noVNC_control_bar_anchor.noVNC_right + #noVNC_hint_anchor {
+.noVNC_hint_anchor.noVNC_left {
     left: -50px;
     right: auto;
 }
-#noVNC_control_bar_hint {
+.noVNC_hint_anchor.noVNC_right {
+    left: auto;
+    right: -50px;
+}
+.noVNC_hint_anchor.noVNC_top {
+    top: -50px;
+    bottom: auto;
+}
+.noVNC_hint_anchor.noVNC_bottom {
+    top: auto;
+    bottom: -50px;
+}
+.noVNC_control_bar_hint {
     position: relative;
     transform: scale(0);
-    width: 100px;
-    height: 50%;
-    max-height: 600px;
 
     visibility: hidden;
     opacity: 0;
@@ -376,13 +544,23 @@ html {
     border-radius: 12px;
     transition-delay: 0s;
 }
-#noVNC_control_bar_hint.noVNC_active {
+:is(.noVNC_left, .noVNC_right) .noVNC_control_bar_hint {
+    width: 100px;
+    height: 50%;
+    max-height: 600px;
+}
+:is(.noVNC_top, .noVNC_bottom) .noVNC_control_bar_hint {
+    width: 50%;
+    height: 100px;
+    max-width: 600px;
+}
+.noVNC_control_bar_hint.noVNC_active {
     visibility: visible;
     opacity: 1;
     transition-delay: 0.2s;
     transform: scale(1);
 }
-#noVNC_control_bar_hint.noVNC_notransition {
+.noVNC_control_bar_hint.noVNC_notransition {
     transition: none !important;
 }
 
@@ -390,7 +568,6 @@ html {
 #noVNC_control_bar .noVNC_button {
     min-width: unset;
     padding: 4px 4px;
-    vertical-align: middle;
     border:1px solid rgba(255, 255, 255, 0.2);
     border-radius: 6px;
     background-color: transparent;
@@ -405,13 +582,11 @@ html {
 
 /* Panels */
 .noVNC_panel {
-    transform: translateX(25px);
-
     transition: 0.5s ease-in-out;
 
     box-sizing: border-box; /* so max-width don't have to care about padding */
     max-width: calc(100vw - 75px - 25px); /* minus left and right margins */
-    max-height: 100vh; /* Chrome is buggy with 100% */
+    max-height: calc(100vh - 75px - 25px); /* minus top and bottom margins */
     overflow-x: hidden;
     overflow-y: auto;
 
@@ -429,6 +604,15 @@ html {
 .noVNC_panel.noVNC_open {
     visibility: visible;
     opacity: 1;
+}
+.noVNC_left .noVNC_vcenter {
+    left: 0;
+    right: auto;
+}
+.noVNC_left .noVNC_panel {
+    transform: translateX(25px);
+}
+.noVNC_left .noVNC_panel.noVNC_open {
     transform: translateX(75px);
 }
 .noVNC_right .noVNC_vcenter {
@@ -440,6 +624,26 @@ html {
 }
 .noVNC_right .noVNC_panel.noVNC_open {
     transform: translateX(-75px);
+}
+.noVNC_top .noVNC_hcenter {
+    top: 0;
+    bottom: auto;
+}
+.noVNC_top .noVNC_panel {
+    transform: translateY(25px);
+}
+.noVNC_top .noVNC_panel.noVNC_open {
+    transform: translateY(75px);
+}
+.noVNC_bottom .noVNC_hcenter {
+    top: auto;
+    bottom: 0;
+}
+.noVNC_bottom .noVNC_panel {
+    transform: translateY(-25px);
+}
+.noVNC_bottom .noVNC_panel.noVNC_open {
+    transform: translateY(-75px);
 }
 
 .noVNC_panel > * {
@@ -536,13 +740,27 @@ html {
 /* Control bar content */
 
 #noVNC_control_bar .noVNC_logo {
-    font-size: 13px;
+    display: block;
+    max-width: 35px;
+    max-height: 35px;
+    object-fit: contain;
 }
 
-.noVNC_logo + hr {
+:is(.noVNC_left, .noVNC_right) .noVNC_logo + hr {
     /* Remove all but top border */
     border: none;
     border-top: 1px solid rgba(255, 255, 255, 0.2);
+    width: 35px;
+    height: 1px;
+    margin: 0;
+}
+:is(.noVNC_top, .noVNC_bottom) .noVNC_logo + hr {
+    /* Remove all but left border */
+    border: none;
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    width: 1px;
+    height: 35px;
+    margin: 0;
 }
 
 :root:not(.noVNC_connected) #noVNC_view_drag_button {
@@ -550,16 +768,15 @@ html {
 }
 
 /* noVNC Touch Device only buttons */
-:root:not(.noVNC_connected) #noVNC_mobile_buttons {
+:root:not(.noVNC_connected) #noVNC_keyboard_button {
     display: none;
 }
 @media not all and (any-pointer: coarse) {
-    /* FIXME: The button for the virtual keyboard is the only button in this
-              group of "mobile buttons". It is bad to assume that no touch
-              devices have physical keyboards available. Hopefully we can get
-              a media query for this:
+    /* FIXME: It is bad to assume that no touch devices have physical
+              keyboards available. Hopefully we can get a media query
+              for this:
               https://github.com/w3c/csswg-drafts/issues/3871 */
-    :root.noVNC_connected #noVNC_mobile_buttons {
+    :root.noVNC_connected #noVNC_keyboard_button {
         display: none;
     }
 }
@@ -573,6 +790,20 @@ html {
     background-color: var(--novnc-darkgrey);
     border: none;
     padding: 10px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+#noVNC_modifiers > * {
+    margin: 0;
+}
+:is(.noVNC_left, .noVNC_right) #noVNC_modifiers {
+    flex-direction: column;
+    gap: 10px 0;
+}
+:is(.noVNC_top, .noVNC_bottom) #noVNC_modifiers {
+    flex-direction: row;
+    gap: 0 10px;
 }
 
 /* Shutdown/Reboot */
