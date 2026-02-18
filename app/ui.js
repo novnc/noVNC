@@ -589,8 +589,10 @@ const UI = {
         if (anchor.classList.contains("noVNC_right")) {
             WebUtil.writeSetting('controlbar_pos', 'left');
             anchor.classList.remove("noVNC_right");
-        } else {
+            anchor.classList.add("noVNC_left");
+        } else if (anchor.classList.contains("noVNC_left")) {
             WebUtil.writeSetting('controlbar_pos', 'right');
+            anchor.classList.remove("noVNC_left");
             anchor.classList.add("noVNC_right");
         }
 
@@ -602,18 +604,36 @@ const UI = {
     },
 
     showControlbarHint(show, animate=true) {
-        const hint = document.getElementById('noVNC_control_bar_hint');
+        const anchor = document.getElementById('noVNC_control_bar_anchor');
+        const positionClasses = new Set(["noVNC_left", "noVNC_right"]);
+        const anchorPosClass = [...anchor.classList].find(
+            cls => positionClasses.has(cls)
+        );
 
-        if (animate) {
-            hint.classList.remove("noVNC_notransition");
-        } else {
-            hint.classList.add("noVNC_notransition");
-        }
+        if (anchorPosClass) {
+            document.querySelectorAll('.noVNC_control_bar_hint').forEach((hint) => {
+                const parent = hint.parentElement;
+                const parentPosClass = [...parent.classList].find(cls => positionClasses.has(cls));
 
-        if (show) {
-            hint.classList.add("noVNC_active");
-        } else {
-            hint.classList.remove("noVNC_active");
+                if (parentPosClass && parentPosClass !== anchorPosClass) {
+
+                    if (animate) {
+                        hint.classList.remove('noVNC_notransition');
+                    } else {
+                        hint.classList.add('noVNC_notransition');
+                    }
+
+                    if (show) {
+                        hint.classList.add('noVNC_active');
+                    } else {
+                        hint.classList.remove('noVNC_active');
+                    }
+
+                } else {
+                    hint.classList.add('noVNC_notransition');
+                    hint.classList.remove('noVNC_active');
+                }
+            });
         }
     },
 
@@ -628,7 +648,7 @@ const UI = {
                 UI.toggleControlbarSide();
             }
         } else if (ptr.clientX > (window.innerWidth * 0.9)) {
-            if (!anchor.classList.contains("noVNC_right")) {
+            if (anchor.classList.contains("noVNC_left")) {
                 UI.toggleControlbarSide();
             }
         }

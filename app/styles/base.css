@@ -231,6 +231,12 @@ html {
 :root.noVNC_connected #noVNC_control_bar_anchor.noVNC_idle {
     opacity: 0.8;
 }
+/* left */
+#noVNC_control_bar_anchor.noVNC_left {
+    left: 0;
+    right: auto;
+}
+/* right */
 #noVNC_control_bar_anchor.noVNC_right {
     left: auto;
     right: 0;
@@ -238,20 +244,11 @@ html {
 
 #noVNC_control_bar {
     position: relative;
-    left: -100%;
-
     transition: 0.5s ease-in-out;
-
     background-color: var(--novnc-blue);
-    border-radius: 0 12px 12px 0;
-
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none; /* Disable iOS image long-press popup */
-}
-#noVNC_control_bar.noVNC_open {
-    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
-    left: 0;
 }
 #noVNC_control_bar::before {
     /* This extra element is to get a proper shadow */
@@ -260,21 +257,39 @@ html {
     z-index: -1;
     height: 100%;
     width: 30px;
-    left: -30px;
     transition: box-shadow 0.5s ease-in-out;
 }
-#noVNC_control_bar.noVNC_open::before {
+/* left */
+.noVNC_left #noVNC_control_bar {
+    left: -100%;
+    border-radius: 0 12px 12px 0;
+}
+.noVNC_left #noVNC_control_bar.noVNC_open {
+    left: 0;
     box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
 }
+.noVNC_left #noVNC_control_bar::before {
+    left: -30px;
+    right: auto;
+}
+.noVNC_left #noVNC_control_bar.noVNC_open::before {
+    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+}
+/* right */
 .noVNC_right #noVNC_control_bar {
     left: 100%;
     border-radius: 12px 0 0 12px;
 }
 .noVNC_right #noVNC_control_bar.noVNC_open {
     left: 0;
+    box-shadow: -6px 6px 0px rgba(0, 0, 0, 0.5);
 }
 .noVNC_right #noVNC_control_bar::before {
-    visibility: hidden;
+    left: auto;
+    right: -30px;
+}
+.noVNC_right #noVNC_control_bar.noVNC_open::before {
+    box-shadow: -6px 6px 0px rgba(0, 0, 0, 0.5);
 }
 
 #noVNC_control_bar_handle {
@@ -290,7 +305,6 @@ html {
     background-color: var(--novnc-darkblue);
     background-image: url("../images/handle_bg.svg");
     background-repeat: no-repeat;
-    background-position: right;
     box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.5);
 }
 #noVNC_control_bar_handle:after {
@@ -299,7 +313,6 @@ html {
     background: url("../images/handle.svg");
     position: absolute;
     top: 22px; /* (50px-6px)/2 */
-    right: 5px;
     width: 5px;
     height: 6px;
 }
@@ -309,12 +322,23 @@ html {
 :root:not(.noVNC_connected) #noVNC_control_bar_handle {
     display: none;
 }
+/* left */
+.noVNC_left #noVNC_control_bar_handle {
+    background-position: right;
+}
+.noVNC_left #noVNC_control_bar_handle:after {
+    right: 5px;
+    transform: none;
+}
+.noVNC_left #noVNC_control_bar.noVNC_open #noVNC_control_bar_handle:after {
+    transform: translateX(1px) rotate(180deg);
+}
+/* right */
 .noVNC_right #noVNC_control_bar_handle {
     background-position: left;
 }
 .noVNC_right #noVNC_control_bar_handle:after {
     left: 5px;
-    right: 0;
     transform: translateX(1px) rotate(180deg);
 }
 .noVNC_right #noVNC_control_bar.noVNC_open #noVNC_control_bar_handle:after {
@@ -323,7 +347,6 @@ html {
 /* Larger touch area for the handle, used when a touch screen is available */
 #noVNC_control_bar_handle div {
     position: absolute;
-    right: -35px;
     top: 0;
     width: 50px;
     height: 100%;
@@ -334,6 +357,12 @@ html {
         display: initial;
     }
 }
+/* left */
+.noVNC_left #noVNC_control_bar_handle div {
+    left: auto;
+    right: -35px;
+}
+/* right */
 .noVNC_right #noVNC_control_bar_handle div {
     left: -35px;
     right: auto;
@@ -352,16 +381,18 @@ html {
 }
 
 /* Control bar hint */
-#noVNC_hint_anchor {
+.noVNC_hint_anchor {
     position: fixed;
-    right: -50px;
-    left: auto;
 }
-#noVNC_control_bar_anchor.noVNC_right + #noVNC_hint_anchor {
+.noVNC_hint_anchor.noVNC_left {
     left: -50px;
     right: auto;
 }
-#noVNC_control_bar_hint {
+.noVNC_hint_anchor.noVNC_right {
+    left: auto;
+    right: -50px;
+}
+.noVNC_control_bar_hint {
     position: relative;
     transform: scale(0);
     width: 100px;
@@ -376,13 +407,13 @@ html {
     border-radius: 12px;
     transition-delay: 0s;
 }
-#noVNC_control_bar_hint.noVNC_active {
+.noVNC_control_bar_hint.noVNC_active {
     visibility: visible;
     opacity: 1;
     transition-delay: 0.2s;
     transform: scale(1);
 }
-#noVNC_control_bar_hint.noVNC_notransition {
+.noVNC_control_bar_hint.noVNC_notransition {
     transition: none !important;
 }
 
@@ -405,8 +436,6 @@ html {
 
 /* Panels */
 .noVNC_panel {
-    transform: translateX(25px);
-
     transition: 0.5s ease-in-out;
 
     box-sizing: border-box; /* so max-width don't have to care about padding */
@@ -429,6 +458,15 @@ html {
 .noVNC_panel.noVNC_open {
     visibility: visible;
     opacity: 1;
+}
+.noVNC_left .noVNC_vcenter {
+    left: 0;
+    right: auto;
+}
+.noVNC_left .noVNC_panel {
+    transform: translateX(25px);
+}
+.noVNC_left .noVNC_panel.noVNC_open {
     transform: translateX(75px);
 }
 .noVNC_right .noVNC_vcenter {
