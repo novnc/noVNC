@@ -37,6 +37,8 @@ const UI = {
 
     controlbarGrabbed: false,
     controlbarDrag: false,
+    controlbarMouseDownClientX: 0,
+    controlbarMouseDownOffsetX: 0,
     controlbarMouseDownClientY: 0,
     controlbarMouseDownOffsetY: 0,
 
@@ -741,9 +743,14 @@ const UI = {
             UI.controlbarDrag = true;
         }
 
-        const eventY = ptr.clientY - UI.controlbarMouseDownOffsetY;
-
-        UI.moveControlbarHandle(eventY);
+        const pos = WebUtil.readSetting('controlbar_pos');
+        if (pos === 'left' || pos === 'right') {
+            const eventY = ptr.clientY - UI.controlbarMouseDownOffsetY;
+            UI.moveControlbarHandle(eventY, true);
+        } else if (pos === 'top' || pos === 'bottom') {
+            const eventX = ptr.clientX - UI.controlbarMouseDownOffsetX;
+            UI.moveControlbarHandle(eventX, false);
+        }
 
         e.preventDefault();
         e.stopPropagation();
@@ -752,41 +759,56 @@ const UI = {
     },
 
     // Move the handle but don't allow any position outside the bounds
-    moveControlbarHandle(viewportRelativeY) {
+    moveControlbarHandle(viewportRelativeCoord, isVertical) {
         const handle = document.getElementById("noVNC_control_bar_handle");
-        const handleHeight = handle.getBoundingClientRect().height;
+
+        const handleSpan = isVertical
+            ? handle.getBoundingClientRect().height
+            : handle.getBoundingClientRect().width;
+
         const controlbarBounds = document.getElementById("noVNC_control_bar")
             .getBoundingClientRect();
+        const controlbarBoundsStart = isVertical
+            ? controlbarBounds.top
+            : controlbarBounds.left;
+        const controlbarBoundsSpan  = isVertical
+            ? controlbarBounds.height
+            : controlbarBounds.width;
+
         const margin = 10;
 
         // These heights need to be non-zero for the below logic to work
-        if (handleHeight === 0 || controlbarBounds.height === 0) {
+        if (handleSpan === 0 || controlbarBoundsSpan === 0) {
             return;
         }
 
-        let newY = viewportRelativeY;
+        let newCoord = viewportRelativeCoord;
 
         // Check if the coordinates are outside the control bar
-        if (newY < controlbarBounds.top + margin) {
-            // Force coordinates to be below the top of the control bar
-            newY = controlbarBounds.top + margin;
+        if (newCoord < controlbarBoundsStart + margin) {
+            // Force coordinates to be below the start of the control bar
+            newCoord = controlbarBoundsStart + margin;
 
-        } else if (newY > controlbarBounds.top +
-                   controlbarBounds.height - handleHeight - margin) {
-            // Force coordinates to be above the bottom of the control bar
-            newY = controlbarBounds.top +
-                controlbarBounds.height - handleHeight - margin;
+        } else if (newCoord > controlbarBoundsStart +
+                   controlbarBoundsSpan - handleSpan - margin) {
+            // Force coordinates to be before the end of the control bar
+            newCoord = controlbarBoundsStart +
+                controlbarBoundsSpan - handleSpan - margin;
         }
 
         // Corner case: control bar too small for stable position
-        if (controlbarBounds.height < (handleHeight + margin * 2)) {
-            newY = controlbarBounds.top +
-                (controlbarBounds.height - handleHeight) / 2;
+        if (controlbarBoundsSpan < (handleSpan + margin * 2)) {
+            newCoord = controlbarBoundsStart +
+                (controlbarBoundsSpan - handleSpan) / 2;
         }
 
         // The transform needs coordinates that are relative to the parent
-        const parentRelativeY = newY - controlbarBounds.top;
-        handle.style.transform = "translateY(" + parentRelativeY + "px)";
+        const parentRelativeCoord = newCoord - controlbarBoundsStart;
+        if (isVertical) {
+            handle.style.transform = "translateY(" + parentRelativeCoord + "px)";
+        } else {
+            handle.style.transform = "translateX(" + parentRelativeCoord + "px)";
+        }
     },
 
     updateControlbarHandle() {
@@ -794,7 +816,13 @@ const UI = {
         // the move function expects coordinates relative the the viewport.
         const handle = document.getElementById("noVNC_control_bar_handle");
         const handleBounds = handle.getBoundingClientRect();
-        UI.moveControlbarHandle(handleBounds.top);
+
+        const pos = WebUtil.readSetting('controlbar_pos');
+        if (pos === 'left' || pos === 'right') {
+            UI.moveControlbarHandle(handleBounds.top, true);
+        } else if (pos === 'top' || pos === 'bottom') {
+            UI.moveControlbarHandle(handleBounds.left, false);
+        }
     },
 
     controlbarHandleMouseUp(e) {
@@ -832,6 +860,8 @@ const UI = {
 
         UI.controlbarMouseDownClientY = ptr.clientY;
         UI.controlbarMouseDownOffsetY = ptr.clientY - bounds.top;
+        UI.controlbarMouseDownClientX = ptr.clientX;
+        UI.controlbarMouseDownOffsetX = ptr.clientX - bounds.left;
         e.preventDefault();
         e.stopPropagation();
         UI.keepControlbar();

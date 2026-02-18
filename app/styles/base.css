@@ -344,62 +344,115 @@ html {
 
 #noVNC_control_bar_handle {
     position: absolute;
-    left: -15px;
-    top: 0;
-    transform: translateY(35px);
-    width: calc(100% + 30px);
-    height: 50px;
     z-index: -1;
     cursor: pointer;
     border-radius: 6px;
     background-color: var(--novnc-darkblue);
-    background-image: url("../images/handle_bg.svg");
-    background-repeat: no-repeat;
     box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.5);
 }
+:root:not(.noVNC_connected) #noVNC_control_bar_handle {
+    display: none;
+}
+.noVNC_left #noVNC_control_bar_handle {
+    transform: translateY(35px);
+    top: 0;
+    left: -15px;
+    width: calc(100% + 30px);
+    height: 50px;
+}
+.noVNC_right #noVNC_control_bar_handle {
+    transform: translateY(35px);
+    top: 0;
+    left: -15px;
+    width: calc(100% + 30px);
+    height: 50px;
+}
+.noVNC_top #noVNC_control_bar_handle {
+    transform: translateX(35px);
+    top: -15px;
+    left: 0;
+    width: 50px;
+    height: calc(100% + 30px);
+}
+.noVNC_bottom #noVNC_control_bar_handle {
+    transform: translateX(35px);
+    bottom: -15px;
+    left: 0;
+    width: 50px;
+    height: calc(100% + 30px);
+}
+
+#noVNC_control_bar_handle:before {
+    content: "";
+    background: url("../images/handle_bg.svg");
+    background-repeat: no-repeat;
+    position: absolute;
+    top: 0;
+    width: 15px;
+    height: 50px;
+}
+.noVNC_left #noVNC_control_bar_handle:before {
+    right: 0px;
+}
+.noVNC_right #noVNC_control_bar_handle:before {
+    left: 0;
+}
+.noVNC_top #noVNC_control_bar_handle:before {
+    transform-origin: bottom left;
+    left: 0;
+    transform: rotate(90deg) translateX(20px);
+}
+.noVNC_bottom #noVNC_control_bar_handle:before {
+    transform-origin: bottom left;
+    left: 0;
+    transform: rotate(90deg) translateX(-50px);
+}
+
 #noVNC_control_bar_handle:after {
     content: "";
     transition: transform 0.5s ease-in-out;
     background: url("../images/handle.svg");
     position: absolute;
-    top: 22px; /* (50px-6px)/2 */
     width: 5px;
     height: 6px;
 }
-#noVNC_control_bar.noVNC_open #noVNC_control_bar_handle:after {
-    transform: translateX(1px) rotate(180deg);
-}
-:root:not(.noVNC_connected) #noVNC_control_bar_handle {
-    display: none;
-}
-/* left */
-.noVNC_left #noVNC_control_bar_handle {
-    background-position: right;
-}
 .noVNC_left #noVNC_control_bar_handle:after {
+    top: 22px; /* (50px-6px)/2 */
     right: 5px;
     transform: none;
 }
+.noVNC_right #noVNC_control_bar_handle:after {
+    top: 22px; /* (50px-6px)/2 */
+    left: 5px;
+    transform: rotate(180deg);
+}
+.noVNC_top #noVNC_control_bar_handle:after {
+    left: 22px;
+    bottom: 5px;
+    transform: translateY(1px) rotate(90deg);
+}
+.noVNC_bottom #noVNC_control_bar_handle:after {
+    left: 22px;
+    top: 5px;
+    transform: rotate(-90deg);
+}
+
 .noVNC_left #noVNC_control_bar.noVNC_open #noVNC_control_bar_handle:after {
     transform: translateX(1px) rotate(180deg);
 }
-/* right */
-.noVNC_right #noVNC_control_bar_handle {
-    background-position: left;
-}
-.noVNC_right #noVNC_control_bar_handle:after {
-    left: 5px;
-    transform: translateX(1px) rotate(180deg);
-}
 .noVNC_right #noVNC_control_bar.noVNC_open #noVNC_control_bar_handle:after {
-    transform: none;
+    transform: translateX(-1px);
 }
+.noVNC_top #noVNC_control_bar.noVNC_open #noVNC_control_bar_handle:after {
+    transform: translateY(2px) rotate(-90deg);
+}
+.noVNC_bottom #noVNC_control_bar.noVNC_open #noVNC_control_bar_handle:after {
+    transform: translateY(-1px) rotate(90deg);
+}
+
 /* Larger touch area for the handle, used when a touch screen is available */
 #noVNC_control_bar_handle div {
     position: absolute;
-    top: 0;
-    width: 50px;
-    height: 100%;
     display: none;
 }
 @media (any-pointer: coarse) {
@@ -407,15 +460,33 @@ html {
         display: initial;
     }
 }
-/* left */
 .noVNC_left #noVNC_control_bar_handle div {
+    top: 0;
+    width: 50px;
+    height: 100%;
     left: auto;
     right: -35px;
 }
-/* right */
 .noVNC_right #noVNC_control_bar_handle div {
+    top: 0;
+    width: 50px;
+    height: 100%;
     left: -35px;
     right: auto;
+}
+.noVNC_top #noVNC_control_bar_handle div {
+    left: 0;
+    width: 100%;
+    height: 50px;
+    top: auto;
+    bottom: -35px;
+}
+.noVNC_bottom #noVNC_control_bar_handle div {
+    left: 0;
+    width: 100%;
+    height: 50px;
+    top: -35px;
+    bottom: auto;
 }
 
 :is(.noVNC_left, .noVNC_right) > #noVNC_control_bar > .noVNC_scroll {
