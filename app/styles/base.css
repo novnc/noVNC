@@ -343,12 +343,12 @@ html {
     max-height: 100vh; /* Chrome is buggy with 100% */
     overflow-x: hidden;
     overflow-y: auto;
-    padding: 0 10px;
-}
-
-#noVNC_control_bar > .noVNC_scroll > * {
-    display: block;
-    margin: 10px auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px 0;
 }
 
 /* Control bar hint */
@@ -543,6 +543,8 @@ html {
     /* Remove all but top border */
     border: none;
     border-top: 1px solid rgba(255, 255, 255, 0.2);
+    width: 100%;
+    margin: 0;
 }
 
 :root:not(.noVNC_connected) #noVNC_view_drag_button {
@@ -573,6 +575,14 @@ html {
     background-color: var(--novnc-darkgrey);
     border: none;
     padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px 0;
+}
+#noVNC_modifiers > * {
+    margin: 0;
 }
 
 /* Shutdown/Reboot */
