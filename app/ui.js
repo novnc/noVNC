@@ -575,7 +575,7 @@ const UI = {
         }
     },
 
-    toggleControlbarSide() {
+    toggleControlbarSide(pos) {
         // Temporarily disable animation, if bar is displayed, to avoid weird
         // movement. The transitionend-event will not fire when display=none.
         const bar = document.getElementById('noVNC_control_bar');
@@ -586,14 +586,52 @@ const UI = {
         }
 
         const anchor = document.getElementById('noVNC_control_bar_anchor');
-        if (anchor.classList.contains("noVNC_right")) {
+        const anchorAndDescendants = [anchor, ...anchor.querySelectorAll('*')];
+
+        if (pos === "left") {
             WebUtil.writeSetting('controlbar_pos', 'left');
             anchor.classList.remove("noVNC_right");
+            anchor.classList.remove("noVNC_top");
+            anchor.classList.remove("noVNC_bottom");
             anchor.classList.add("noVNC_left");
-        } else if (anchor.classList.contains("noVNC_left")) {
+            anchorAndDescendants.forEach((element) => {
+                if (element.classList.contains("noVNC_hcenter")) {
+                    element.classList.replace("noVNC_hcenter", "noVNC_vcenter");
+                }
+            });
+        } else if (pos === "right") {
             WebUtil.writeSetting('controlbar_pos', 'right');
             anchor.classList.remove("noVNC_left");
+            anchor.classList.remove("noVNC_top");
+            anchor.classList.remove("noVNC_bottom");
             anchor.classList.add("noVNC_right");
+            anchorAndDescendants.forEach((element) => {
+                if (element.classList.contains("noVNC_hcenter")) {
+                    element.classList.replace("noVNC_hcenter", "noVNC_vcenter");
+                }
+            });
+        } else if (pos === "top") {
+            WebUtil.writeSetting('controlbar_pos', 'top');
+            anchor.classList.remove("noVNC_left");
+            anchor.classList.remove("noVNC_right");
+            anchor.classList.remove("noVNC_bottom");
+            anchor.classList.add("noVNC_top");
+            anchorAndDescendants.forEach((element) => {
+                if (element.classList.contains("noVNC_vcenter")) {
+                    element.classList.replace("noVNC_vcenter", "noVNC_hcenter");
+                }
+            });
+        } else if (pos === "bottom") {
+            WebUtil.writeSetting('controlbar_pos', 'bottom');
+            anchor.classList.remove("noVNC_left");
+            anchor.classList.remove("noVNC_right");
+            anchor.classList.remove("noVNC_top");
+            anchor.classList.add("noVNC_bottom");
+            anchorAndDescendants.forEach((element) => {
+                if (element.classList.contains("noVNC_vcenter")) {
+                    element.classList.replace("noVNC_vcenter", "noVNC_hcenter");
+                }
+            });
         }
 
         // Consider this a movement of the handle
@@ -645,21 +683,57 @@ const UI = {
         const ptr = getPointerEvent(e);
 
         const anchor = document.getElementById('noVNC_control_bar_anchor');
-        if (ptr.clientX < (window.innerWidth * 0.1)) {
-            if (anchor.classList.contains("noVNC_right")) {
-                UI.toggleControlbarSide();
+
+        if (ptr.clientX < (window.innerWidth * 0.1) &&
+            ptr.clientY > (window.innerHeight * 0.25) &&
+            ptr.clientY < (window.innerHeight * 0.75)) {
+            if ((anchor.classList.contains("noVNC_right") ||
+                 anchor.classList.contains("noVNC_top") ||
+                 anchor.classList.contains("noVNC_bottom")) &&
+                !anchor.classList.contains("noVNC_left")) {
+                UI.toggleControlbarSide("left");
             }
-        } else if (ptr.clientX > (window.innerWidth * 0.9)) {
-            if (anchor.classList.contains("noVNC_left")) {
-                UI.toggleControlbarSide();
+
+        } else if (ptr.clientX > (window.innerWidth * 0.9) &&
+                   ptr.clientY > (window.innerHeight * 0.25) &&
+                   ptr.clientY < (window.innerHeight * 0.75)) {
+            if ((anchor.classList.contains("noVNC_left") ||
+                 anchor.classList.contains("noVNC_top") ||
+                 anchor.classList.contains("noVNC_bottom")) &&
+                !anchor.classList.contains("noVNC_right")) {
+                UI.toggleControlbarSide("right");
+            }
+        // Slightly increased height thresholds since 10% of the
+        // height proved small in practice
+        } else if (ptr.clientX > (window.innerWidth * 0.25) &&
+                   ptr.clientX < (window.innerWidth * 0.75) &&
+                   ptr.clientY < (window.innerHeight * 0.2)) {
+            if ((anchor.classList.contains("noVNC_left") ||
+                 anchor.classList.contains("noVNC_right") ||
+                 anchor.classList.contains("noVNC_bottom")) &&
+                !anchor.classList.contains("noVNC_top")) {
+                UI.toggleControlbarSide("top");
+            }
+        } else if (ptr.clientX > (window.innerWidth * 0.25) &&
+                   ptr.clientX < (window.innerWidth * 0.75) &&
+                   ptr.clientY > (window.innerHeight * 0.8)) {
+            if ((anchor.classList.contains("noVNC_left") ||
+                 anchor.classList.contains("noVNC_right") ||
+                 anchor.classList.contains("noVNC_top")) &&
+                !anchor.classList.contains("noVNC_bottom")) {
+                UI.toggleControlbarSide("bottom");
             }
         }
 
         if (!UI.controlbarDrag) {
-            const dragDistance = Math.abs(ptr.clientY - UI.controlbarMouseDownClientY);
-
+            let dragDistance = 0;
+            const pos = WebUtil.readSetting('controlbar_pos');
+            if (pos === 'left' || pos === 'right') {
+                dragDistance = Math.abs(ptr.clientY - UI.controlbarMouseDownClientY);
+            } else if (pos === 'top' || pos === 'bottom') {
+                dragDistance = Math.abs(ptr.clientX - UI.controlbarMouseDownClientX);
+            }
             if (dragDistance < dragThreshold) return;
-
             UI.controlbarDrag = true;
         }
 

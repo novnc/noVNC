@@ -237,24 +237,34 @@ html {
     /* The anchor is needed to get z-stacking to work */
     position: fixed;
     z-index: 10;
-
     transition: 0.5s ease-in-out;
-
-    /* Edge misrenders animations wihthout this */
-    transform: translateX(0);
 }
 :root.noVNC_connected #noVNC_control_bar_anchor.noVNC_idle {
     opacity: 0.8;
 }
-/* left */
+#noVNC_control_bar_anchor:is(.noVNC_left, .noVNC_right) {
+    /* Edge misrenders animations wihthout this */
+    transform: translateX(0);
+}
+#noVNC_control_bar_anchor:is(.noVNC_top, .noVNC_bottom) {
+    /* Edge misrenders animations wihthout this */
+    transform: translateY(0);
+}
 #noVNC_control_bar_anchor.noVNC_left {
     left: 0;
     right: auto;
 }
-/* right */
 #noVNC_control_bar_anchor.noVNC_right {
     left: auto;
     right: 0;
+}
+#noVNC_control_bar_anchor.noVNC_top {
+    top: 0;
+    bottom: auto;
+}
+#noVNC_control_bar_anchor.noVNC_bottom {
+    top: auto;
+    bottom: 0;
 }
 
 #noVNC_control_bar {
@@ -265,46 +275,71 @@ html {
     -webkit-user-select: none;
     -webkit-touch-callout: none; /* Disable iOS image long-press popup */
 }
+.noVNC_left #noVNC_control_bar {
+    left: -100%;
+    border-radius: 0 12px 12px 0;
+}
+.noVNC_right #noVNC_control_bar {
+    left: 100%;
+    border-radius: 12px 0 0 12px;
+}
+.noVNC_top #noVNC_control_bar {
+    /* FIXME: We want to mirror the left and right modes here and use a
+              relative top offset (-100%), but it doesn't resolve
+              correctly against the anchor height reference */
+    top: -55px;
+    border-radius: 0 0 12px 12px;
+}
+.noVNC_bottom #noVNC_control_bar {
+    /* FIXME: We want to mirror the left and right modes here and use a
+              relative top offset (100%), but it doesn't resolve
+              correctly against the anchor height reference */
+    top: 55px;
+    border-radius: 12px 12px 0 0;
+}
+:is(.noVNC_left, .noVNC_right) #noVNC_control_bar.noVNC_open {
+    left: 0;
+}
+:is(.noVNC_top, .noVNC_bottom) #noVNC_control_bar.noVNC_open {
+    top: 0;
+}
+#noVNC_control_bar.noVNC_open {
+    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+}
+
 #noVNC_control_bar::before {
     /* This extra element is to get a proper shadow */
     content: "";
     position: absolute;
     z-index: -1;
-    height: 100%;
-    width: 30px;
     transition: box-shadow 0.5s ease-in-out;
-}
-/* left */
-.noVNC_left #noVNC_control_bar {
-    left: -100%;
-    border-radius: 0 12px 12px 0;
-}
-.noVNC_left #noVNC_control_bar.noVNC_open {
-    left: 0;
-    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
 }
 .noVNC_left #noVNC_control_bar::before {
     left: -30px;
     right: auto;
 }
-.noVNC_left #noVNC_control_bar.noVNC_open::before {
-    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
-}
-/* right */
-.noVNC_right #noVNC_control_bar {
-    left: 100%;
-    border-radius: 12px 0 0 12px;
-}
-.noVNC_right #noVNC_control_bar.noVNC_open {
-    left: 0;
-    box-shadow: -6px 6px 0px rgba(0, 0, 0, 0.5);
-}
 .noVNC_right #noVNC_control_bar::before {
     left: auto;
     right: -30px;
 }
-.noVNC_right #noVNC_control_bar.noVNC_open::before {
-    box-shadow: -6px 6px 0px rgba(0, 0, 0, 0.5);
+.noVNC_top #noVNC_control_bar::before {
+    top: -30px;
+    bottom: auto;
+}
+.noVNC_bottom #noVNC_control_bar::before {
+    top: auto;
+    bottom: -30px;
+}
+:is(.noVNC_left, .noVNC_right) #noVNC_control_bar::before {
+    height: 100%;
+    width: 30px;
+}
+:is(.noVNC_top, .noVNC_bottom) #noVNC_control_bar::before {
+    height: 30px;
+    width: 100%;
+}
+#noVNC_control_bar.noVNC_open::before {
+    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
 }
 
 #noVNC_control_bar_handle {
@@ -383,7 +418,7 @@ html {
     right: auto;
 }
 
-#noVNC_control_bar > .noVNC_scroll {
+:is(.noVNC_left, .noVNC_right) > #noVNC_control_bar > .noVNC_scroll {
     max-height: 100vh; /* Chrome is buggy with 100% */
     overflow-x: hidden;
     overflow-y: auto;
@@ -393,6 +428,17 @@ html {
     justify-content: flex-start;
     align-items: center;
     gap: 10px 0;
+}
+:is(.noVNC_top, .noVNC_bottom) > #noVNC_control_bar > .noVNC_scroll {
+    max-width: 100vw; /* Chrome is buggy with 100% */
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0 10px;
 }
 
 /* Control bar hint */
@@ -451,7 +497,6 @@ html {
 #noVNC_control_bar .noVNC_button {
     min-width: unset;
     padding: 4px 4px;
-    vertical-align: middle;
     border:1px solid rgba(255, 255, 255, 0.2);
     border-radius: 6px;
     background-color: transparent;
@@ -470,7 +515,7 @@ html {
 
     box-sizing: border-box; /* so max-width don't have to care about padding */
     max-width: calc(100vw - 75px - 25px); /* minus left and right margins */
-    max-height: 100vh; /* Chrome is buggy with 100% */
+    max-height: calc(100vh - 75px - 25px); /* minus top and bottom margins */
     overflow-x: hidden;
     overflow-y: auto;
 
@@ -508,6 +553,26 @@ html {
 }
 .noVNC_right .noVNC_panel.noVNC_open {
     transform: translateX(-75px);
+}
+.noVNC_top .noVNC_hcenter {
+    top: 0;
+    bottom: auto;
+}
+.noVNC_top .noVNC_panel {
+    transform: translateY(25px);
+}
+.noVNC_top .noVNC_panel.noVNC_open {
+    transform: translateY(75px);
+}
+.noVNC_bottom .noVNC_hcenter {
+    top: auto;
+    bottom: 0;
+}
+.noVNC_bottom .noVNC_panel {
+    transform: translateY(-25px);
+}
+.noVNC_bottom .noVNC_panel.noVNC_open {
+    transform: translateY(-75px);
 }
 
 .noVNC_panel > * {
@@ -610,11 +675,20 @@ html {
     object-fit: contain;
 }
 
-.noVNC_logo + hr {
+:is(.noVNC_left, .noVNC_right) .noVNC_logo + hr {
     /* Remove all but top border */
     border: none;
     border-top: 1px solid rgba(255, 255, 255, 0.2);
-    width: 100%;
+    width: 35px;
+    height: 1px;
+    margin: 0;
+}
+:is(.noVNC_top, .noVNC_bottom) .noVNC_logo + hr {
+    /* Remove all but left border */
+    border: none;
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    width: 1px;
+    height: 35px;
     margin: 0;
 }
 
@@ -647,13 +721,19 @@ html {
     border: none;
     padding: 10px;
     display: flex;
-    flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    gap: 10px 0;
 }
 #noVNC_modifiers > * {
     margin: 0;
+}
+:is(.noVNC_left, .noVNC_right) #noVNC_modifiers {
+    flex-direction: column;
+    gap: 10px 0;
+}
+:is(.noVNC_top, .noVNC_bottom) #noVNC_modifiers {
+    flex-direction: row;
+    gap: 0 10px;
 }
 
 /* Shutdown/Reboot */
