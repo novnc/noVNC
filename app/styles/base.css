@@ -574,7 +574,10 @@ html {
 /* Control bar content */
 
 #noVNC_control_bar .noVNC_logo {
-    font-size: 13px;
+    display: block;
+    max-width: 35px;
+    max-height: 35px;
+    object-fit: contain;
 }
 
 .noVNC_logo + hr {
