@@ -110,8 +110,12 @@ const UI = {
         }
 
         // Restore control bar position
-        if (WebUtil.readSetting('controlbar_pos') === 'right') {
-            UI.toggleControlbarSide();
+        const pos = WebUtil.readSetting('controlbar_pos');
+        if (['left', 'right', 'top', 'bottom'].includes(pos)) {
+            UI.toggleControlbarSide(pos);
+        } else {
+            WebUtil.writeSetting('controlbar_pos', 'left');
+            UI.toggleControlbarSide('left');
         }
 
         UI.initFullscreen();
