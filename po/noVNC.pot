@@ -187,7 +187,7 @@ msgid "Clipboard"
 msgstr ""
 
 #: ../vnc.html:186
-msgid "Edit clipboard content in the textarea below."
+msgid "Edit clipboard content in the text area below."
 msgstr ""
 
 #: ../vnc.html:194
