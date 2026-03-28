@@ -124,6 +124,7 @@ const UI = {
         UI.addConnectionControlHandlers();
         UI.addClipboardHandlers();
         UI.addSettingsHandlers();
+        UI.initIgnoreKeysTooltip();
         document.getElementById("noVNC_status")
             .addEventListener('click', UI.hideStatus);
 
@@ -191,6 +192,7 @@ const UI = {
         UI.initSetting('reconnect', false);
         UI.initSetting('reconnect_delay', 5000);
         UI.initSetting('keep_device_awake', false);
+        UI.initSetting('ignore_keys', '');
     },
     // Adds a link to the label elements on the corresponding input elements
     setupSettingLabels() {
@@ -383,6 +385,13 @@ const UI = {
         UI.addSettingChangeHandler('logging', UI.updateLogging);
         UI.addSettingChangeHandler('reconnect');
         UI.addSettingChangeHandler('reconnect_delay');
+        UI.addSettingChangeHandler('ignore_keys');
+        const input = document.getElementById('noVNC_setting_ignore_keys');
+        if (input && !input.dataset.validationBound) {
+            input.addEventListener('input', UI.validateIgnoreKeysInput);
+            input.addEventListener('blur', UI.validateIgnoreKeysInput);
+            input.dataset.validationBound = 'true';
+        }
     },
 
     addFullscreenHandlers() {
@@ -802,13 +811,28 @@ const UI = {
                 }
             }
         } else {
-            ctrl.value = value;
+            ctrl.value = value ?? '';
         }
     },
 
-    // Save control setting to cookie
-    saveSetting(name) {
-        const ctrl = document.getElementById('noVNC_setting_' + name);
+    // Update cookie and form control setting. If value is not set, then
+    // updates from control to current cookie setting.
+    saveSetting(nameOrEvent) {
+        let ctrl = null;
+
+        if (typeof nameOrEvent === 'string') {
+            ctrl = document.getElementById('noVNC_setting_' + nameOrEvent);
+        } else if (nameOrEvent && nameOrEvent.target) {
+            ctrl = nameOrEvent.target;
+        } else if (this instanceof Element) {
+            ctrl = this;
+        }
+
+        if (!ctrl) {
+            Log.Warn("saveSetting called without valid control");
+            return null;
+        }
+
         let val;
         if (ctrl.type === 'checkbox') {
             val = ctrl.checked;
@@ -817,6 +841,17 @@ const UI = {
         } else {
             val = ctrl.value;
         }
+
+        let name = ctrl.id;
+        if (name && name.startsWith('noVNC_setting_')) {
+            name = name.slice('noVNC_setting_'.length);
+        }
+
+        if (!name) {
+            Log.Warn("saveSetting could not determine setting name");
+            return val;
+        }
+
         WebUtil.writeSetting(name, val);
         //Log.Debug("Setting saved '" + name + "=" + val + "'");
         return val;
@@ -896,6 +931,7 @@ const UI = {
         UI.updateSetting('logging');
         UI.updateSetting('reconnect');
         UI.updateSetting('reconnect_delay');
+        UI.updateSetting('ignore_keys');
 
         document.getElementById('noVNC_settings')
             .classList.add("noVNC_open");
@@ -1092,6 +1128,8 @@ const UI = {
             UI.showStatus(_("Failed to connect to server: ") + exc, 'error');
             return;
         }
+
+        UI.wrapRfbSendKey();
 
         UI.rfb.addEventListener("connect", UI.connectFinished);
         UI.rfb.addEventListener("disconnect", UI.disconnectFinished);
@@ -1593,6 +1631,25 @@ const UI = {
         UI.rfb.sendKey(keysym, code, down);
     },
 
+    wrapRfbSendKey() {
+        if (!UI.rfb || !UI.rfb.sendKey || UI.rfb._ignoreKeysWrapped) {
+            return;
+        }
+
+        const originalSendKey = UI.rfb.sendKey.bind(UI.rfb);
+
+        UI.rfb.sendKey = function (keysym, code, down) {
+            if (UI.shouldIgnoreKey(code)) {
+                Log.Debug("Key ignored: " + code);
+                return;
+            }
+
+            return originalSendKey(keysym, code, down);
+        };
+
+        UI.rfb._ignoreKeysWrapped = true;
+    },
+
     // When normal keyboard events are left uncought, use the input events from
     // the keyboardinput element instead and generate the corresponding key events.
     // This code is required since some browsers on Android are inconsistent in
@@ -1862,6 +1919,170 @@ const UI = {
         optn.text = text;
         optn.value = value;
         selectbox.options.add(optn);
+    },
+
+    supportedIgnoreKeys: [
+        { label: 'Escape', aliases: ['esc', 'escape'] },
+        { label: 'Tab', aliases: ['tab'] },
+        { label: 'Enter', aliases: ['enter', 'return'] },
+        { label: 'Delete', aliases: ['del', 'delete'] },
+        { label: 'Backspace', aliases: ['bs', 'backspace'] },
+        { label: 'ControlLeft', aliases: ['ctrl', 'ctl', 'controlleft'] },
+        { label: 'AltLeft', aliases: ['alt', 'altleft'] },
+        { label: 'MetaLeft', aliases: ['win', 'cmd', 'super', 'metaleft'] },
+    ],
+
+    buildIgnoreKeysTooltipText() {
+        return `<ul class="noVNC_tooltip_list">` +
+            UI.supportedIgnoreKeys
+                .map(({ label, aliases }) => {
+                    if (!aliases.length) {
+                        return `<li>${label}</li>`;
+                    }
+                    return `<li>${label} (${aliases.join(', ')})</li>`;
+                })
+                .join('') +
+            `</ul>`;
+    },
+
+    buildIgnoreKeysPlaceholder() {
+        return UI.supportedIgnoreKeys
+            .map(({ aliases, label }) => aliases[0] || label)
+            .slice(0, 4)
+            .join(', ') + '...';
+    },
+
+    initIgnoreKeysTooltip() {
+        const input = document.getElementById('noVNC_setting_ignore_keys');
+        if (!input) return;
+
+        const tooltip = document.getElementById('noVNC_ignore_keys_tooltip');
+        const button = document.getElementById('noVNC_ignore_keys_help_button');
+
+        if (!tooltip || !button) return;
+
+        if (!input.placeholder) {
+            input.placeholder = UI.buildIgnoreKeysPlaceholder();
+        }
+
+        if (!tooltip.dataset.examplesAppended) {
+            tooltip.innerHTML += UI.buildIgnoreKeysTooltipText();
+            tooltip.dataset.examplesAppended = 'true';
+        }
+
+        const show = () => {
+            tooltip.classList.add('noVNC_open');
+            button.setAttribute('aria-expanded', 'true');
+        };
+
+        const hide = () => {
+            tooltip.classList.remove('noVNC_open');
+            button.setAttribute('aria-expanded', 'false');
+        };
+
+        const toggle = (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            if (tooltip.classList.contains('noVNC_open')) {
+                hide();
+            } else {
+                show();
+            }
+        };
+
+        if (!button.dataset.tooltipBound) {
+            button.addEventListener('mouseenter', show);
+            button.addEventListener('mouseleave', hide);
+            button.addEventListener('focus', show);
+            button.addEventListener('blur', hide);
+            button.addEventListener('click', toggle);
+
+            tooltip.addEventListener('mouseenter', show);
+            tooltip.addEventListener('mouseleave', hide);
+
+            document.addEventListener('click', (event) => {
+                if (!button.contains(event.target) && !tooltip.contains(event.target)) {
+                    hide();
+                }
+            });
+
+            button.dataset.tooltipBound = 'true';
+        }
+    },
+
+    parseIgnoredKeys() {
+        const raw = UI.getSetting('ignore_keys');
+        if (!raw) return new Set();
+
+        return new Set(
+            raw.split(',')
+                .map(k => k.trim().toLowerCase())
+                .filter(Boolean)
+        );
+    },
+
+    normalizeIgnoreKey(value) {
+        const normalized = (value || '').trim().toLowerCase();
+        if (!normalized) return '';
+
+        for (const { label, aliases } of UI.supportedIgnoreKeys) {
+            const canonical = label.toLowerCase();
+
+            if (canonical === normalized) {
+                return canonical;
+            }
+
+            for (const alias of aliases) {
+                if (alias.toLowerCase() === normalized) {
+                    return canonical;
+                }
+            }
+        }
+
+        return normalized;
+    },
+
+    shouldIgnoreKey: (code) => {
+        const ignored = UI.parseIgnoredKeys();
+        if (ignored.size === 0) return false;
+
+        const codeCanonical = UI.normalizeIgnoreKey(code);
+        if (!codeCanonical) return false;
+
+        for (const key of ignored) {
+            if (UI.normalizeIgnoreKey(key) === codeCanonical) {
+                return true;
+            }
+        }
+        return false;
+    },
+
+    validateIgnoreKeysInput() {
+        const input = document.getElementById('noVNC_setting_ignore_keys');
+        if (!input) return true;
+
+        const tokens = input.value
+            .split(',')
+            .map(k => k.trim())
+            .filter(Boolean);
+
+        if (tokens.length === 0) {
+            input.classList.remove('noVNC_invalid');
+            return true;
+        }
+
+        const validSet = new Set(
+            UI.supportedIgnoreKeys.map(k => k.label.toLowerCase())
+        );
+
+        const isValid = tokens.every((k) => {
+            const normalized = UI.normalizeIgnoreKey(k);
+            return validSet.has(normalized);
+        });
+
+        input.classList.toggle('noVNC_invalid', !isValid);
+        return isValid;
     },
 
 /* ------^-------
