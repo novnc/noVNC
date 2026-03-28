@@ -612,12 +612,15 @@ html {
     list-style: none;
     padding: 0px;
 }
-#noVNC_settings button,
 #noVNC_settings select,
 #noVNC_settings textarea,
 #noVNC_settings input:not([type=checkbox]):not([type=radio]) {
     margin-left: 6px;
     /* Prevent inputs in settings from being too wide */
+    max-width: calc(100% - 6px - var(--input-xpadding) * 2);
+}
+#noVNC_settings button:not(#noVNC_ignore_keys_help_button) {
+    margin-left: 6px;
     max-width: calc(100% - 6px - var(--input-xpadding) * 2);
 }
 
@@ -641,6 +644,83 @@ html {
 /* Connection controls */
 :root:not(.noVNC_connected) #noVNC_disconnect_button {
     display: none;
+}
+
+/* Help tooltips  */
+.noVNC_setting_with_help {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.noVNC_setting_with_help label {
+    flex: 0 1 auto;
+}
+
+#noVNC_settings .noVNC_tooltip_list {
+    margin: 0.4rem 0 0 0;
+    padding-left: 0.8rem;
+    list-style: disc;
+}
+
+.noVNC_tooltip_list li {
+    margin: 0.15rem 0;
+}
+
+#noVNC_setting_ignore_keys::placeholder {
+    color: var(--novnc-grey);
+    opacity: 0.7;
+}
+
+#noVNC_setting_ignore_keys.noVNC_invalid,
+#noVNC_setting_ignore_keys.noVNC_invalid:focus {
+    border-color: var(--novnc-red);
+    box-shadow: 0 0 2px rgba(var(--novnc-red-rgb), 0.5);
+}
+
+#noVNC_ignore_keys_help_button {
+    flex: 0 0 auto;
+
+    width: 1.6rem;
+    height: 1.6rem;
+    min-width: 1.6rem;
+    max-width: 1.6rem;
+
+    padding: 0;
+    margin: 0;
+
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid rgba(0,0,0,0.25);
+    cursor: pointer;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    line-height: 1;
+}
+
+#noVNC_ignore_keys_tooltip {
+    display: none;
+    position: absolute;
+    z-index: 1000;
+    left: 1rem;
+    padding: 0.5rem;
+    margin: 0;
+    border-radius: 0.4rem;
+    background: rgba(20, 20, 20, 0.96);
+    color: #fff;
+    box-shadow: 0 0.4rem 1rem rgba(0, 0, 0, 0.35);
+    font-size: 0.75rem;
+    line-height: .9rem;
+}
+
+#noVNC_ignore_keys_tooltip.noVNC_open {
+    display: flex !important;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 /* ----------------------------------------
