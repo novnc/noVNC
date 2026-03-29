@@ -1125,7 +1125,7 @@ const UI = {
 
     reconnect() {
         UI.reconnectCallback = null;
-        const maxTime = UI.getSetting('reconnect_max_time') ?? 600000; // 20s - 20 * 1000 ms
+        const maxTime = UI.getSetting('reconnect_max_time') ?? 600000; // default to 10 minutes => 10 * 60 * 1000 ms
 
         // Initialize first reconnect time if it's the first attempt
         if (UI.firstReconnectTime === null) {
@@ -1137,8 +1137,8 @@ const UI = {
         if ((Date.now() - UI.firstReconnectTime) >= maxTime) {
             // hiding the previous status message
             UI.hideStatus();
-            // Showing this notification for long time, unless user will close this manually or reLaunch the VNC console
-            UI.showStatus(_("Maximum reconnect attempts reached. Failed to connect to the server."), 'error', Infinity);
+            // Showing this message for long time, because if the connection is unstable and user is not around to see the message when the connection is lost, they will be able to see it when they will come back. (Showing for 3 hours)
+            UI.showStatus(_("Maximum reconnect attempts reached. Failed to connect to the server."), 'error', 180*60*1000);
             UI.updateVisualState('disconnected');
             return;
         }
