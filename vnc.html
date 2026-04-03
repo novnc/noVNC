@@ -110,14 +110,14 @@
     </div>
 
     <!-- noVNC control bar -->
-    <div id="noVNC_control_bar_anchor" class="noVNC_vcenter">
-
+    <div id="noVNC_control_bar_anchor" class="noVNC_crosscenter">
         <div id="noVNC_control_bar">
             <div id="noVNC_control_bar_handle" title="Hide/Show the control bar"><div></div></div>
 
             <div class="noVNC_scroll">
 
-            <h1 class="noVNC_logo" translate="no"><span>no</span><br>VNC</h1>
+            <img class="noVNC_logo" src="app/images/icons/novnc-icon-35x21.svg"
+                 alt="noVNC">
 
             <hr>
 
@@ -127,16 +127,14 @@
                 title="Move/Drag viewport">
 
             <!--noVNC touch device only buttons-->
-            <div id="noVNC_mobile_buttons">
-                <input type="image" alt="Keyboard" src="app/images/keyboard.svg"
-                    id="noVNC_keyboard_button" class="noVNC_button" title="Show keyboard">
-            </div>
+            <input type="image" alt="Keyboard" src="app/images/keyboard.svg"
+                   id="noVNC_keyboard_button" class="noVNC_button" title="Show keyboard">
 
             <!-- Extra manual keys -->
             <input type="image" alt="Extra keys" src="app/images/toggleextrakeys.svg"
                 id="noVNC_toggle_extra_keys_button" class="noVNC_button"
                 title="Show extra keys">
-            <div class="noVNC_vcenter">
+            <div class="noVNC_crosscenter">
             <div id="noVNC_modifiers" class="noVNC_panel">
                 <input type="image" alt="Ctrl" src="app/images/ctrl.svg"
                     id="noVNC_toggle_ctrl_button" class="noVNC_button"
@@ -163,7 +161,7 @@
             <input type="image" alt="Shutdown/Reboot" src="app/images/power.svg"
                 id="noVNC_power_button" class="noVNC_button"
                 title="Shutdown/Reboot...">
-            <div class="noVNC_vcenter">
+            <div class="noVNC_crosscenter">
             <div id="noVNC_power" class="noVNC_panel">
                 <div class="noVNC_heading">
                     <img alt="" src="app/images/power.svg"> Power
@@ -178,7 +176,7 @@
             <input type="image" alt="Clipboard" src="app/images/clipboard.svg"
                 id="noVNC_clipboard_button" class="noVNC_button"
                 title="Clipboard">
-            <div class="noVNC_vcenter">
+            <div class="noVNC_crosscenter">
             <div id="noVNC_clipboard" class="noVNC_panel">
                 <div class="noVNC_heading">
                     <img alt="" src="app/images/clipboard.svg"> Clipboard
@@ -199,7 +197,7 @@
             <input type="image" alt="Settings" src="app/images/settings.svg"
                 id="noVNC_settings_button" class="noVNC_button"
                 title="Settings">
-            <div class="noVNC_vcenter">
+            <div class="noVNC_crosscenter">
             <div id="noVNC_settings" class="noVNC_panel">
                 <div class="noVNC_heading">
                     <img alt="" src="app/images/settings.svg"> Settings
@@ -332,8 +330,20 @@
 
     </div> <!-- End of noVNC_control_bar -->
 
-    <div id="noVNC_hint_anchor" class="noVNC_vcenter">
-        <div id="noVNC_control_bar_hint">
+    <div class="noVNC_hint_anchor noVNC_crosscenter">
+        <div class="noVNC_control_bar_hint">
+        </div>
+    </div>
+    <div class="noVNC_hint_anchor noVNC_right noVNC_crosscenter">
+        <div class="noVNC_control_bar_hint">
+        </div>
+    </div>
+    <div class="noVNC_hint_anchor noVNC_top noVNC_crosscenter">
+        <div class="noVNC_control_bar_hint">
+        </div>
+    </div>
+    <div class="noVNC_hint_anchor noVNC_bottom noVNC_crosscenter">
+        <div class="noVNC_control_bar_hint">
         </div>
     </div>
 
