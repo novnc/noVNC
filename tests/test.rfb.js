@@ -107,6 +107,7 @@ describe('Remote Frame Buffer protocol client', function () {
         Websock.prototype._allocateBuffers = function () {
             this._sQ = _sQ;
             this._rQ = rQ;
+            this._rQdv = new DataView(this._rQ.buffer);
         };
 
         // Avoiding printing the entire Websock buffer on errors
