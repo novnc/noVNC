@@ -77,17 +77,5 @@
     "Username:": "用户名:",
     "Password:": "密码：",
     "Send credentials": "发送凭证",
-    "Cancel": "取消",
-    "Password is required": "请提供密码",
-    "Disconnect timeout": "超时断开",
-    "viewport drag": "窗口拖动",
-    "Active Mouse Button": "启动鼠标按键",
-    "No mousebutton": "禁用鼠标按键",
-    "Left mousebutton": "鼠标左键",
-    "Middle mousebutton": "鼠标中键",
-    "Right mousebutton": "鼠标右键",
-    "Clear": "清除",
-    "Local Downscaling": "降低本地尺寸",
-    "Local Cursor": "本地光标",
-    "Canvas not supported.": "不支持 Canvas。"
+    "Cancel": "取消"
 }

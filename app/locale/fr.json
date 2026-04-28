@@ -76,7 +76,5 @@
     "Username:": "Nom d'utilisateur :",
     "Password:": "Mot de passe :",
     "Send credentials": "Envoyer les identifiants",
-    "Cancel": "Annuler",
-    "Must set host": "Doit définir l'hôte",
-    "Clear": "Effacer"
+    "Cancel": "Annuler"
 }
