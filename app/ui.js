@@ -46,6 +46,7 @@ const UI = {
     inhibitReconnect: true,
     reconnectCallback: null,
     reconnectPassword: null,
+    firstReconnectTime: null,
 
     wakeLockManager: new WakeLockManager(),
 
@@ -965,6 +966,9 @@ const UI = {
             UI.closePowerPanel();
         }
     },
+    resetFirstReconnection() {
+        UI.firstReconnectTime = null;
+    },
 
 /* ------^-------
  *    /POWER
@@ -1129,6 +1133,23 @@ const UI = {
 
     reconnect() {
         UI.reconnectCallback = null;
+        const MAX_RECONNECT_TIME_SECONDS = 10 * 60; // 10 * 60s
+        const MAX_TIME_IN_MS = MAX_RECONNECT_TIME_SECONDS * 1000;
+
+        // Initialize first reconnect time if it's the first attempt
+        if (UI.firstReconnectTime === null) {
+            UI.firstReconnectTime = Date.now();
+        }
+
+        // Check if we've exceeded the max reconnect time
+        if ((Date.now() - UI.firstReconnectTime) >= MAX_TIME_IN_MS) {
+            // hiding the previous status message
+            UI.hideStatus();
+            // Showing this message for long time, because if the connection is unstable and user is not around to see the message when the connection is lost, they will be able to see it when they will come back. (Showing for 3 hours)
+            UI.showStatus(_("Maximum reconnect attempts reached. Failed to connect to the server."), 'error', 180 * 60 * 1000);
+            UI.updateVisualState('disconnected');
+            return;
+        }
 
         // if reconnect has been disabled in the meantime, do nothing.
         if (UI.inhibitReconnect) {
@@ -1162,6 +1183,7 @@ const UI = {
         }
         UI.showStatus(msg);
         UI.updateVisualState('connected');
+        UI.resetFirstReconnection();
 
         UI.updateBeforeUnload();
 
