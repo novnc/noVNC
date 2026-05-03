@@ -45,7 +45,7 @@ const UI = {
     inhibitReconnect: true,
     reconnectCallback: null,
     reconnectPassword: null,
-    firstReconnectTime: 0,
+    firstReconnectTime: null,
 
     async start(options={}) {
         UI.customSettings = options.settings || {};
@@ -962,8 +962,8 @@ const UI = {
             UI.closePowerPanel();
         }
     },
-    resetFirstReconnection(){
-        UI.firstReconnectTime = 0;
+    resetFirstReconnection() {
+        UI.firstReconnectTime = null;
     },
 
 /* ------^-------
@@ -1125,20 +1125,20 @@ const UI = {
 
     reconnect() {
         UI.reconnectCallback = null;
-        const maxTime = UI.getSetting('reconnect_max_time') ?? 600000; // default to 10 minutes => 10 * 60 * 1000 ms
+        const MAX_RECONNECT_TIME_SECONDS = 10 * 60; // 10 * 60s
+        const MAX_TIME_IN_MS = MAX_RECONNECT_TIME_SECONDS * 1000;
 
         // Initialize first reconnect time if it's the first attempt
         if (UI.firstReconnectTime === null) {
             UI.firstReconnectTime = Date.now();
         }
-        const elapsedTime = Date.now() - UI.firstReconnectTime;
 
         // Check if we've exceeded the max reconnect time
-        if ((Date.now() - UI.firstReconnectTime) >= maxTime) {
+        if ((Date.now() - UI.firstReconnectTime) >= MAX_TIME_IN_MS) {
             // hiding the previous status message
             UI.hideStatus();
             // Showing this message for long time, because if the connection is unstable and user is not around to see the message when the connection is lost, they will be able to see it when they will come back. (Showing for 3 hours)
-            UI.showStatus(_("Maximum reconnect attempts reached. Failed to connect to the server."), 'error', 180*60*1000);
+            UI.showStatus(_("Maximum reconnect attempts reached. Failed to connect to the server."), 'error', 180 * 60 * 1000);
             UI.updateVisualState('disconnected');
             return;
         }
@@ -1175,7 +1175,6 @@ const UI = {
         }
         UI.showStatus(msg);
         UI.updateVisualState('connected');
-        // Here we can reset the retry count
         UI.resetFirstReconnection();
 
         UI.updateBeforeUnload();
