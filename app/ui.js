@@ -1047,6 +1047,12 @@ const UI = {
             password = undefined;
         }
 
+        let username = UI.getSetting('username');
+
+        if (username === null) {
+            username = undefined;
+        }
+
         UI.hideStatus();
 
         UI.closeConnectPanel();
@@ -1085,7 +1091,7 @@ const UI = {
                              url.href,
                              { shared: UI.getSetting('shared'),
                                repeaterID: UI.getSetting('repeaterID'),
-                               credentials: { password: password } });
+                               credentials: { username: username, password: password } });
         } catch (exc) {
             Log.Error("Failed to connect to server: " + exc);
             UI.updateVisualState('disconnected');
