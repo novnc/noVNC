@@ -1288,13 +1288,13 @@ const UI = {
         let inputFocus = "none";
         if (e.detail.types.indexOf("username") === -1) {
             document.getElementById("noVNC_username_block").classList.add("noVNC_hidden");
-        } else {
-            inputFocus = inputFocus === "none" ? "noVNC_username_input" : inputFocus;
+        } else if (document.getElementById("noVNC_username_input").value === "") {
+            inputFocus = "noVNC_username_input";
         }
         if (e.detail.types.indexOf("password") === -1) {
             document.getElementById("noVNC_password_block").classList.add("noVNC_hidden");
-        } else {
-            inputFocus = inputFocus === "none" ? "noVNC_password_input" : inputFocus;
+        } else if (inputFocus === "none") {
+            inputFocus = "noVNC_password_input";
         }
         document.getElementById('noVNC_credentials_dlg')
             .classList.add('noVNC_open');

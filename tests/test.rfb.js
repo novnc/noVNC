@@ -3485,7 +3485,7 @@ describe('Remote Frame Buffer protocol client', function () {
                     expectedStr
                 )).to.be.true;
                 expect(dispatchEventSpy.calledWith(
-                    new CustomEvent("clipboard", {detail: {expectedStr: expectedStr}})
+                    new CustomEvent("clipboard", {detail: {text: expectedStr}})
                 )).to.be.false;
             });
 
@@ -3506,9 +3506,8 @@ describe('Remote Frame Buffer protocol client', function () {
                 expect(client._asyncClipboard.writeClipboard.calledOnceWith(
                     expectedStr
                 )).to.be.true;
-                expect(dispatchEventSpy.calledOnceWith(
-                    new CustomEvent("clipboard", {detail: {expectedStr: expectedStr}})
-                )).to.be.true;
+                expect(dispatchEventSpy.args[0][0].type).to.equal("clipboard");
+                expect(dispatchEventSpy.args[0][0].detail.text).to.equal(expectedStr);
             });
         });
 
@@ -3587,7 +3586,7 @@ describe('Remote Frame Buffer protocol client', function () {
                         expectedData
                     )).to.be.true;
                     expect(dispatchEventSpy.calledOnceWith(
-                        new CustomEvent("clipboard", {detail: {expectedData: expectedData}})
+                        new CustomEvent("clipboard", {detail: {text: expectedData}})
                     )).to.be.false;
                 });
                 it('should dispatch a clipboard event following unsuccessful async write clipboard', async function () {
@@ -3615,9 +3614,8 @@ describe('Remote Frame Buffer protocol client', function () {
                     expect(client._asyncClipboard.writeClipboard.calledOnceWith(
                         expectedData
                     )).to.be.true;
-                    expect(dispatchEventSpy.calledOnceWith(
-                        new CustomEvent("clipboard", {detail: {expectedData: expectedData}})
-                    )).to.be.true;
+                    expect(dispatchEventSpy.args[0][0].type).to.equal("clipboard");
+                    expect(dispatchEventSpy.args[0][0].detail.text).to.equal(expectedData);
                 });
 
                 describe('Handle Provide', function () {
@@ -3646,9 +3644,8 @@ describe('Remote Frame Buffer protocol client', function () {
                         expect(client._asyncClipboard.writeClipboard.calledOnceWith(
                             expectedData
                         )).to.be.true;
-                        expect(dispatchEventSpy.calledOnceWith(
-                            new CustomEvent("clipboard", {detail: {expectedData: expectedData}})
-                        )).to.be.true;
+                        expect(dispatchEventSpy.args[0][0].type).to.equal("clipboard");
+                        expect(dispatchEventSpy.args[0][0].detail.text).to.equal(expectedData);
                     });
 
                     it('should update clipboard with correct escape characters from a Provide message ', async function () {
@@ -3677,9 +3674,8 @@ describe('Remote Frame Buffer protocol client', function () {
                         expect(client._asyncClipboard.writeClipboard.calledOnceWith(
                             expectedData
                         )).to.be.true;
-                        expect(dispatchEventSpy.calledOnceWith(
-                            new CustomEvent("clipboard", {detail: {expectedData: expectedData}})
-                        )).to.be.true;
+                        expect(dispatchEventSpy.args[0][0].type).to.equal("clipboard");
+                        expect(dispatchEventSpy.args[0][0].detail.text).to.equal(expectedData);
                     });
 
                     it('should be able to handle large Provide messages', async function () {
@@ -3708,9 +3704,8 @@ describe('Remote Frame Buffer protocol client', function () {
                         expect(client._asyncClipboard.writeClipboard.calledOnceWith(
                             expectedData
                         )).to.be.true;
-                        expect(dispatchEventSpy.calledOnceWith(
-                            new CustomEvent("clipboard", {detail: {expectedData: expectedData}})
-                        )).to.be.true;
+                        expect(dispatchEventSpy.args[0][0].type).to.equal("clipboard");
+                        expect(dispatchEventSpy.args[0][0].detail.text).to.equal(expectedData);
                     });
 
                 });

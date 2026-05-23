@@ -50,14 +50,6 @@ for fn in "$@"; do
 		error=$(echo $line | cut -d ":" -f 4-)
 
 		case $error in
-			*"\"scrollbar-gutter\": Property \"scrollbar-gutter\" doesn't exist.")
-				# FIXME: https://github.com/validator/validator/issues/1788
-				echo "Ignoring below error on line ${line_start}," \
-				     "the scrollbar-gutter property actually exist and is widely" \
-				     "supported:"
-				echo $error
-				continue
-				;;
 			*"\"clip-path\": \"path("*)
 				# FIXME: https://github.com/validator/validator/issues/1786
 				echo "Ignoring below error on line ${line_start}," \
