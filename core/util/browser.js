@@ -107,7 +107,8 @@ export const hasScrollbarGutter = _hasScrollbarGutter;
 export let supportsWebCodecsH264Decode = false;
 
 async function _checkWebCodecsH264DecodeSupport() {
-    if (!('VideoDecoder' in window)) {
+    if (!('VideoDecoder' in window) ||
+        !('isConfigSupported' in VideoDecoder)) {
         return false;
     }
 
