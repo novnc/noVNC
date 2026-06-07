@@ -5046,16 +5046,20 @@ describe('Remote Frame Buffer protocol client', function () {
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock, 60, 60, 0x0);
                 });
 
-                it('should scroll at the virtual cursor on twodrag', function () {
-                    gestureStart('twodrag', 20, 40, client, 0, 0);
-                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock, 50, 50, 0x0);
-
+                it('should scroll the remote on a parallel two-finger drag at fit', function () {
+                    // Two fingers down, then both move straight down 30px with
+                    // no change in separation -> no zoom, a wheel step instead.
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[40, 40], [60, 40]]));
                     pointerEvent.resetHistory();
 
-                    gestureMove('twodrag', 20, 40, client, 0, -60);
+                    client._canvas.dispatchEvent(touchEv('touchmove', client, [[40, 70], [60, 70]]));
+
+                    expect(client._trackpadZoom).to.equal(1.0);
                     expect(pointerEvent).to.have.been.calledTwice;
-                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock, 50, 50, 0x10);
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock, 50, 50, 0x8);
                     expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock, 50, 50, 0x0);
+
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
                 });
 
                 it('should clamp the virtual cursor to the framebuffer bounds', function () {
@@ -5068,32 +5072,63 @@ describe('Remote Frame Buffer protocol client', function () {
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock, 99, 99, 0x0);
                 });
 
-                it('should magnify locally on pinch instead of sending wheel/ctrl to the remote', function () {
+                // Build a TouchEvent with N touches at the given element coords.
+                function touchEv(type, client, points) {
+                    let touches = points.map((p, i) => {
+                        let c = elementToClient(p[0], p[1], client);
+                        return new Touch({ identifier: i + 1, target: client._canvas,
+                                           clientX: c.x, clientY: c.y });
+                    });
+                    return new TouchEvent(type, { touches: touches,
+                                                  changedTouches: touches,
+                                                  bubbles: true, cancelable: true });
+                }
+
+                it('should magnify locally on a two-finger pinch, not poke the remote', function () {
                     expect(client._trackpadZoom).to.equal(1.0);
 
-                    gestureStart('pinch', 50, 50, client, 100, 0);
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[40, 40], [60, 60]]));
                     pointerEvent.resetHistory();
                     keyEvent.resetHistory();
 
-                    // Fingers move apart (100 -> 200) => ~2x zoom
-                    gestureMove('pinch', 50, 50, client, 200, 0);
+                    // Fingers move apart -> zoom in
+                    client._canvas.dispatchEvent(touchEv('touchmove', client, [[20, 20], [80, 80]]));
 
                     expect(client._trackpadZoom).to.be.greaterThan(1.0);
-                    // Local zoom must NOT poke the remote (no wheel buttons, no Ctrl)
+                    expect(client._canvas.style.transform).to.contain('scale');
+                    // Local zoom must NOT send anything to the remote
                     expect(pointerEvent).to.not.have.been.called;
                     expect(keyEvent).to.not.have.been.called;
+
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
                 });
 
-                it('should clamp magnification to the 1.0..5.0 range', function () {
-                    gestureStart('pinch', 50, 50, client, 100, 0);
-                    // Pinch in hard -> never below 1.0
-                    gestureMove('pinch', 50, 50, client, 1, 0);
-                    expect(client._trackpadZoom).to.equal(1.0);
-
-                    gestureStart('pinch', 50, 50, client, 1, 0);
-                    // Pinch out hugely -> capped at 5.0
-                    gestureMove('pinch', 50, 50, client, 100000, 0);
+                it('should clamp magnification at 5.0 and reset on a pinch back to fit', function () {
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[49, 49], [51, 51]]));
+                    // Huge spread -> capped at 5.0
+                    client._canvas.dispatchEvent(touchEv('touchmove', client, [[0, 0], [99, 99]]));
                     expect(client._trackpadZoom).to.equal(5.0);
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
+
+                    // Leaving trackpad mode resets the zoom and clears the transform
+                    client.trackpadMode = false;
+                    expect(client._trackpadZoom).to.equal(1.0);
+                    expect(client._canvas.style.transform).to.equal('');
+                });
+
+                it('should ignore single-finger gestures while two fingers are down', function () {
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[40, 40], [60, 60]]));
+                    expect(client._trackpadMultitouch).to.be.true;
+
+                    pointerEvent.resetHistory();
+                    // A stray one-finger drag gesture must be ignored mid-pinch
+                    gestureStart('drag', 20, 40, client);
+                    gestureMove('drag', 30, 50, client);
+                    clock.tick(50);
+                    expect(pointerEvent).to.not.have.been.called;
+
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
+                    expect(client._trackpadMultitouch).to.be.false;
                 });
             });
         });
