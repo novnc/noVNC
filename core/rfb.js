@@ -1574,8 +1574,9 @@ export default class RFB extends EventTargetMixin {
                             const dpy = ev.detail.magnitudeY - this._gestureLastMagnitudeY;
                             this._gestureLastMagnitudeX = ev.detail.magnitudeX;
                             this._gestureLastMagnitudeY = ev.detail.magnitudeY;
-                            // magnitudeY grows upward, so negate to pan naturally
-                            this._display.viewportChangePos(-dpx / scale, dpy / scale);
+                            // Move the viewport opposite the drag so the image
+                            // follows the fingers ("drag the map").
+                            this._display.viewportChangePos(-dpx / scale, -dpy / scale);
                         } else {
                             this._gestureTwoDragScroll(pos.x, pos.y,
                                                        ev.detail.magnitudeX,
