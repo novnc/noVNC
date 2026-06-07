@@ -5005,45 +5005,37 @@ describe('Remote Frame Buffer protocol client', function () {
                     expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock, 50, 50, 0x0);
                 });
 
-                it('should move the cursor relatively on drag without pressing a button', function () {
-                    gestureStart('drag', 20, 40, client);
-                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock, 50, 50, 0x0);
-
+                it('should move the cursor live from the first pixel of a one-finger drag', function () {
+                    // Cursor movement comes straight from raw touch events, so it
+                    // tracks immediately rather than waiting for noVNC's drag
+                    // recognition threshold.
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[20, 40]]));
                     pointerEvent.resetHistory();
 
-                    // Finger moves +10/+10 in client space -> cursor 50,50 -> 60,60
-                    gestureMove('drag', 30, 50, client);
+                    // Finger moves +10/+10 -> cursor 50,50 -> 60,60 (sensitivity 1.0)
+                    client._canvas.dispatchEvent(touchEv('touchmove', client, [[30, 50]]));
                     clock.tick(50);
-                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock, 60, 60, 0x0);
+                    expect(pointerEvent).to.have.been.calledWith(client._sock, 60, 60, 0x0);
 
-                    pointerEvent.resetHistory();
-
-                    gestureEnd('drag', 30, 50, client);
-                    expect(pointerEvent).to.not.have.been.called;
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
                 });
 
                 it('should hold the left button for a tap-and-a-half drag', function () {
-                    // A tap, immediately followed by a drag, drags with button held
+                    // A tap immediately followed by a drag holds the left button.
+                    // Movement comes from raw touch; the gesture only sets the
+                    // button, so we check the press at the start and release at end.
                     gestureStart('onetap', 20, 40, client);
                     gestureEnd('onetap', 20, 40, client);
 
                     pointerEvent.resetHistory();
 
                     gestureStart('drag', 20, 40, client);
-                    expect(pointerEvent).to.have.been.calledTwice;
-                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock, 50, 50, 0x0);
-                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock, 50, 50, 0x1);
-
-                    pointerEvent.resetHistory();
-
-                    gestureMove('drag', 30, 50, client);
-                    clock.tick(50);
-                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock, 60, 60, 0x1);
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock, 50, 50, 0x1);
 
                     pointerEvent.resetHistory();
 
                     gestureEnd('drag', 30, 50, client);
-                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock, 60, 60, 0x0);
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock, 50, 50, 0x0);
                 });
 
                 it('should scroll the remote on a parallel two-finger drag at fit', function () {
@@ -5063,13 +5055,15 @@ describe('Remote Frame Buffer protocol client', function () {
                 });
 
                 it('should clamp the virtual cursor to the framebuffer bounds', function () {
-                    gestureStart('drag', 20, 40, client);
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[20, 40]]));
                     pointerEvent.resetHistory();
 
                     // Huge positive delta -> clamp to bottom-right (99, 99)
-                    gestureMove('drag', 1020, 1040, client);
+                    client._canvas.dispatchEvent(touchEv('touchmove', client, [[1020, 1040]]));
                     clock.tick(50);
-                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock, 99, 99, 0x0);
+                    expect(pointerEvent).to.have.been.calledWith(client._sock, 99, 99, 0x0);
+
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
                 });
 
                 // Build a TouchEvent with N touches at the given element coords.

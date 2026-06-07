@@ -960,40 +960,67 @@ export default class RFB extends EventTargetMixin {
             this._trackpadPinch = this._trackpadPinchInfo(ev);
             this._trackpadScrollAccumX = 0;
             this._trackpadScrollAccumY = 0;
+        } else if (ev.touches.length === 1) {
+            // Track the finger so we can move the cursor live, from the very
+            // first pixel, without waiting for the drag-recognition threshold.
+            const t = ev.touches[0];
+            this._trackpadLastClient = { x: t.clientX, y: t.clientY };
         }
     }
 
     _handleTrackpadTouchMove(ev) {
-        if (!this._trackpadMode || this._trackpadPinch === null) { return; }
-        if (ev.touches.length < 2) { return; }
+        if (!this._trackpadMode) { return; }
+
+        if (ev.touches.length >= 2) {
+            if (this._trackpadPinch === null) { return; }
+            ev.preventDefault();
+            ev.stopPropagation();
+            const cur = this._trackpadPinchInfo(ev);
+            const prev = this._trackpadPinch;
+            const dcx = cur.cx - prev.cx;
+            const dcy = cur.cy - prev.cy;
+            // Zoom toward the midpoint between the fingers (no-op if unchanged).
+            if (prev.dist > 0 && cur.dist > 0 && cur.dist !== prev.dist) {
+                this._trackpadZoomAt(cur.dist / prev.dist, cur.cx, cur.cy);
+            }
+            if (this._trackpadZoom > 1.0) {
+                // Magnified: the midpoint movement pans the view.
+                this._trackpadPanX += dcx;
+                this._trackpadPanY += dcy;
+                this._trackpadClampPan();
+                this._trackpadApplyTransform();
+            } else {
+                // At fit: the midpoint movement scrolls the remote.
+                this._trackpadScrollBy(dcx, dcy);
+            }
+            this._trackpadPinch = cur;
+            return;
+        }
+
+        // One finger: move the virtual cursor live (relative), so there is no
+        // dead zone before noVNC's gesture handler recognises a drag. Clicks
+        // (tap / two-finger tap / tap-and-a-half) still come from the gesture
+        // handler; it just no longer drives cursor position in trackpad mode.
+        if (this._trackpadMultitouch || this._trackpadLastClient === null) {
+            return;
+        }
+        const t = ev.touches[0];
+        const dx = t.clientX - this._trackpadLastClient.x;
+        const dy = t.clientY - this._trackpadLastClient.y;
+        this._trackpadLastClient = { x: t.clientX, y: t.clientY };
+        this._trackpadEnsurePos();
+        this._trackpadMoveBy(dx, dy);
+        this._trackpadUpdateCursor();
+        this._handleMouseMove(this._trackpadPos.x, this._trackpadPos.y);
         ev.preventDefault();
-        ev.stopPropagation();
-        const cur = this._trackpadPinchInfo(ev);
-        const prev = this._trackpadPinch;
-        const dcx = cur.cx - prev.cx;
-        const dcy = cur.cy - prev.cy;
-        // Zoom toward the midpoint between the fingers (no-op if unchanged).
-        if (prev.dist > 0 && cur.dist > 0 && cur.dist !== prev.dist) {
-            this._trackpadZoomAt(cur.dist / prev.dist, cur.cx, cur.cy);
-        }
-        if (this._trackpadZoom > 1.0) {
-            // Magnified: the midpoint movement pans the view.
-            this._trackpadPanX += dcx;
-            this._trackpadPanY += dcy;
-            this._trackpadClampPan();
-            this._trackpadApplyTransform();
-        } else {
-            // At fit: the midpoint movement scrolls the remote.
-            this._trackpadScrollBy(dcx, dcy);
-        }
-        this._trackpadPinch = cur;
     }
 
     _handleTrackpadTouchEnd(ev) {
         if (ev.touches.length === 0) {
-            // All fingers up: end the two-finger interaction.
+            // All fingers up: end any interaction.
             this._trackpadMultitouch = false;
             this._trackpadPinch = null;
+            this._trackpadLastClient = null;
         } else if (ev.touches.length < 2) {
             // One finger left: stop pan/zoom but keep ignoring single-finger
             // gestures until everything is lifted, so the leftover finger
@@ -1653,9 +1680,9 @@ export default class RFB extends EventTargetMixin {
                         break;
                     case 'drag':
                     case 'longpress':
-                        this._trackpadLastClient = { x: ev.detail.clientX,
-                                                     y: ev.detail.clientY };
-                        // A long press, or a drag started right after a tap
+                        // Cursor movement is driven live from raw touch events;
+                        // the gesture handler only manages the button here. A
+                        // long press, or a drag started right after a tap
                         // ("tap-and-a-half"), holds the left button down so the
                         // movement becomes a drag. A plain drag just moves.
                         if (ev.detail.type === 'longpress' ||
@@ -1666,8 +1693,6 @@ export default class RFB extends EventTargetMixin {
                             this._trackpadDragButton = 0x0;
                         }
                         this._trackpadLastTapTime = null;
-                        this._trackpadUpdateCursor();
-                        this._handleMouseMove(pos.x, pos.y);
                         if (this._trackpadDragButton) {
                             this._handleMouseButton(pos.x, pos.y,
                                                     this._trackpadDragButton);
@@ -1681,28 +1706,7 @@ export default class RFB extends EventTargetMixin {
                 break;
 
             case 'gesturemove':
-                switch (ev.detail.type) {
-                    case 'onetap':
-                    case 'twotap':
-                    case 'threetap':
-                        break;
-                    case 'drag':
-                    case 'longpress': {
-                        const deltaX = ev.detail.clientX - this._trackpadLastClient.x;
-                        const deltaY = ev.detail.clientY - this._trackpadLastClient.y;
-                        this._trackpadLastClient = { x: ev.detail.clientX,
-                                                     y: ev.detail.clientY };
-                        this._trackpadMoveBy(deltaX, deltaY);
-                        this._trackpadUpdateCursor();
-                        this._handleMouseMove(this._trackpadPos.x,
-                                              this._trackpadPos.y);
-                        break;
-                    }
-                    case 'twodrag':
-                    case 'pinch':
-                        // Handled via raw touch events (see _handleTrackpadTouch*).
-                        break;
-                }
+                // Cursor movement comes from raw touch events, not gestures.
                 break;
 
             case 'gestureend':
