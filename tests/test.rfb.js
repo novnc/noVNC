@@ -5067,6 +5067,34 @@ describe('Remote Frame Buffer protocol client', function () {
                     clock.tick(50);
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock, 99, 99, 0x0);
                 });
+
+                it('should magnify locally on pinch instead of sending wheel/ctrl to the remote', function () {
+                    expect(client._trackpadZoom).to.equal(1.0);
+
+                    gestureStart('pinch', 50, 50, client, 100, 0);
+                    pointerEvent.resetHistory();
+                    keyEvent.resetHistory();
+
+                    // Fingers move apart (100 -> 200) => ~2x zoom
+                    gestureMove('pinch', 50, 50, client, 200, 0);
+
+                    expect(client._trackpadZoom).to.be.greaterThan(1.0);
+                    // Local zoom must NOT poke the remote (no wheel buttons, no Ctrl)
+                    expect(pointerEvent).to.not.have.been.called;
+                    expect(keyEvent).to.not.have.been.called;
+                });
+
+                it('should clamp magnification to the 1.0..5.0 range', function () {
+                    gestureStart('pinch', 50, 50, client, 100, 0);
+                    // Pinch in hard -> never below 1.0
+                    gestureMove('pinch', 50, 50, client, 1, 0);
+                    expect(client._trackpadZoom).to.equal(1.0);
+
+                    gestureStart('pinch', 50, 50, client, 1, 0);
+                    // Pinch out hugely -> capped at 5.0
+                    gestureMove('pinch', 50, 50, client, 100000, 0);
+                    expect(client._trackpadZoom).to.equal(5.0);
+                });
             });
         });
 

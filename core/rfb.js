@@ -208,6 +208,7 @@ export default class RFB extends EventTargetMixin {
         this._trackpadLastClient = null; // Last touch position, for delta calc
         this._trackpadDragButton = 0;    // Button held during a drag gesture
         this._trackpadLastTapTime = null; // For "tap-and-a-half" drag detection
+        this._trackpadZoom = 1.0;        // Local magnification (1.0 = fit)
 
         // Bound event handlers
         this._eventHandlers = {
@@ -310,7 +311,7 @@ export default class RFB extends EventTargetMixin {
         // scrolls, and a tap immediately followed by a drag ("tap-and-a-half")
         // drags with the left button held. trackpadSensitivity scales the
         // cursor speed relative to finger movement.
-        this.trackpadMode = false;
+        this._trackpadMode = false;
         this.trackpadSensitivity = 1.5;
 
         this._viewOnly = false;
@@ -390,6 +391,27 @@ export default class RFB extends EventTargetMixin {
     set showDotCursor(show) {
         this._showDotCursor = show;
         this._refreshCursor();
+    }
+
+    get trackpadMode() { return this._trackpadMode; }
+    set trackpadMode(enable) {
+        this._trackpadMode = enable;
+        // In trackpad mode the finger isn't on the cursor, so make sure a
+        // cursor is always visible (falls back to the dot when the server
+        // has no visible cursor) and reset the virtual cursor position.
+        this._trackpadPos = null;
+        // Leaving trackpad mode resets any local magnification.
+        if (!enable && this._trackpadZoom !== 1.0) {
+            this._trackpadZoom = 1.0;
+            this._display.clipViewport = this._clipViewport;
+            this._updateScale();
+        }
+        this._refreshCursor();
+        // Give the virtual cursor an immediate, visible starting point.
+        if (enable && this._rfbConnectionState === 'connected') {
+            this._trackpadEnsurePos();
+            this._trackpadUpdateCursor();
+        }
     }
 
     get background() { return this._screen.style.background; }
@@ -796,6 +818,11 @@ export default class RFB extends EventTargetMixin {
     }
 
     _updateScale() {
+        if (this._trackpadMode && this._trackpadZoom > 1.0) {
+            // Local magnification owns the scale while zoomed in.
+            this._trackpadApplyZoom();
+            return;
+        }
         if (!this._scaleViewport) {
             this._display.scale = 1.0;
         } else {
@@ -803,6 +830,52 @@ export default class RFB extends EventTargetMixin {
             this._display.autoscale(size.w, size.h);
         }
         this._fixScrollbars();
+    }
+
+    // The scale that makes the whole framebuffer fit the container ("contain").
+    _trackpadFitScale(size) {
+        const w = this._display.width;
+        const h = this._display.height;
+        if (!w || !h || !size.w || !size.h) {
+            return 1.0;
+        }
+        return Math.min(size.w / w, size.h / h);
+    }
+
+    // Apply the current local magnification: clip the viewport to the
+    // container and scale the framebuffer to fit * zoom, so the user can pan
+    // around a magnified view (RDP-style), independent of the remote.
+    _trackpadApplyZoom() {
+        const size = this._screenSize();
+        if (this._trackpadZoom <= 1.0) {
+            this._trackpadZoom = 1.0;
+            this._display.clipViewport = this._clipViewport;
+            if (!this._scaleViewport) {
+                this._display.scale = 1.0;
+            } else {
+                this._display.autoscale(size.w, size.h);
+            }
+            this._fixScrollbars();
+            return;
+        }
+        const scale = this._trackpadFitScale(size) * this._trackpadZoom;
+        // Show only the part of the framebuffer that, magnified by `scale`,
+        // fills the container. viewportChangeSize wants framebuffer pixels.
+        this._display.clipViewport = true;
+        this._display.viewportChangeSize(Math.floor(size.w / scale),
+                                         Math.floor(size.h / scale));
+        this._display.scale = scale;
+        this._fixScrollbars();
+    }
+
+    // Change the magnification factor (clamped) and re-apply.
+    _trackpadSetZoom(zoom) {
+        const clamped = Math.max(1.0, Math.min(5.0, zoom));
+        if (clamped === this._trackpadZoom) {
+            return;
+        }
+        this._trackpadZoom = clamped;
+        this._trackpadApplyZoom();
     }
 
     // Requests a change of remote desktop size. This message is an extension
@@ -1494,15 +1567,32 @@ export default class RFB extends EventTargetMixin {
                         break;
                     }
                     case 'twodrag':
-                        this._gestureTwoDragScroll(pos.x, pos.y,
-                                                   ev.detail.magnitudeX,
-                                                   ev.detail.magnitudeY);
+                        if (this._trackpadZoom > 1.0) {
+                            // When magnified, two-finger drag pans the view.
+                            const scale = this._display.scale || 1.0;
+                            const dpx = ev.detail.magnitudeX - this._gestureLastMagnitudeX;
+                            const dpy = ev.detail.magnitudeY - this._gestureLastMagnitudeY;
+                            this._gestureLastMagnitudeX = ev.detail.magnitudeX;
+                            this._gestureLastMagnitudeY = ev.detail.magnitudeY;
+                            // magnitudeY grows upward, so negate to pan naturally
+                            this._display.viewportChangePos(-dpx / scale, dpy / scale);
+                        } else {
+                            this._gestureTwoDragScroll(pos.x, pos.y,
+                                                       ev.detail.magnitudeX,
+                                                       ev.detail.magnitudeY);
+                        }
                         break;
-                    case 'pinch':
-                        this._gesturePinchZoom(pos.x, pos.y,
-                                               ev.detail.magnitudeX,
+                    case 'pinch': {
+                        // Local magnification (RDP-style), not sent to the remote.
+                        const mag = Math.hypot(ev.detail.magnitudeX,
                                                ev.detail.magnitudeY);
+                        if (this._gestureLastMagnitudeX > 0 && mag > 0) {
+                            this._trackpadSetZoom(this._trackpadZoom *
+                                                  (mag / this._gestureLastMagnitudeX));
+                        }
+                        this._gestureLastMagnitudeX = mag;
                         break;
+                    }
                 }
                 break;
 
@@ -3221,7 +3311,7 @@ export default class RFB extends EventTargetMixin {
 
     _shouldShowDotCursor() {
         // Called when this._cursorImage is updated
-        if (!this._showDotCursor) {
+        if (!this._showDotCursor && !this._trackpadMode) {
             // User does not want to see the dot, so...
             return false;
         }

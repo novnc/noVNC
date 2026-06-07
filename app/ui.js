@@ -252,6 +252,14 @@ const UI = {
         // resize events aren't available for elements
         window.addEventListener('resize', UI.updateControlbarHandle);
 
+        // Stop iOS Safari from pinch-zooming the page itself (it ignores
+        // user-scalable=no). These proprietary gesture events carry a
+        // `scale` property; noVNC's own synthetic gesture CustomEvents don't,
+        // so we only block the native ones.
+        const preventNativeGestureZoom = (e) => { if ('scale' in e) e.preventDefault(); };
+        document.addEventListener('gesturestart', preventNativeGestureZoom, { passive: false });
+        document.addEventListener('gesturechange', preventNativeGestureZoom, { passive: false });
+
         const exps = document.getElementsByClassName("noVNC_expander");
         for (let i = 0;i < exps.length;i++) {
             exps[i].addEventListener('click', UI.toggleExpander);
