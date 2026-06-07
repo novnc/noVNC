@@ -4976,6 +4976,98 @@ describe('Remote Frame Buffer protocol client', function () {
                     expect(qemuKeyEvent).to.not.have.been.called;
                 });
             });
+
+            describe('Trackpad mode', function () {
+                // The framebuffer is 100x100 so the virtual cursor starts
+                // centred at (50, 50). Sensitivity 1.0 keeps deltas 1:1.
+                beforeEach(function () {
+                    client.trackpadMode = true;
+                    client.trackpadSensitivity = 1.0;
+                });
+
+                it('should left click at the virtual cursor on onetap', function () {
+                    gestureStart('onetap', 20, 40, client);
+                    gestureEnd('onetap', 20, 40, client);
+
+                    expect(pointerEvent).to.have.been.calledThrice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock, 50, 50, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock, 50, 50, 0x1);
+                    expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock, 50, 50, 0x0);
+                });
+
+                it('should right click at the virtual cursor on twotap', function () {
+                    gestureStart('twotap', 20, 40, client);
+                    gestureEnd('twotap', 20, 40, client);
+
+                    expect(pointerEvent).to.have.been.calledThrice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock, 50, 50, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock, 50, 50, 0x4);
+                    expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock, 50, 50, 0x0);
+                });
+
+                it('should move the cursor relatively on drag without pressing a button', function () {
+                    gestureStart('drag', 20, 40, client);
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock, 50, 50, 0x0);
+
+                    pointerEvent.resetHistory();
+
+                    // Finger moves +10/+10 in client space -> cursor 50,50 -> 60,60
+                    gestureMove('drag', 30, 50, client);
+                    clock.tick(50);
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock, 60, 60, 0x0);
+
+                    pointerEvent.resetHistory();
+
+                    gestureEnd('drag', 30, 50, client);
+                    expect(pointerEvent).to.not.have.been.called;
+                });
+
+                it('should hold the left button for a tap-and-a-half drag', function () {
+                    // A tap, immediately followed by a drag, drags with button held
+                    gestureStart('onetap', 20, 40, client);
+                    gestureEnd('onetap', 20, 40, client);
+
+                    pointerEvent.resetHistory();
+
+                    gestureStart('drag', 20, 40, client);
+                    expect(pointerEvent).to.have.been.calledTwice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock, 50, 50, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock, 50, 50, 0x1);
+
+                    pointerEvent.resetHistory();
+
+                    gestureMove('drag', 30, 50, client);
+                    clock.tick(50);
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock, 60, 60, 0x1);
+
+                    pointerEvent.resetHistory();
+
+                    gestureEnd('drag', 30, 50, client);
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock, 60, 60, 0x0);
+                });
+
+                it('should scroll at the virtual cursor on twodrag', function () {
+                    gestureStart('twodrag', 20, 40, client, 0, 0);
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock, 50, 50, 0x0);
+
+                    pointerEvent.resetHistory();
+
+                    gestureMove('twodrag', 20, 40, client, 0, -60);
+                    expect(pointerEvent).to.have.been.calledTwice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock, 50, 50, 0x10);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock, 50, 50, 0x0);
+                });
+
+                it('should clamp the virtual cursor to the framebuffer bounds', function () {
+                    gestureStart('drag', 20, 40, client);
+                    pointerEvent.resetHistory();
+
+                    // Huge positive delta -> clamp to bottom-right (99, 99)
+                    gestureMove('drag', 1020, 1040, client);
+                    clock.tick(50);
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock, 99, 99, 0x0);
+                });
+            });
         });
 
         describe('WebSocket events', function () {

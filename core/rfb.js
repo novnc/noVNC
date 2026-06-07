@@ -203,6 +203,12 @@ export default class RFB extends EventTargetMixin {
         this._gestureLastMagnitudeX = 0;
         this._gestureLastMagnitudeY = 0;
 
+        // Trackpad (relative pointer) mode state
+        this._trackpadPos = null;        // Virtual cursor, element coordinates
+        this._trackpadLastClient = null; // Last touch position, for delta calc
+        this._trackpadDragButton = 0;    // Button held during a drag gesture
+        this._trackpadLastTapTime = null; // For "tap-and-a-half" drag detection
+
         // Bound event handlers
         this._eventHandlers = {
             focusCanvas: this._focusCanvas.bind(this),
@@ -297,6 +303,15 @@ export default class RFB extends EventTargetMixin {
 
         this.dragViewport = false;
         this.focusOnClick = true;
+
+        // Trackpad mode: treat touch input as a relative trackpad rather than
+        // an absolute touchscreen. One finger moves a virtual cursor, a tap
+        // is a left click, two-finger tap a right click, two-finger drag
+        // scrolls, and a tap immediately followed by a drag ("tap-and-a-half")
+        // drags with the left button held. trackpadSensitivity scales the
+        // cursor speed relative to finger movement.
+        this.trackpadMode = false;
+        this.trackpadSensitivity = 1.5;
 
         this._viewOnly = false;
         this._clipViewport = false;
@@ -1323,8 +1338,196 @@ export default class RFB extends EventTargetMixin {
         this._handleMouseButton(pos.x, pos.y, 0x0);
     }
 
+    // Emit mouse wheel button presses for a two-finger drag gesture, based on
+    // the accumulated drag magnitude relative to the last emitted step.
+    _gestureTwoDragScroll(x, y, magnitudeX, magnitudeY) {
+        while ((magnitudeY - this._gestureLastMagnitudeY) > GESTURE_SCRLSENS) {
+            this._handleMouseButton(x, y, 0x8);
+            this._handleMouseButton(x, y, 0x0);
+            this._gestureLastMagnitudeY += GESTURE_SCRLSENS;
+        }
+        while ((magnitudeY - this._gestureLastMagnitudeY) < -GESTURE_SCRLSENS) {
+            this._handleMouseButton(x, y, 0x10);
+            this._handleMouseButton(x, y, 0x0);
+            this._gestureLastMagnitudeY -= GESTURE_SCRLSENS;
+        }
+        while ((magnitudeX - this._gestureLastMagnitudeX) > GESTURE_SCRLSENS) {
+            this._handleMouseButton(x, y, 0x20);
+            this._handleMouseButton(x, y, 0x0);
+            this._gestureLastMagnitudeX += GESTURE_SCRLSENS;
+        }
+        while ((magnitudeX - this._gestureLastMagnitudeX) < -GESTURE_SCRLSENS) {
+            this._handleMouseButton(x, y, 0x40);
+            this._handleMouseButton(x, y, 0x0);
+            this._gestureLastMagnitudeX -= GESTURE_SCRLSENS;
+        }
+    }
+
+    // Emit Ctrl+wheel button presses for a pinch gesture (zoom).
+    _gesturePinchZoom(x, y, magnitudeX, magnitudeY) {
+        let magnitude = Math.hypot(magnitudeX, magnitudeY);
+        if (Math.abs(magnitude - this._gestureLastMagnitudeX) > GESTURE_ZOOMSENS) {
+            this._handleKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
+            while ((magnitude - this._gestureLastMagnitudeX) > GESTURE_ZOOMSENS) {
+                this._handleMouseButton(x, y, 0x8);
+                this._handleMouseButton(x, y, 0x0);
+                this._gestureLastMagnitudeX += GESTURE_ZOOMSENS;
+            }
+            while ((magnitude - this._gestureLastMagnitudeX) < -GESTURE_ZOOMSENS) {
+                this._handleMouseButton(x, y, 0x10);
+                this._handleMouseButton(x, y, 0x0);
+                this._gestureLastMagnitudeX -= GESTURE_ZOOMSENS;
+            }
+        }
+        this._handleKeyEvent(KeyTable.XK_Control_L, "ControlLeft", false);
+    }
+
+    // Make sure the virtual cursor has a position. Initialise it to the centre
+    // of the visible part of the framebuffer the first time it is needed.
+    _trackpadEnsurePos() {
+        if (this._trackpadPos !== null) {
+            return;
+        }
+        const bounds = this._canvas.getBoundingClientRect();
+        this._trackpadPos = { x: bounds.width / 2, y: bounds.height / 2 };
+    }
+
+    // Move the virtual cursor by a touch delta, scaled by sensitivity and
+    // clamped to the canvas bounds.
+    _trackpadMoveBy(deltaX, deltaY) {
+        const bounds = this._canvas.getBoundingClientRect();
+        let x = this._trackpadPos.x + deltaX * this.trackpadSensitivity;
+        let y = this._trackpadPos.y + deltaY * this.trackpadSensitivity;
+        x = Math.max(0, Math.min(bounds.width - 1, x));
+        y = Math.max(0, Math.min(bounds.height - 1, y));
+        this._trackpadPos = { x: x, y: y };
+    }
+
+    // Position the local cursor indicator at the virtual cursor.
+    _trackpadUpdateCursor() {
+        const bounds = this._canvas.getBoundingClientRect();
+        this._cursor.move(bounds.left + this._trackpadPos.x,
+                          bounds.top + this._trackpadPos.y);
+    }
+
+    // Emit a click of the given button at the virtual cursor position.
+    _trackpadClick(bmask) {
+        this._trackpadEnsurePos();
+        this._trackpadUpdateCursor();
+        this._handleMouseMove(this._trackpadPos.x, this._trackpadPos.y);
+        this._handleMouseButton(this._trackpadPos.x, this._trackpadPos.y, bmask);
+        this._handleMouseButton(this._trackpadPos.x, this._trackpadPos.y, 0x0);
+    }
+
+    // Trackpad mode: touch input drives a relative virtual cursor instead of
+    // mapping directly to absolute framebuffer coordinates.
+    _handleTrackpadGesture(ev) {
+        this._trackpadEnsurePos();
+        const pos = this._trackpadPos;
+
+        switch (ev.type) {
+            case 'gesturestart':
+                switch (ev.detail.type) {
+                    case 'onetap':
+                        this._trackpadClick(0x1);
+                        this._trackpadLastTapTime = Date.now();
+                        break;
+                    case 'twotap':
+                        this._trackpadClick(0x4);
+                        break;
+                    case 'threetap':
+                        this._trackpadClick(0x2);
+                        break;
+                    case 'drag':
+                    case 'longpress':
+                        this._trackpadLastClient = { x: ev.detail.clientX,
+                                                     y: ev.detail.clientY };
+                        // A long press, or a drag started right after a tap
+                        // ("tap-and-a-half"), holds the left button down so the
+                        // movement becomes a drag. A plain drag just moves.
+                        if (ev.detail.type === 'longpress' ||
+                            (this._trackpadLastTapTime !== null &&
+                             (Date.now() - this._trackpadLastTapTime) < DOUBLE_TAP_TIMEOUT)) {
+                            this._trackpadDragButton = 0x1;
+                        } else {
+                            this._trackpadDragButton = 0x0;
+                        }
+                        this._trackpadLastTapTime = null;
+                        this._trackpadUpdateCursor();
+                        this._handleMouseMove(pos.x, pos.y);
+                        if (this._trackpadDragButton) {
+                            this._handleMouseButton(pos.x, pos.y,
+                                                    this._trackpadDragButton);
+                        }
+                        break;
+                    case 'twodrag':
+                        this._gestureLastMagnitudeX = ev.detail.magnitudeX;
+                        this._gestureLastMagnitudeY = ev.detail.magnitudeY;
+                        this._trackpadUpdateCursor();
+                        this._handleMouseMove(pos.x, pos.y);
+                        break;
+                    case 'pinch':
+                        this._gestureLastMagnitudeX = Math.hypot(ev.detail.magnitudeX,
+                                                                 ev.detail.magnitudeY);
+                        this._trackpadUpdateCursor();
+                        this._handleMouseMove(pos.x, pos.y);
+                        break;
+                }
+                break;
+
+            case 'gesturemove':
+                switch (ev.detail.type) {
+                    case 'onetap':
+                    case 'twotap':
+                    case 'threetap':
+                        break;
+                    case 'drag':
+                    case 'longpress': {
+                        const deltaX = ev.detail.clientX - this._trackpadLastClient.x;
+                        const deltaY = ev.detail.clientY - this._trackpadLastClient.y;
+                        this._trackpadLastClient = { x: ev.detail.clientX,
+                                                     y: ev.detail.clientY };
+                        this._trackpadMoveBy(deltaX, deltaY);
+                        this._trackpadUpdateCursor();
+                        this._handleMouseMove(this._trackpadPos.x,
+                                              this._trackpadPos.y);
+                        break;
+                    }
+                    case 'twodrag':
+                        this._gestureTwoDragScroll(pos.x, pos.y,
+                                                   ev.detail.magnitudeX,
+                                                   ev.detail.magnitudeY);
+                        break;
+                    case 'pinch':
+                        this._gesturePinchZoom(pos.x, pos.y,
+                                               ev.detail.magnitudeX,
+                                               ev.detail.magnitudeY);
+                        break;
+                }
+                break;
+
+            case 'gestureend':
+                switch (ev.detail.type) {
+                    case 'drag':
+                    case 'longpress':
+                        if (this._trackpadDragButton) {
+                            this._handleMouseButton(this._trackpadPos.x,
+                                                    this._trackpadPos.y, 0x0);
+                            this._trackpadDragButton = 0;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                break;
+        }
+    }
+
     _handleGesture(ev) {
-        let magnitude;
+        if (this.trackpadMode) {
+            this._handleTrackpadGesture(ev);
+            return;
+        }
 
         let pos = clientToElement(ev.detail.clientX, ev.detail.clientY,
                                   this._canvas);
@@ -1404,47 +1607,18 @@ export default class RFB extends EventTargetMixin {
                         // We don't know if the mouse was moved so we need to move it
                         // every update.
                         this._fakeMouseMove(ev, pos.x, pos.y);
-                        while ((ev.detail.magnitudeY - this._gestureLastMagnitudeY) > GESTURE_SCRLSENS) {
-                            this._handleMouseButton(pos.x, pos.y, 0x8);
-                            this._handleMouseButton(pos.x, pos.y, 0x0);
-                            this._gestureLastMagnitudeY += GESTURE_SCRLSENS;
-                        }
-                        while ((ev.detail.magnitudeY - this._gestureLastMagnitudeY) < -GESTURE_SCRLSENS) {
-                            this._handleMouseButton(pos.x, pos.y, 0x10);
-                            this._handleMouseButton(pos.x, pos.y, 0x0);
-                            this._gestureLastMagnitudeY -= GESTURE_SCRLSENS;
-                        }
-                        while ((ev.detail.magnitudeX - this._gestureLastMagnitudeX) > GESTURE_SCRLSENS) {
-                            this._handleMouseButton(pos.x, pos.y, 0x20);
-                            this._handleMouseButton(pos.x, pos.y, 0x0);
-                            this._gestureLastMagnitudeX += GESTURE_SCRLSENS;
-                        }
-                        while ((ev.detail.magnitudeX - this._gestureLastMagnitudeX) < -GESTURE_SCRLSENS) {
-                            this._handleMouseButton(pos.x, pos.y, 0x40);
-                            this._handleMouseButton(pos.x, pos.y, 0x0);
-                            this._gestureLastMagnitudeX -= GESTURE_SCRLSENS;
-                        }
+                        this._gestureTwoDragScroll(pos.x, pos.y,
+                                                   ev.detail.magnitudeX,
+                                                   ev.detail.magnitudeY);
                         break;
                     case 'pinch':
                         // Always scroll in the same position.
                         // We don't know if the mouse was moved so we need to move it
                         // every update.
                         this._fakeMouseMove(ev, pos.x, pos.y);
-                        magnitude = Math.hypot(ev.detail.magnitudeX, ev.detail.magnitudeY);
-                        if (Math.abs(magnitude - this._gestureLastMagnitudeX) > GESTURE_ZOOMSENS) {
-                            this._handleKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
-                            while ((magnitude - this._gestureLastMagnitudeX) > GESTURE_ZOOMSENS) {
-                                this._handleMouseButton(pos.x, pos.y, 0x8);
-                                this._handleMouseButton(pos.x, pos.y, 0x0);
-                                this._gestureLastMagnitudeX += GESTURE_ZOOMSENS;
-                            }
-                            while ((magnitude -  this._gestureLastMagnitudeX) < -GESTURE_ZOOMSENS) {
-                                this._handleMouseButton(pos.x, pos.y, 0x10);
-                                this._handleMouseButton(pos.x, pos.y, 0x0);
-                                this._gestureLastMagnitudeX -= GESTURE_ZOOMSENS;
-                            }
-                        }
-                        this._handleKeyEvent(KeyTable.XK_Control_L, "ControlLeft", false);
+                        this._gesturePinchZoom(pos.x, pos.y,
+                                               ev.detail.magnitudeX,
+                                               ev.detail.magnitudeY);
                         break;
                 }
                 break;

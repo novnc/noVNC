@@ -191,6 +191,7 @@ const UI = {
         UI.initSetting('bell', 'on');
         UI.initSetting('view_only', false);
         UI.initSetting('show_dot', false);
+        UI.initSetting('trackpad_mode', false);
         UI.initSetting('path', 'websockify');
         UI.initSetting('repeaterID', '');
         UI.initSetting('reconnect', false);
@@ -378,6 +379,8 @@ const UI = {
         UI.addSettingChangeHandler('view_only', UI.updateViewOnly);
         UI.addSettingChangeHandler('show_dot');
         UI.addSettingChangeHandler('show_dot', UI.updateShowDotCursor);
+        UI.addSettingChangeHandler('trackpad_mode');
+        UI.addSettingChangeHandler('trackpad_mode', UI.updateTrackpadMode);
         UI.addSettingChangeHandler('keep_device_awake');
         UI.addSettingChangeHandler('keep_device_awake', UI.updateRequestWakelock);
         UI.addSettingChangeHandler('host');
@@ -1182,6 +1185,7 @@ const UI = {
         UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
         UI.rfb.compressionLevel = parseInt(UI.getSetting('compression'));
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
+        UI.rfb.trackpadMode = UI.getSetting('trackpad_mode');
 
         UI.updateViewOnly(); // requires UI.rfb
         UI.updateClipboard();
@@ -1889,6 +1893,11 @@ const UI = {
     updateShowDotCursor() {
         if (!UI.rfb) return;
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
+    },
+
+    updateTrackpadMode() {
+        if (!UI.rfb) return;
+        UI.rfb.trackpadMode = UI.getSetting('trackpad_mode');
     },
 
     updateLogging() {
