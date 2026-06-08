@@ -21,6 +21,8 @@
 
     --novnc-green: rgb(0, 128, 0);
     --novnc-yellow: rgb(255, 255, 0);
+    --novnc-red-rgb: 229, 57, 53;
+    --novnc-red: rgb(var(--novnc-red-rgb));
 }
 
 /* ------ MISC PROPERTIES ------ */
