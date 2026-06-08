@@ -117,7 +117,22 @@
 
             if (match) {
                 // We have to decode the URL since want the cleartext value
-                return decodeURIComponent(match[1]);
+                const value = decodeURIComponent(match[1]);
+                if (value.toLowerCase() === 'false' || value === '0') {
+                    return false;
+                }
+                if (value.toLowerCase() === 'true' || value === '1') {
+                    return true;
+                }
+                // Check for integer
+                if (/^-?\d+$/.test(value)) {
+                    return parseInt(value, 10);
+                }
+                // Check for float
+                if (/^-?\d*\.\d+$/.test(value)) {
+                    return parseFloat(value);
+                }
+                return value;
             }
 
             return defaultValue;
