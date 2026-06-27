@@ -1708,29 +1708,37 @@ export default class RFB extends EventTargetMixin {
         return 0;
     }
 
-    // Pan velocity (CSS px/frame) from how far the finger is pushed past the
-    // visible edge. Zero unless there is accumulated overshoot.
+    // Pan velocity (CSS px/frame). Magnitude comes from how far the finger is
+    // pushed past the edge (overshoot); direction follows the cursor's position
+    // relative to the visible centre, so panning goes diagonally toward the
+    // corner the cursor sits in rather than snapping to pure H/V.
     _trackpadEdgePanVelocity() {
         const z = this._trackpadZoom;
         if (z <= 1.0) { return { vx: 0, vy: 0 }; }
+        const overMag = Math.hypot(this._trackpadOverX, this._trackpadOverY);
+        if (overMag === 0) { return { vx: 0, vy: 0 }; }
         const cw = this._canvas.clientWidth;
         const ch = this._canvas.clientHeight;
         const min = 6;                              // px/frame as soon as past edge
         const max = 22;                             // px/frame at full push
         const ref = Math.min(cw, ch) * 0.20;        // overshoot for full speed
-        // Map overshoot -> signed speed with a non-zero floor so the slowest
-        // pan isn't sluggish. Push right (overX > 0) reveals right -> panX must
-        // decrease (vx < 0).
-        const speed = (o) => {
-            if (o === 0) { return 0; }
-            const mag = Math.min(1, Math.abs(o) / ref);
-            return -Math.sign(o) * (min + mag * (max - min));
-        };
-        return { vx: speed(this._trackpadOverX), vy: speed(this._trackpadOverY) };
+        const speed = min + Math.min(1, overMag / ref) * (max - min);
+        // Direction from the cursor's position within the visible region.
+        const b = this._trackpadVisibleBounds();
+        const halfW = Math.max(1, (b.hiX - b.loX) / 2);
+        const halfH = Math.max(1, (b.hiY - b.loY) / 2);
+        const offX = (this._trackpadPos.x - (b.loX + b.hiX) / 2) / halfW;
+        const offY = (this._trackpadPos.y - (b.loY + b.hiY) / 2) / halfH;
+        const dirX = Math.max(-1, Math.min(1, offX));
+        const dirY = Math.max(-1, Math.min(1, offY));
+        // Normalise so the dominant axis reaches `speed`; reveal-direction is
+        // opposite the cursor offset (cursor at right edge -> panX decreases).
+        const dlen = Math.max(Math.abs(dirX), Math.abs(dirY), 1e-3);
+        return { vx: -(dirX / dlen) * speed, vy: -(dirY / dlen) * speed };
     }
 
-    // One animation frame of edge panning: scroll the view and ride the cursor
-    // along the leading visible edge so it points at the newly revealed
+    // One animation frame of edge panning: scroll the view while keeping the
+    // cursor fixed on screen, so its logical position rides onto the revealed
     // content. Reschedules while overshoot remains and content is left.
     _trackpadEdgePanStep() {
         this._trackpadEdgePanRAF = null;
@@ -1740,6 +1748,7 @@ export default class RFB extends EventTargetMixin {
         }
         const vel = this._trackpadEdgePanVelocity();
         if (vel.vx === 0 && vel.vy === 0) { return; }
+        const z = this._trackpadZoom;
         const beforeX = this._trackpadPanX;
         const beforeY = this._trackpadPanY;
         this._trackpadPanX += vel.vx;
@@ -1749,12 +1758,10 @@ export default class RFB extends EventTargetMixin {
         const movedY = this._trackpadPanY - beforeY;
         // Out of content to reveal in both axes: stop (don't spin the loop).
         if (movedX === 0 && movedY === 0) { return; }
-        // Pin the cursor to the leading visible edge it is revealing.
+        // Keep the cursor fixed on screen as the view scrolls under it.
         const b = this._trackpadVisibleBounds();
-        let px = Math.max(b.loX, Math.min(b.hiX, this._trackpadPos.x));
-        let py = Math.max(b.loY, Math.min(b.hiY, this._trackpadPos.y));
-        if (vel.vx < 0) { px = b.hiX; } else if (vel.vx > 0) { px = b.loX; }
-        if (vel.vy < 0) { py = b.hiY; } else if (vel.vy > 0) { py = b.loY; }
+        const px = Math.max(b.loX, Math.min(b.hiX, this._trackpadPos.x - movedX / z));
+        const py = Math.max(b.loY, Math.min(b.hiY, this._trackpadPos.y - movedY / z));
         this._trackpadPos = { x: px, y: py };
         this._trackpadApplyTransform();
         this._handleMouseMove(px, py);
