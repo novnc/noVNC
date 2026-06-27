@@ -220,6 +220,7 @@ export default class RFB extends EventTargetMixin {
         this._trackpadEdgePanRAF = null; // requestAnimationFrame id for edge panning
         this._trackpadOverX = 0;         // finger overshoot past the visible edge
         this._trackpadOverY = 0;
+        this._trackpadBase = null;       // cached screen geometry for stable bounds
 
         // Bound event handlers
         this._eventHandlers = {
@@ -795,6 +796,8 @@ export default class RFB extends EventTargetMixin {
 
     // Handle browser window resizes
     _handleResize() {
+        // Cached trackpad screen geometry is no longer valid after a resize.
+        this._trackpadBase = null;
         // Don't change anything if the client size is already as expected
         if (this._clientHasExpectedSize()) {
             return;
@@ -1628,6 +1631,22 @@ export default class RFB extends EventTargetMixin {
     // confined to the intersection of the framebuffer and the actual viewport
     // (the _screen container), so the pan-trigger edges follow the screen edges
     // rather than the canvas footprint (which is centred with margins at fit).
+    // Cache the canvas's untransformed screen origin and the viewport rect.
+    // These are invariant to pan/zoom (transform origin 0,0), so caching them
+    // lets the edge-pan loop compute bounds analytically without reading layout
+    // mid-transform (which gave noisy, jumping bounds).
+    _trackpadEnsureBase() {
+        if (this._trackpadBase !== null) { return; }
+        const crect = this._canvas.getBoundingClientRect();
+        const srect = this._screen.getBoundingClientRect();
+        this._trackpadBase = {
+            p0x: crect.left - this._trackpadPanX,
+            p0y: crect.top - this._trackpadPanY,
+            sl: srect.left, st: srect.top,
+            sr: srect.right, sb: srect.bottom,
+        };
+    }
+
     _trackpadVisibleBounds() {
         const cw = this._canvas.clientWidth;
         const ch = this._canvas.clientHeight;
@@ -1635,15 +1654,15 @@ export default class RFB extends EventTargetMixin {
         if (z <= 1.0) {
             return { loX: 0, hiX: cw - 1, loY: 0, hiY: ch - 1 };
         }
-        const crect = this._canvas.getBoundingClientRect();
-        const srect = this._screen.getBoundingClientRect();
-        const sx = crect.width / (cw || 1);   // on-screen px per canvas CSS px
-        const sy = crect.height / (ch || 1);
+        this._trackpadEnsureBase();
+        const base = this._trackpadBase;
+        const left = base.p0x + this._trackpadPanX;
+        const top = base.p0y + this._trackpadPanY;
         return {
-            loX: Math.max(0, (srect.left - crect.left) / sx),
-            hiX: Math.min(cw - 1, (srect.right - crect.left) / sx),
-            loY: Math.max(0, (srect.top - crect.top) / sy),
-            hiY: Math.min(ch - 1, (srect.bottom - crect.top) / sy),
+            loX: Math.max(0, (base.sl - left) / z),
+            hiX: Math.min(cw - 1, (base.sr - left) / z),
+            loY: Math.max(0, (base.st - top) / z),
+            hiY: Math.min(ch - 1, (base.sb - top) / z),
         };
     }
 
@@ -1664,24 +1683,29 @@ export default class RFB extends EventTargetMixin {
         const y = Math.max(b.loY, Math.min(b.hiY, desY));
         this._trackpadPos = { x: x, y: y };
         if (z > 1.0) {
-            // Accumulate overshoot per axis while the finger keeps pushing the
-            // same direction past the edge; reset once it comes off the edge.
-            if (desX > b.hiX) {
-                this._trackpadOverX = Math.max(0, this._trackpadOverX) + (desX - b.hiX);
-            } else if (desX < b.loX) {
-                this._trackpadOverX = Math.min(0, this._trackpadOverX) + (desX - b.loX);
-            } else {
-                this._trackpadOverX = 0;
-            }
-            if (desY > b.hiY) {
-                this._trackpadOverY = Math.max(0, this._trackpadOverY) + (desY - b.hiY);
-            } else if (desY < b.loY) {
-                this._trackpadOverY = Math.min(0, this._trackpadOverY) + (desY - b.loY);
-            } else {
-                this._trackpadOverY = 0;
-            }
+            const exX = desX > b.hiX ? desX - b.hiX
+                : (desX < b.loX ? desX - b.loX : 0);
+            const exY = desY > b.hiY ? desY - b.hiY
+                : (desY < b.loY ? desY - b.loY : 0);
+            this._trackpadOverX =
+                this._trackpadAccumOver(this._trackpadOverX, exX, deltaX * gain);
+            this._trackpadOverY =
+                this._trackpadAccumOver(this._trackpadOverY, exY, deltaY * gain);
             this._trackpadEdgePanKick();
         }
+    }
+
+    // Update an overshoot accumulator. While the finger keeps pushing past the
+    // edge (ex != 0) it accumulates in that direction; when the finger is back
+    // inside, it bleeds toward zero by the inward motion instead of hard-
+    // resetting, so the auto-pan shifting the bounds doesn't make it stutter.
+    _trackpadAccumOver(cur, ex, inward) {
+        if (ex !== 0) {
+            return Math.sign(ex) === Math.sign(cur) ? cur + ex : ex;
+        }
+        if (cur > 0) { return Math.max(0, cur + Math.min(0, inward)); }
+        if (cur < 0) { return Math.min(0, cur + Math.max(0, inward)); }
+        return 0;
     }
 
     // Pan velocity (CSS px/frame) from how far the finger is pushed past the
@@ -1749,6 +1773,7 @@ export default class RFB extends EventTargetMixin {
     _trackpadEdgePanStop() {
         this._trackpadOverX = 0;
         this._trackpadOverY = 0;
+        this._trackpadBase = null;
         if (this._trackpadEdgePanRAF !== null) {
             window.cancelAnimationFrame(this._trackpadEdgePanRAF);
             this._trackpadEdgePanRAF = null;
