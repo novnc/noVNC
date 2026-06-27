@@ -1650,7 +1650,7 @@ export default class RFB extends EventTargetMixin {
         const z = this._trackpadZoom;
         if (z <= 1.0) { return { vx: 0, vy: 0 }; }
         const margin = Math.min(cw, ch) * 0.18;
-        const max = 18; // px/frame at maximum push depth
+        const max = 9; // px/frame at maximum push depth
         // Cursor position within the visible footprint, in CSS px.
         const sx = this._trackpadPanX + this._trackpadPos.x * z;
         const sy = this._trackpadPanY + this._trackpadPos.y * z;
