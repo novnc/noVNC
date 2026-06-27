@@ -218,6 +218,8 @@ export default class RFB extends EventTargetMixin {
         this._trackpadScrollAccumX = 0;  // Accumulated two-finger scroll (at fit)
         this._trackpadScrollAccumY = 0;
         this._trackpadEdgePanRAF = null; // requestAnimationFrame id for edge panning
+        this._trackpadOverX = 0;         // finger overshoot past the visible edge
+        this._trackpadOverY = 0;
 
         // Bound event handlers
         this._eventHandlers = {
@@ -1621,58 +1623,79 @@ export default class RFB extends EventTargetMixin {
                               y: this._canvas.clientHeight / 2 };
     }
 
+    // Visible region of the canvas (in untransformed canvas CSS px) given the
+    // current pan/zoom. At fit this is the whole canvas.
+    _trackpadVisibleBounds() {
+        const cw = this._canvas.clientWidth;
+        const ch = this._canvas.clientHeight;
+        const z = this._trackpadZoom;
+        if (z <= 1.0) {
+            return { loX: 0, hiX: cw - 1, loY: 0, hiY: ch - 1 };
+        }
+        return {
+            loX: Math.max(0, -this._trackpadPanX / z),
+            hiX: Math.min(cw - 1, (cw - this._trackpadPanX) / z),
+            loY: Math.max(0, -this._trackpadPanY / z),
+            hiY: Math.min(ch - 1, (ch - this._trackpadPanY) / z),
+        };
+    }
+
     // Move the virtual cursor by a touch delta. The position is kept in
     // untransformed canvas CSS pixels; dividing by the zoom keeps the cursor
-    // moving 1:1 with the finger on screen even while magnified.
+    // moving 1:1 with the finger on screen even while magnified. The cursor is
+    // confined to the *visible* region; any finger motion that would push it
+    // past the visible edge accumulates as "overshoot" which drives edge
+    // panning (RDP-style: pan only starts at the edge, faster the harder you
+    // keep pushing past it).
     _trackpadMoveBy(deltaX, deltaY) {
         const z = this._trackpadZoom || 1.0;
         const gain = this.trackpadSensitivity / z;
-        let x = this._trackpadPos.x + deltaX * gain;
-        let y = this._trackpadPos.y + deltaY * gain;
-        x = Math.max(0, Math.min(this._canvas.clientWidth - 1, x));
-        y = Math.max(0, Math.min(this._canvas.clientHeight - 1, y));
+        const desX = this._trackpadPos.x + deltaX * gain;
+        const desY = this._trackpadPos.y + deltaY * gain;
+        const b = this._trackpadVisibleBounds();
+        const x = Math.max(b.loX, Math.min(b.hiX, desX));
+        const y = Math.max(b.loY, Math.min(b.hiY, desY));
         this._trackpadPos = { x: x, y: y };
-        // While magnified, start RDP-style edge panning once the cursor enters
-        // the margin band of the visible viewport. The pan runs continuously on
-        // its own animation loop at a speed proportional to how far the cursor
-        // is pushed into the edge, so off-screen areas can be reached by
-        // pushing against the border without a separate two-finger pan.
         if (z > 1.0) {
+            // Accumulate overshoot per axis while the finger keeps pushing the
+            // same direction past the edge; reset once it comes off the edge.
+            if (desX > b.hiX) {
+                this._trackpadOverX = Math.max(0, this._trackpadOverX) + (desX - b.hiX);
+            } else if (desX < b.loX) {
+                this._trackpadOverX = Math.min(0, this._trackpadOverX) + (desX - b.loX);
+            } else {
+                this._trackpadOverX = 0;
+            }
+            if (desY > b.hiY) {
+                this._trackpadOverY = Math.max(0, this._trackpadOverY) + (desY - b.hiY);
+            } else if (desY < b.loY) {
+                this._trackpadOverY = Math.min(0, this._trackpadOverY) + (desY - b.loY);
+            } else {
+                this._trackpadOverY = 0;
+            }
             this._trackpadEdgePanKick();
         }
     }
 
-    // Pan velocity (CSS px/frame) from how deep the cursor sits in the edge
-    // margin of the visible viewport. Zero when the cursor is in the middle.
+    // Pan velocity (CSS px/frame) from how far the finger is pushed past the
+    // visible edge. Zero unless there is accumulated overshoot.
     _trackpadEdgePanVelocity() {
-        const cw = this._canvas.clientWidth;
-        const ch = this._canvas.clientHeight;
         const z = this._trackpadZoom;
         if (z <= 1.0) { return { vx: 0, vy: 0 }; }
-        const margin = Math.min(cw, ch) * 0.18;
-        const max = 9; // px/frame at maximum push depth
-        // Cursor position within the visible footprint, in CSS px.
-        const sx = this._trackpadPanX + this._trackpadPos.x * z;
-        const sy = this._trackpadPanY + this._trackpadPos.y * z;
-        let vx = 0;
-        let vy = 0;
-        if (sx < margin) {
-            vx = Math.min(1, (margin - sx) / margin) * max;
-        } else if (sx > cw - margin) {
-            vx = -Math.min(1, (sx - (cw - margin)) / margin) * max;
-        }
-        if (sy < margin) {
-            vy = Math.min(1, (margin - sy) / margin) * max;
-        } else if (sy > ch - margin) {
-            vy = -Math.min(1, (sy - (ch - margin)) / margin) * max;
-        }
+        const cw = this._canvas.clientWidth;
+        const ch = this._canvas.clientHeight;
+        const max = 9;                              // px/frame at full push
+        const ref = Math.min(cw, ch) * 0.35;        // overshoot for full speed
+        const clamp = v => Math.max(-1, Math.min(1, v));
+        // Push right (overX > 0) reveals right -> panX must decrease (vx < 0).
+        const vx = -clamp(this._trackpadOverX / ref) * max;
+        const vy = -clamp(this._trackpadOverY / ref) * max;
         return { vx, vy };
     }
 
-    // One animation frame of edge panning: scroll the view under the cursor and
-    // shift the cursor's logical (framebuffer) position onto the newly revealed
-    // content, keeping it fixed on screen. Reschedules itself while still
-    // pushing against an edge that has content left to reveal.
+    // One animation frame of edge panning: scroll the view and ride the cursor
+    // along the leading visible edge so it points at the newly revealed
+    // content. Reschedules while overshoot remains and content is left.
     _trackpadEdgePanStep() {
         this._trackpadEdgePanRAF = null;
         if (!this._trackpadMode || this._trackpadMultitouch ||
@@ -1681,7 +1704,6 @@ export default class RFB extends EventTargetMixin {
         }
         const vel = this._trackpadEdgePanVelocity();
         if (vel.vx === 0 && vel.vy === 0) { return; }
-        const z = this._trackpadZoom;
         const beforeX = this._trackpadPanX;
         const beforeY = this._trackpadPanY;
         this._trackpadPanX += vel.vx;
@@ -1691,10 +1713,12 @@ export default class RFB extends EventTargetMixin {
         const movedY = this._trackpadPanY - beforeY;
         // Out of content to reveal in both axes: stop (don't spin the loop).
         if (movedX === 0 && movedY === 0) { return; }
-        let px = this._trackpadPos.x - movedX / z;
-        let py = this._trackpadPos.y - movedY / z;
-        px = Math.max(0, Math.min(this._canvas.clientWidth - 1, px));
-        py = Math.max(0, Math.min(this._canvas.clientHeight - 1, py));
+        // Pin the cursor to the leading visible edge it is revealing.
+        const b = this._trackpadVisibleBounds();
+        let px = Math.max(b.loX, Math.min(b.hiX, this._trackpadPos.x));
+        let py = Math.max(b.loY, Math.min(b.hiY, this._trackpadPos.y));
+        if (vel.vx < 0) { px = b.hiX; } else if (vel.vx > 0) { px = b.loX; }
+        if (vel.vy < 0) { py = b.hiY; } else if (vel.vy > 0) { py = b.loY; }
         this._trackpadPos = { x: px, y: py };
         this._trackpadApplyTransform();
         this._handleMouseMove(px, py);
@@ -1711,6 +1735,8 @@ export default class RFB extends EventTargetMixin {
     }
 
     _trackpadEdgePanStop() {
+        this._trackpadOverX = 0;
+        this._trackpadOverY = 0;
         if (this._trackpadEdgePanRAF !== null) {
             window.cancelAnimationFrame(this._trackpadEdgePanRAF);
             this._trackpadEdgePanRAF = null;

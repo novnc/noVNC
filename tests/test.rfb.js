@@ -5139,7 +5139,7 @@ describe('Remote Frame Buffer protocol client', function () {
                     pointerEvent.resetHistory();
 
                     // Drag left -> cursor enters the left edge band -> edge pan.
-                    client._canvas.dispatchEvent(touchEv('touchmove', client, [[10, 40]]));
+                    client._canvas.dispatchEvent(touchEv('touchmove', client, [[-100, 40]]));
                     clock.tick(100);
 
                     expect(client._trackpadPanX).to.be.greaterThan(-50);
@@ -5156,7 +5156,7 @@ describe('Remote Frame Buffer protocol client', function () {
                     client._trackpadApplyTransform();
 
                     client._canvas.dispatchEvent(touchEv('touchstart', client, [[50, 40]]));
-                    client._canvas.dispatchEvent(touchEv('touchmove', client, [[10, 40]]));
+                    client._canvas.dispatchEvent(touchEv('touchmove', client, [[-100, 40]]));
                     clock.tick(50);
                     client._canvas.dispatchEvent(touchEv('touchend', client, []));
 
