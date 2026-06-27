@@ -1623,8 +1623,11 @@ export default class RFB extends EventTargetMixin {
                               y: this._canvas.clientHeight / 2 };
     }
 
-    // Visible region of the canvas (in untransformed canvas CSS px) given the
-    // current pan/zoom. At fit this is the whole canvas.
+    // Visible region of the canvas, in untransformed canvas CSS px, given the
+    // current pan/zoom. Derived from real on-screen geometry: the cursor is
+    // confined to the intersection of the framebuffer and the actual viewport
+    // (the _screen container), so the pan-trigger edges follow the screen edges
+    // rather than the canvas footprint (which is centred with margins at fit).
     _trackpadVisibleBounds() {
         const cw = this._canvas.clientWidth;
         const ch = this._canvas.clientHeight;
@@ -1632,11 +1635,15 @@ export default class RFB extends EventTargetMixin {
         if (z <= 1.0) {
             return { loX: 0, hiX: cw - 1, loY: 0, hiY: ch - 1 };
         }
+        const crect = this._canvas.getBoundingClientRect();
+        const srect = this._screen.getBoundingClientRect();
+        const sx = crect.width / (cw || 1);   // on-screen px per canvas CSS px
+        const sy = crect.height / (ch || 1);
         return {
-            loX: Math.max(0, -this._trackpadPanX / z),
-            hiX: Math.min(cw - 1, (cw - this._trackpadPanX) / z),
-            loY: Math.max(0, -this._trackpadPanY / z),
-            hiY: Math.min(ch - 1, (ch - this._trackpadPanY) / z),
+            loX: Math.max(0, (srect.left - crect.left) / sx),
+            hiX: Math.min(cw - 1, (srect.right - crect.left) / sx),
+            loY: Math.max(0, (srect.top - crect.top) / sy),
+            hiY: Math.min(ch - 1, (srect.bottom - crect.top) / sy),
         };
     }
 
@@ -1684,13 +1691,18 @@ export default class RFB extends EventTargetMixin {
         if (z <= 1.0) { return { vx: 0, vy: 0 }; }
         const cw = this._canvas.clientWidth;
         const ch = this._canvas.clientHeight;
-        const max = 9;                              // px/frame at full push
-        const ref = Math.min(cw, ch) * 0.35;        // overshoot for full speed
-        const clamp = v => Math.max(-1, Math.min(1, v));
-        // Push right (overX > 0) reveals right -> panX must decrease (vx < 0).
-        const vx = -clamp(this._trackpadOverX / ref) * max;
-        const vy = -clamp(this._trackpadOverY / ref) * max;
-        return { vx, vy };
+        const min = 4;                              // px/frame as soon as past edge
+        const max = 11;                             // px/frame at full push
+        const ref = Math.min(cw, ch) * 0.30;        // overshoot for full speed
+        // Map overshoot -> signed speed with a non-zero floor so the slowest
+        // pan isn't sluggish. Push right (overX > 0) reveals right -> panX must
+        // decrease (vx < 0).
+        const speed = (o) => {
+            if (o === 0) { return 0; }
+            const mag = Math.min(1, Math.abs(o) / ref);
+            return -Math.sign(o) * (min + mag * (max - min));
+        };
+        return { vx: speed(this._trackpadOverX), vy: speed(this._trackpadOverY) };
     }
 
     // One animation frame of edge panning: scroll the view and ride the cursor
