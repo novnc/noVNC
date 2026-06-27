@@ -5124,6 +5124,46 @@ describe('Remote Frame Buffer protocol client', function () {
                     client._canvas.dispatchEvent(touchEv('touchend', client, []));
                     expect(client._trackpadMultitouch).to.be.false;
                 });
+
+                it('should edge-pan the magnified view when the cursor pushes against a border', function () {
+                    // Pre-zoom 2x, centred. Pushing the cursor into the left
+                    // margin should pan the view (panX rises toward 0, revealing
+                    // left content) and keep emitting pointer moves.
+                    client._trackpadZoom = 2.0;
+                    client._trackpadPanX = -50;
+                    client._trackpadPanY = -50;
+                    client._trackpadPos = { x: 50, y: 50 };
+                    client._trackpadApplyTransform();
+
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[50, 40]]));
+                    pointerEvent.resetHistory();
+
+                    // Drag left -> cursor enters the left edge band -> edge pan.
+                    client._canvas.dispatchEvent(touchEv('touchmove', client, [[10, 40]]));
+                    clock.tick(100);
+
+                    expect(client._trackpadPanX).to.be.greaterThan(-50);
+                    expect(pointerEvent).to.have.been.called;
+
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
+                });
+
+                it('should stop edge panning once all fingers lift', function () {
+                    client._trackpadZoom = 2.0;
+                    client._trackpadPanX = -50;
+                    client._trackpadPanY = -50;
+                    client._trackpadPos = { x: 50, y: 50 };
+                    client._trackpadApplyTransform();
+
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[50, 40]]));
+                    client._canvas.dispatchEvent(touchEv('touchmove', client, [[10, 40]]));
+                    clock.tick(50);
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
+
+                    const panAfterLift = client._trackpadPanX;
+                    clock.tick(200);
+                    expect(client._trackpadPanX).to.equal(panAfterLift);
+                });
             });
         });
 

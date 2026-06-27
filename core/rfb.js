@@ -217,6 +217,7 @@ export default class RFB extends EventTargetMixin {
         this._trackpadPinch = null;      // {cx, cy, dist} of the last two-finger sample
         this._trackpadScrollAccumX = 0;  // Accumulated two-finger scroll (at fit)
         this._trackpadScrollAccumY = 0;
+        this._trackpadEdgePanRAF = null; // requestAnimationFrame id for edge panning
 
         // Bound event handlers
         this._eventHandlers = {
@@ -228,6 +229,7 @@ export default class RFB extends EventTargetMixin {
             handleTrackpadTouchStart: this._handleTrackpadTouchStart.bind(this),
             handleTrackpadTouchMove: this._handleTrackpadTouchMove.bind(this),
             handleTrackpadTouchEnd: this._handleTrackpadTouchEnd.bind(this),
+            trackpadEdgePanStep: this._trackpadEdgePanStep.bind(this),
             handleRSAAESCredentialsRequired: this._handleRSAAESCredentialsRequired.bind(this),
             handleRSAAESServerVerification: this._handleRSAAESServerVerification.bind(this),
         };
@@ -861,6 +863,7 @@ export default class RFB extends EventTargetMixin {
     // (in canvas CSS pixels) still maps to the framebuffer via absX/absY.
 
     _trackpadResetZoom() {
+        this._trackpadEdgePanStop();
         this._trackpadZoom = 1.0;
         this._trackpadPanX = 0;
         this._trackpadPanY = 0;
@@ -957,6 +960,7 @@ export default class RFB extends EventTargetMixin {
         if (!this._trackpadMode) { return; }
         if (ev.touches.length >= 2) {
             this._trackpadMultitouch = true;
+            this._trackpadEdgePanStop();
             this._trackpadPinch = this._trackpadPinchInfo(ev);
             this._trackpadScrollAccumX = 0;
             this._trackpadScrollAccumY = 0;
@@ -1021,6 +1025,7 @@ export default class RFB extends EventTargetMixin {
             this._trackpadMultitouch = false;
             this._trackpadPinch = null;
             this._trackpadLastClient = null;
+            this._trackpadEdgePanStop();
         } else if (ev.touches.length < 2) {
             // One finger left: stop pan/zoom but keep ignoring single-finger
             // gestures until everything is lifted, so the leftover finger
@@ -1627,6 +1632,89 @@ export default class RFB extends EventTargetMixin {
         x = Math.max(0, Math.min(this._canvas.clientWidth - 1, x));
         y = Math.max(0, Math.min(this._canvas.clientHeight - 1, y));
         this._trackpadPos = { x: x, y: y };
+        // While magnified, start RDP-style edge panning once the cursor enters
+        // the margin band of the visible viewport. The pan runs continuously on
+        // its own animation loop at a speed proportional to how far the cursor
+        // is pushed into the edge, so off-screen areas can be reached by
+        // pushing against the border without a separate two-finger pan.
+        if (z > 1.0) {
+            this._trackpadEdgePanKick();
+        }
+    }
+
+    // Pan velocity (CSS px/frame) from how deep the cursor sits in the edge
+    // margin of the visible viewport. Zero when the cursor is in the middle.
+    _trackpadEdgePanVelocity() {
+        const cw = this._canvas.clientWidth;
+        const ch = this._canvas.clientHeight;
+        const z = this._trackpadZoom;
+        if (z <= 1.0) { return { vx: 0, vy: 0 }; }
+        const margin = Math.min(cw, ch) * 0.18;
+        const max = 18; // px/frame at maximum push depth
+        // Cursor position within the visible footprint, in CSS px.
+        const sx = this._trackpadPanX + this._trackpadPos.x * z;
+        const sy = this._trackpadPanY + this._trackpadPos.y * z;
+        let vx = 0;
+        let vy = 0;
+        if (sx < margin) {
+            vx = Math.min(1, (margin - sx) / margin) * max;
+        } else if (sx > cw - margin) {
+            vx = -Math.min(1, (sx - (cw - margin)) / margin) * max;
+        }
+        if (sy < margin) {
+            vy = Math.min(1, (margin - sy) / margin) * max;
+        } else if (sy > ch - margin) {
+            vy = -Math.min(1, (sy - (ch - margin)) / margin) * max;
+        }
+        return { vx, vy };
+    }
+
+    // One animation frame of edge panning: scroll the view under the cursor and
+    // shift the cursor's logical (framebuffer) position onto the newly revealed
+    // content, keeping it fixed on screen. Reschedules itself while still
+    // pushing against an edge that has content left to reveal.
+    _trackpadEdgePanStep() {
+        this._trackpadEdgePanRAF = null;
+        if (!this._trackpadMode || this._trackpadMultitouch ||
+            this._trackpadLastClient === null || this._trackpadZoom <= 1.0) {
+            return;
+        }
+        const vel = this._trackpadEdgePanVelocity();
+        if (vel.vx === 0 && vel.vy === 0) { return; }
+        const z = this._trackpadZoom;
+        const beforeX = this._trackpadPanX;
+        const beforeY = this._trackpadPanY;
+        this._trackpadPanX += vel.vx;
+        this._trackpadPanY += vel.vy;
+        this._trackpadClampPan();
+        const movedX = this._trackpadPanX - beforeX;
+        const movedY = this._trackpadPanY - beforeY;
+        // Out of content to reveal in both axes: stop (don't spin the loop).
+        if (movedX === 0 && movedY === 0) { return; }
+        let px = this._trackpadPos.x - movedX / z;
+        let py = this._trackpadPos.y - movedY / z;
+        px = Math.max(0, Math.min(this._canvas.clientWidth - 1, px));
+        py = Math.max(0, Math.min(this._canvas.clientHeight - 1, py));
+        this._trackpadPos = { x: px, y: py };
+        this._trackpadApplyTransform();
+        this._handleMouseMove(px, py);
+        this._trackpadEdgePanRAF =
+            window.requestAnimationFrame(this._eventHandlers.trackpadEdgePanStep);
+    }
+
+    _trackpadEdgePanKick() {
+        if (this._trackpadEdgePanRAF !== null) { return; }
+        const vel = this._trackpadEdgePanVelocity();
+        if (vel.vx === 0 && vel.vy === 0) { return; }
+        this._trackpadEdgePanRAF =
+            window.requestAnimationFrame(this._eventHandlers.trackpadEdgePanStep);
+    }
+
+    _trackpadEdgePanStop() {
+        if (this._trackpadEdgePanRAF !== null) {
+            window.cancelAnimationFrame(this._trackpadEdgePanRAF);
+            this._trackpadEdgePanRAF = null;
+        }
     }
 
     // Position the local cursor indicator at the virtual cursor. The canvas's
