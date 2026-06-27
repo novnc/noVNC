@@ -54,6 +54,9 @@ const WHEEL_LINE_HEIGHT = 19; // Assumed pixels for one line step
 const GESTURE_ZOOMSENS = 75;
 const GESTURE_SCRLSENS = 50;
 const DOUBLE_TAP_TIMEOUT = 1000;
+// Window after a tap in which a following drag counts as a double-tap-drag
+// (text selection) in trackpad mode.
+const SELECT_TAP_TIMEOUT = 1500;
 const DOUBLE_TAP_THRESHOLD = 50;
 
 // Security types
@@ -988,7 +991,7 @@ export default class RFB extends EventTargetMixin {
             // double-tap-drag: hold the left button so dragging selects text.
             this._trackpadArmSelect =
                 this._trackpadTapEndTime !== null &&
-                (Date.now() - this._trackpadTapEndTime) < DOUBLE_TAP_TIMEOUT;
+                (Date.now() - this._trackpadTapEndTime) < SELECT_TAP_TIMEOUT;
         }
     }
 
