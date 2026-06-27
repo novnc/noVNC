@@ -1719,8 +1719,8 @@ export default class RFB extends EventTargetMixin {
         if (overMag === 0) { return { vx: 0, vy: 0 }; }
         const cw = this._canvas.clientWidth;
         const ch = this._canvas.clientHeight;
-        const min = 3;                              // px/frame as soon as past edge
-        const max = 22;                             // px/frame at full push
+        const min = 4;                              // px/frame as soon as past edge
+        const max = 18;                             // px/frame at full push
         const ref = Math.min(cw, ch) * 0.20;        // overshoot for full speed
         const speed = min + Math.min(1, overMag / ref) * (max - min);
         // Direction from the cursor's position within the visible region.
