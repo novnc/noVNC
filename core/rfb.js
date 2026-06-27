@@ -56,7 +56,7 @@ const GESTURE_SCRLSENS = 50;
 const DOUBLE_TAP_TIMEOUT = 1000;
 // Window after a tap in which a following drag counts as a double-tap-drag
 // (text selection) in trackpad mode.
-const SELECT_TAP_TIMEOUT = 1500;
+const SELECT_TAP_TIMEOUT = 400;
 const DOUBLE_TAP_THRESHOLD = 50;
 
 // Security types
