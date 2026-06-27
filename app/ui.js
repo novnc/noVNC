@@ -356,6 +356,10 @@ const UI = {
             .addEventListener('click', UI.toggleClipboardPanel);
         document.getElementById("noVNC_clipboard_text")
             .addEventListener('change', UI.clipboardSend);
+        document.getElementById("noVNC_clipboard_to_device")
+            .addEventListener('click', UI.clipboardToDevice);
+        document.getElementById("noVNC_clipboard_from_device")
+            .addEventListener('click', UI.clipboardFromDevice);
     },
 
     // Add a call to save settings when the element changes,
@@ -1093,6 +1097,48 @@ const UI = {
         Log.Debug(">> UI.clipboardSend: " + text.substr(0, 40) + "...");
         UI.rfb.clipboardPasteFrom(text);
         Log.Debug("<< UI.clipboardSend");
+    },
+
+    // Copy the (remote) clipboard text shown in the panel onto the local device
+    // clipboard. Runs inside the button's click gesture so Safari/iOS allows
+    // navigator.clipboard.writeText.
+    clipboardToDevice() {
+        const text = document.getElementById('noVNC_clipboard_text').value;
+        const btn = document.getElementById('noVNC_clipboard_to_device');
+        if (!navigator.clipboard || !navigator.clipboard.writeText) {
+            btn.value = 'Not supported';
+            return;
+        }
+        navigator.clipboard.writeText(text)
+            .then(() => {
+                btn.value = 'Copied!';
+                setTimeout(() => { btn.value = 'Copy to device'; }, 1500);
+            })
+            .catch(() => {
+                btn.value = 'Failed';
+                setTimeout(() => { btn.value = 'Copy to device'; }, 1500);
+            });
+    },
+
+    // Read the local device clipboard and send it to the remote (and show it in
+    // the panel). Runs inside the button's click gesture for iOS permission.
+    clipboardFromDevice() {
+        const btn = document.getElementById('noVNC_clipboard_from_device');
+        if (!navigator.clipboard || !navigator.clipboard.readText) {
+            btn.value = 'Not supported';
+            return;
+        }
+        navigator.clipboard.readText()
+            .then((text) => {
+                document.getElementById('noVNC_clipboard_text').value = text;
+                if (UI.rfb) { UI.rfb.clipboardPasteFrom(text); }
+                btn.value = 'Pasted!';
+                setTimeout(() => { btn.value = 'Paste from device'; }, 1500);
+            })
+            .catch(() => {
+                btn.value = 'Failed';
+                setTimeout(() => { btn.value = 'Paste from device'; }, 1500);
+            });
     },
 
 /* ------^-------
