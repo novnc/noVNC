@@ -1691,7 +1691,7 @@ export default class RFB extends EventTargetMixin {
         if (z <= 1.0) { return { vx: 0, vy: 0 }; }
         const cw = this._canvas.clientWidth;
         const ch = this._canvas.clientHeight;
-        const min = 8;                              // px/frame as soon as past edge
+        const min = 14;                             // px/frame as soon as past edge
         const max = 22;                             // px/frame at full push
         const ref = Math.min(cw, ch) * 0.20;        // overshoot for full speed
         // Map overshoot -> signed speed with a non-zero floor so the slowest
