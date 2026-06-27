@@ -1145,8 +1145,12 @@ export default class RFB extends EventTargetMixin {
 
     // Gets the the size of the available screen
     _screenSize() {
+        // HiDPI: request the remote framebuffer at device pixels (CSS px ×
+        // devicePixelRatio) so a remote-resized desktop renders crisp on retina
+        // displays. Paired with the _rescale patch in display.js.
         let r = this._screen.getBoundingClientRect();
-        return { w: r.width, h: r.height };
+        let dpr = window.devicePixelRatio || 1;
+        return { w: r.width * dpr, h: r.height * dpr };
     }
 
     _fixScrollbars() {
