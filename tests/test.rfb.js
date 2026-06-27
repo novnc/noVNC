@@ -5031,22 +5031,30 @@ describe('Remote Frame Buffer protocol client', function () {
                     client._canvas.dispatchEvent(touchEv('touchend', client, []));
                 });
 
-                it('should hold the left button for a tap-and-a-half drag', function () {
-                    // A tap immediately followed by a drag holds the left button.
-                    // Movement comes from raw touch; the gesture only sets the
-                    // button, so we check the press at the start and release at end.
-                    gestureStart('onetap', 20, 40, client);
-                    gestureEnd('onetap', 20, 40, client);
-
+                it('should hold the left button for a double-tap-drag (text selection)', function () {
+                    // First tap.
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[20, 40]]));
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
+                    // Second touch within the double-tap window, then drag holds
+                    // the left button from the first pixel (selects text).
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[20, 40]]));
                     pointerEvent.resetHistory();
+                    client._canvas.dispatchEvent(touchEv('touchmove', client, [[40, 60]]));
+                    clock.tick(50);
+                    expect(pointerEvent).to.have.been.calledWith(client._sock, 50, 50, 0x1);
+                    expect(client._trackpadDragButton).to.equal(0x1);
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
+                    expect(client._trackpadDragButton).to.equal(0);
+                });
 
-                    gestureStart('drag', 20, 40, client);
-                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock, 50, 50, 0x1);
-
+                it('should not hold a button for a plain one-finger drag', function () {
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[20, 40]]));
                     pointerEvent.resetHistory();
-
-                    gestureEnd('drag', 30, 50, client);
-                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock, 50, 50, 0x0);
+                    client._canvas.dispatchEvent(touchEv('touchmove', client, [[40, 60]]));
+                    clock.tick(50);
+                    expect(client._trackpadDragButton).to.equal(0);
+                    expect(pointerEvent).to.not.have.been.calledWith(client._sock, 50, 50, 0x1);
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
                 });
 
                 it('should scroll the remote on a parallel two-finger drag at fit', function () {

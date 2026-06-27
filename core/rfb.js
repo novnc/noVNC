@@ -207,7 +207,6 @@ export default class RFB extends EventTargetMixin {
         this._trackpadPos = null;        // Virtual cursor, element coordinates
         this._trackpadLastClient = null; // Last touch position, for delta calc
         this._trackpadDragButton = 0;    // Button held during a drag gesture
-        this._trackpadLastTapTime = null; // For "tap-and-a-half" drag detection
         // Local magnification (RDP-style), applied as a CSS transform on the
         // canvas so it stays smooth and the remote is untouched.
         this._trackpadZoom = 1.0;        // 1.0 = fit (no magnification)
@@ -222,6 +221,9 @@ export default class RFB extends EventTargetMixin {
         this._trackpadOverY = 0;
         this._trackpadBase = null;       // cached screen geometry for stable bounds
         this._trackpadTwoTap = null;     // pending two-finger tap (right click)
+        this._trackpadTapEndTime = null; // time the last one-finger tap lifted
+        this._trackpadArmSelect = false; // this drag should select (double-tap-drag)
+        this._trackpadFingerStart = null; // one-finger touch start {time,x,y,moved}
 
         // Bound event handlers
         this._eventHandlers = {
@@ -980,6 +982,13 @@ export default class RFB extends EventTargetMixin {
             // first pixel, without waiting for the drag-recognition threshold.
             const t = ev.touches[0];
             this._trackpadLastClient = { x: t.clientX, y: t.clientY };
+            this._trackpadFingerStart =
+                { time: Date.now(), x: t.clientX, y: t.clientY, moved: false };
+            // If this finger lands quickly after a previous tap, a drag now is a
+            // double-tap-drag: hold the left button so dragging selects text.
+            this._trackpadArmSelect =
+                this._trackpadTapEndTime !== null &&
+                (Date.now() - this._trackpadTapEndTime) < DOUBLE_TAP_TIMEOUT;
         }
     }
 
@@ -1032,6 +1041,20 @@ export default class RFB extends EventTargetMixin {
         const dy = t.clientY - this._trackpadLastClient.y;
         this._trackpadLastClient = { x: t.clientX, y: t.clientY };
         this._trackpadEnsurePos();
+        // On the first real movement of a double-tap-drag, press and hold the
+        // left button so the drag selects text from the very first pixel.
+        if (this._trackpadFingerStart !== null && !this._trackpadFingerStart.moved) {
+            const mdx = t.clientX - this._trackpadFingerStart.x;
+            const mdy = t.clientY - this._trackpadFingerStart.y;
+            if (Math.hypot(mdx, mdy) > 6) {
+                this._trackpadFingerStart.moved = true;
+                if (this._trackpadArmSelect && !this._trackpadDragButton) {
+                    this._trackpadDragButton = 0x1;
+                    this._handleMouseButton(this._trackpadPos.x,
+                                            this._trackpadPos.y, 0x1);
+                }
+            }
+        }
         this._trackpadMoveBy(dx, dy);
         this._trackpadUpdateCursor();
         this._handleMouseMove(this._trackpadPos.x, this._trackpadPos.y);
@@ -1047,6 +1070,20 @@ export default class RFB extends EventTargetMixin {
                 this._trackpadClick(0x4);
             }
             this._trackpadTwoTap = null;
+            // Record a clean one-finger tap (no movement) so a following finger
+            // can be recognised as a double-tap-drag.
+            if (this._trackpadFingerStart !== null &&
+                !this._trackpadFingerStart.moved && !this._trackpadDragButton) {
+                this._trackpadTapEndTime = Date.now();
+            }
+            // Release a held selection/drag button at the end of the gesture.
+            if (this._trackpadDragButton) {
+                this._handleMouseButton(this._trackpadPos.x,
+                                        this._trackpadPos.y, 0x0);
+                this._trackpadDragButton = 0;
+            }
+            this._trackpadFingerStart = null;
+            this._trackpadArmSelect = false;
             this._trackpadMultitouch = false;
             this._trackpadPinch = null;
             this._trackpadLastClient = null;
@@ -1848,7 +1885,6 @@ export default class RFB extends EventTargetMixin {
                 switch (ev.detail.type) {
                     case 'onetap':
                         this._trackpadClick(0x1);
-                        this._trackpadLastTapTime = Date.now();
                         break;
                     case 'twotap':
                         // Two-finger tap (right click) is handled from raw touch
@@ -1859,23 +1895,17 @@ export default class RFB extends EventTargetMixin {
                         this._trackpadClick(0x2);
                         break;
                     case 'drag':
+                        // A plain drag just moves the cursor (driven from raw
+                        // touch). Selection drag (double-tap then drag) is also
+                        // handled from raw touch so the button is held from the
+                        // first pixel; nothing to do here.
+                        break;
                     case 'longpress':
-                        // Cursor movement is driven live from raw touch events;
-                        // the gesture handler only manages the button here. A
-                        // long press, or a drag started right after a tap
-                        // ("tap-and-a-half"), holds the left button down so the
-                        // movement becomes a drag. A plain drag just moves.
-                        if (ev.detail.type === 'longpress' ||
-                            (this._trackpadLastTapTime !== null &&
-                             (Date.now() - this._trackpadLastTapTime) < DOUBLE_TAP_TIMEOUT)) {
+                        // Press-and-hold then drag: grab the left button (unless
+                        // raw touch already holds it for a selection drag).
+                        if (!this._trackpadDragButton) {
                             this._trackpadDragButton = 0x1;
-                        } else {
-                            this._trackpadDragButton = 0x0;
-                        }
-                        this._trackpadLastTapTime = null;
-                        if (this._trackpadDragButton) {
-                            this._handleMouseButton(pos.x, pos.y,
-                                                    this._trackpadDragButton);
+                            this._handleMouseButton(pos.x, pos.y, 0x1);
                         }
                         break;
                     case 'twodrag':
@@ -1890,18 +1920,8 @@ export default class RFB extends EventTargetMixin {
                 break;
 
             case 'gestureend':
-                switch (ev.detail.type) {
-                    case 'drag':
-                    case 'longpress':
-                        if (this._trackpadDragButton) {
-                            this._handleMouseButton(this._trackpadPos.x,
-                                                    this._trackpadPos.y, 0x0);
-                            this._trackpadDragButton = 0;
-                        }
-                        break;
-                    default:
-                        break;
-                }
+                // The held button (longpress/selection drag) is released from
+                // the raw touchend handler, so nothing to do here.
                 break;
         }
     }
