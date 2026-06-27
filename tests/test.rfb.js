@@ -4995,14 +4995,25 @@ describe('Remote Frame Buffer protocol client', function () {
                     expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock, 50, 50, 0x0);
                 });
 
-                it('should right click at the virtual cursor on twotap', function () {
-                    gestureStart('twotap', 20, 40, client);
-                    gestureEnd('twotap', 20, 40, client);
+                it('should right click at the virtual cursor on a two-finger tap', function () {
+                    // Two fingers down then up with no movement -> right click at
+                    // the virtual cursor (centre 50,50). Handled from raw touch.
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[40, 40], [60, 40]]));
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
 
                     expect(pointerEvent).to.have.been.calledThrice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock, 50, 50, 0x0);
                     expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock, 50, 50, 0x4);
                     expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock, 50, 50, 0x0);
+                });
+
+                it('should not right click when the two fingers move (pinch/pan)', function () {
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[40, 40], [60, 40]]));
+                    pointerEvent.resetHistory();
+                    // Fingers spread apart -> a pinch, not a tap.
+                    client._canvas.dispatchEvent(touchEv('touchmove', client, [[20, 40], [80, 40]]));
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
+                    expect(pointerEvent).to.not.have.been.calledWith(client._sock, 50, 50, 0x4);
                 });
 
                 it('should move the cursor live from the first pixel of a one-finger drag', function () {

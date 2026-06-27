@@ -221,6 +221,7 @@ export default class RFB extends EventTargetMixin {
         this._trackpadOverX = 0;         // finger overshoot past the visible edge
         this._trackpadOverY = 0;
         this._trackpadBase = null;       // cached screen geometry for stable bounds
+        this._trackpadTwoTap = null;     // pending two-finger tap (right click)
 
         // Bound event handlers
         this._eventHandlers = {
@@ -967,6 +968,11 @@ export default class RFB extends EventTargetMixin {
             this._trackpadMultitouch = true;
             this._trackpadEdgePanStop();
             this._trackpadPinch = this._trackpadPinchInfo(ev);
+            // A quick two-finger tap with no pinch/move is a right click at the
+            // virtual cursor (opens the remote context menu there, so copy etc.
+            // act on the cursor position, not the screen centre).
+            this._trackpadTwoTap = { time: Date.now(),
+                                     info: this._trackpadPinch, moved: false };
             this._trackpadScrollAccumX = 0;
             this._trackpadScrollAccumY = 0;
         } else if (ev.touches.length === 1) {
@@ -988,6 +994,14 @@ export default class RFB extends EventTargetMixin {
             const prev = this._trackpadPinch;
             const dcx = cur.cx - prev.cx;
             const dcy = cur.cy - prev.cy;
+            // Any real pinch or pan cancels a pending two-finger tap.
+            if (this._trackpadTwoTap !== null) {
+                const s = this._trackpadTwoTap.info;
+                if (Math.abs(cur.cx - s.cx) > 12 || Math.abs(cur.cy - s.cy) > 12 ||
+                    Math.abs(cur.dist - s.dist) > 12) {
+                    this._trackpadTwoTap.moved = true;
+                }
+            }
             // Zoom toward the midpoint between the fingers (no-op if unchanged).
             if (prev.dist > 0 && cur.dist > 0 && cur.dist !== prev.dist) {
                 this._trackpadZoomAt(cur.dist / prev.dist, cur.cx, cur.cy);
@@ -1027,6 +1041,12 @@ export default class RFB extends EventTargetMixin {
     _handleTrackpadTouchEnd(ev) {
         if (ev.touches.length === 0) {
             // All fingers up: end any interaction.
+            // Complete a two-finger tap as a right click at the virtual cursor.
+            if (this._trackpadTwoTap !== null && !this._trackpadTwoTap.moved &&
+                (Date.now() - this._trackpadTwoTap.time) < 300) {
+                this._trackpadClick(0x4);
+            }
+            this._trackpadTwoTap = null;
             this._trackpadMultitouch = false;
             this._trackpadPinch = null;
             this._trackpadLastClient = null;
@@ -1831,7 +1851,9 @@ export default class RFB extends EventTargetMixin {
                         this._trackpadLastTapTime = Date.now();
                         break;
                     case 'twotap':
-                        this._trackpadClick(0x4);
+                        // Two-finger tap (right click) is handled from raw touch
+                        // events so it lands on the virtual cursor; ignore here
+                        // to avoid a duplicate click.
                         break;
                     case 'threetap':
                         this._trackpadClick(0x2);
