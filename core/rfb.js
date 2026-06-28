@@ -1041,6 +1041,16 @@ export default class RFB extends EventTargetMixin {
                 if (prev.dist > 0 && cur.dist > 0 && cur.dist !== prev.dist) {
                     this._trackpadZoomAt(cur.dist / prev.dist, cur.cx, cur.cy);
                 }
+                // Pinch-and-drag: also pan within the same gesture so the user
+                // can move the view while still pinching, without lifting. Only
+                // zoom-intent pans during a pinch; pure 'move' never zooms, so a
+                // straight pan can't wobble the magnification.
+                if (this._trackpadZoom > 1.0 && (dcx !== 0 || dcy !== 0)) {
+                    this._trackpadPanX += dcx;
+                    this._trackpadPanY += dcy;
+                    this._trackpadClampPan();
+                    this._trackpadApplyTransform();
+                }
             } else if (this._trackpadTwoIntent === 'move') {
                 if (this._trackpadZoom > 1.0) {
                     // Magnified: the midpoint movement pans the view.
