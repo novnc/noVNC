@@ -58,6 +58,10 @@ const DOUBLE_TAP_TIMEOUT = 1000;
 // (text selection) in trackpad mode.
 const SELECT_TAP_TIMEOUT = 200;
 const DOUBLE_TAP_THRESHOLD = 50;
+// Activation distance (client px) before a two-finger gesture commits to a
+// single intent (zoom vs move) in trackpad mode. A deadzone below this keeps
+// pinch and pan/scroll from fighting each other at the start of the gesture.
+const TRACKPAD_TWO_INTENT_THRESHOLD = 10;
 
 // Security types
 const securityTypeNone              = 1;
@@ -217,6 +221,8 @@ export default class RFB extends EventTargetMixin {
         this._trackpadPanY = 0;
         this._trackpadMultitouch = false; // Two fingers down (pan/zoom in progress)
         this._trackpadPinch = null;      // {cx, cy, dist} of the last two-finger sample
+        this._trackpadTwoStart = null;   // {cx, cy, dist} at two-finger gesture start
+        this._trackpadTwoIntent = null;  // locked intent: null | 'zoom' | 'move'
         this._trackpadScrollAccumX = 0;  // Accumulated two-finger scroll (at fit)
         this._trackpadScrollAccumY = 0;
         this._trackpadEdgePanRAF = null; // requestAnimationFrame id for edge panning
@@ -973,6 +979,9 @@ export default class RFB extends EventTargetMixin {
             this._trackpadMultitouch = true;
             this._trackpadEdgePanStop();
             this._trackpadPinch = this._trackpadPinchInfo(ev);
+            // Anchor for intent classification; deadzone until one intent wins.
+            this._trackpadTwoStart = this._trackpadPinch;
+            this._trackpadTwoIntent = null;
             // A quick two-finger tap with no pinch/move is a right click at the
             // virtual cursor (opens the remote context menu there, so copy etc.
             // act on the cursor position, not the screen centre).
@@ -1014,19 +1023,35 @@ export default class RFB extends EventTargetMixin {
                     this._trackpadTwoTap.moved = true;
                 }
             }
-            // Zoom toward the midpoint between the fingers (no-op if unchanged).
-            if (prev.dist > 0 && cur.dist > 0 && cur.dist !== prev.dist) {
-                this._trackpadZoomAt(cur.dist / prev.dist, cur.cx, cur.cy);
+            // Commit to a single intent (zoom OR move) once the gesture leaves
+            // the deadzone, then stick with it until the fingers lift. This
+            // stops a pinch from also panning (the midpoint drifts) and a pan
+            // from also zooming (the finger spacing wobbles).
+            if (this._trackpadTwoIntent === null && this._trackpadTwoStart !== null) {
+                const start = this._trackpadTwoStart;
+                const distDelta = Math.abs(cur.dist - start.dist);
+                const moveDelta = Math.hypot(cur.cx - start.cx, cur.cy - start.cy);
+                if (Math.max(distDelta, moveDelta) >= TRACKPAD_TWO_INTENT_THRESHOLD) {
+                    this._trackpadTwoIntent =
+                        distDelta > moveDelta ? 'zoom' : 'move';
+                }
             }
-            if (this._trackpadZoom > 1.0) {
-                // Magnified: the midpoint movement pans the view.
-                this._trackpadPanX += dcx;
-                this._trackpadPanY += dcy;
-                this._trackpadClampPan();
-                this._trackpadApplyTransform();
-            } else {
-                // At fit: the midpoint movement scrolls the remote.
-                this._trackpadScrollBy(dcx, dcy);
+            if (this._trackpadTwoIntent === 'zoom') {
+                // Zoom toward the midpoint between the fingers.
+                if (prev.dist > 0 && cur.dist > 0 && cur.dist !== prev.dist) {
+                    this._trackpadZoomAt(cur.dist / prev.dist, cur.cx, cur.cy);
+                }
+            } else if (this._trackpadTwoIntent === 'move') {
+                if (this._trackpadZoom > 1.0) {
+                    // Magnified: the midpoint movement pans the view.
+                    this._trackpadPanX += dcx;
+                    this._trackpadPanY += dcy;
+                    this._trackpadClampPan();
+                    this._trackpadApplyTransform();
+                } else {
+                    // At fit: the midpoint movement scrolls the remote.
+                    this._trackpadScrollBy(dcx, dcy);
+                }
             }
             this._trackpadPinch = cur;
             return;
@@ -1089,6 +1114,8 @@ export default class RFB extends EventTargetMixin {
             this._trackpadArmSelect = false;
             this._trackpadMultitouch = false;
             this._trackpadPinch = null;
+            this._trackpadTwoStart = null;
+            this._trackpadTwoIntent = null;
             this._trackpadLastClient = null;
             this._trackpadEdgePanStop();
         } else if (ev.touches.length < 2) {
@@ -1096,6 +1123,8 @@ export default class RFB extends EventTargetMixin {
             // gestures until everything is lifted, so the leftover finger
             // doesn't suddenly fling the cursor.
             this._trackpadPinch = null;
+            this._trackpadTwoStart = null;
+            this._trackpadTwoIntent = null;
         }
     }
 
