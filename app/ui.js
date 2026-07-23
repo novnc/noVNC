@@ -48,6 +48,7 @@ const UI = {
     inhibitReconnect: true,
     reconnectCallback: null,
     reconnectPassword: null,
+    textSendController: null,
 
     wakeLockManager: new WakeLockManager(),
 
@@ -190,12 +191,14 @@ const UI = {
         UI.initSetting('shared', true);
         UI.initSetting('bell', 'on');
         UI.initSetting('view_only', false);
+        UI.initSetting('clipboard_send_mode', 'clipboard');
         UI.initSetting('show_dot', false);
         UI.initSetting('path', 'websockify');
         UI.initSetting('repeaterID', '');
         UI.initSetting('reconnect', false);
         UI.initSetting('reconnect_delay', 5000);
         UI.initSetting('keep_device_awake', false);
+        UI.updateClipboardSendMode();
     },
     // Adds a link to the label elements on the corresponding input elements
     setupSettingLabels() {
@@ -347,6 +350,8 @@ const UI = {
             .addEventListener('click', UI.toggleClipboardPanel);
         document.getElementById("noVNC_clipboard_text")
             .addEventListener('change', UI.clipboardSend);
+        document.getElementById("noVNC_clipboard_send_button")
+            .addEventListener('click', UI.clipboardSend);
     },
 
     // Add a call to save settings when the element changes,
@@ -376,6 +381,8 @@ const UI = {
         UI.addSettingChangeHandler('shared');
         UI.addSettingChangeHandler('view_only');
         UI.addSettingChangeHandler('view_only', UI.updateViewOnly);
+        UI.addSettingChangeHandler('clipboard_send_mode');
+        UI.addSettingChangeHandler('clipboard_send_mode', UI.updateClipboardSendMode);
         UI.addSettingChangeHandler('show_dot');
         UI.addSettingChangeHandler('show_dot', UI.updateShowDotCursor);
         UI.addSettingChangeHandler('keep_device_awake');
@@ -1077,11 +1084,59 @@ const UI = {
         Log.Debug("<< UI.clipboardReceive");
     },
 
-    clipboardSend() {
+    async clipboardSend(e) {
         const text = document.getElementById('noVNC_clipboard_text').value;
-        Log.Debug(">> UI.clipboardSend: " + text.substr(0, 40) + "...");
-        UI.rfb.clipboardPasteFrom(text);
-        Log.Debug("<< UI.clipboardSend");
+
+        if (UI.getSetting('clipboard_send_mode') === 'clipboard') {
+            Log.Debug(">> UI.clipboardSend (RFB clipboard): " +
+                      text.substr(0, 40) + "...");
+            UI.rfb.clipboardPasteFrom(text);
+            Log.Debug("<< UI.clipboardSend (RFB clipboard)");
+            return;
+        }
+        if (e?.type === 'change') {
+            return;
+        }
+
+        if (UI.textSendController !== null) {
+            UI.textSendController.abort();
+            return;
+        }
+        const status = document.getElementById('noVNC_clipboard_status');
+        if (!text) {
+            status.textContent = _("Enter text to send");
+            return;
+        }
+
+        Log.Debug(">> UI.clipboardSend (keyboard input): " +
+                  text.substr(0, 40) + "...");
+        const input = document.getElementById('noVNC_clipboard_text');
+        const button = document.getElementById('noVNC_clipboard_send_button');
+        const controller = new AbortController();
+        UI.textSendController = controller;
+        input.readOnly = true;
+        button.textContent = _("Cancel");
+        status.textContent = _("Sending text...");
+
+        try {
+            await UI.rfb.sendText(text, { signal: controller.signal });
+            status.textContent = _("Text sent");
+            UI.rfb.focus();
+        } catch (err) {
+            if (err.name === 'AbortError') {
+                status.textContent = _("Text sending cancelled");
+            } else if (err instanceof TypeError) {
+                status.textContent = _("Keyboard input supports ASCII characters only");
+            } else {
+                Log.Error("Failed to send text: " + err);
+                status.textContent = _("Failed to send text");
+            }
+        } finally {
+            UI.textSendController = null;
+            input.readOnly = false;
+            button.textContent = _("Send");
+        }
+        Log.Debug("<< UI.clipboardSend (keyboard input)");
     },
 
 /* ------^-------
@@ -1861,29 +1916,78 @@ const UI = {
         }
     },
 
+    enableClipboardFallback() {
+        if (!UI.rfb?.viewOnly) {
+            document.getElementById('noVNC_clipboard_button')
+                .classList.remove('noVNC_hidden');
+        }
+        document.getElementById('noVNC_clipboard_button')
+            .addEventListener('click', UI.toggleClipboardPanel);
+        document.getElementById('noVNC_clipboard_text')
+            .addEventListener('change', UI.clipboardSend);
+        UI.rfb?.addEventListener('clipboard', UI.clipboardReceive);
+    },
+
+    disableClipboardFallback() {
+        UI.closeClipboardPanel();
+        document.getElementById('noVNC_clipboard_button')
+            .classList.add('noVNC_hidden');
+        document.getElementById('noVNC_clipboard_button')
+            .removeEventListener('click', UI.toggleClipboardPanel);
+        document.getElementById('noVNC_clipboard_text')
+            .removeEventListener('change', UI.clipboardSend);
+        UI.rfb?.removeEventListener('clipboard', UI.clipboardReceive);
+    },
+
     updateClipboard() {
+        const rfb = UI.rfb;
+        const keyboardMode = UI.getSetting('clipboard_send_mode') === 'keyboard';
+
+        // Avoid running automatic and fallback clipboard handling at the
+        // same time while browser support is being determined.
+        rfb.clipboardPasteEnabled = false;
+
+        if (keyboardMode) {
+            UI.enableClipboardFallback();
+            return;
+        }
+
         browserAsyncClipboardSupport()
             .then((support) => {
-                if (support === 'unsupported') {
-                    // Use fallback clipboard panel
+                if (UI.rfb !== rfb ||
+                    UI.getSetting('clipboard_send_mode') !== 'clipboard') {
                     return;
                 }
-                if (support === 'denied' || support === 'available') {
-                    UI.closeClipboardPanel();
-                    document.getElementById('noVNC_clipboard_button')
-                        .classList.add('noVNC_hidden');
-                    document.getElementById('noVNC_clipboard_button')
-                        .removeEventListener('click', UI.toggleClipboardPanel);
-                    document.getElementById('noVNC_clipboard_text')
-                        .removeEventListener('change', UI.clipboardSend);
-                    if (UI.rfb) {
-                        UI.rfb.removeEventListener('clipboard', UI.clipboardReceive);
-                    }
+
+                if (support === 'unsupported') {
+                    UI.enableClipboardFallback();
+                } else {
+                    UI.disableClipboardFallback();
                 }
+                rfb.clipboardPasteEnabled = true;
             })
             .catch(() => {
-                // Treat as unsupported
+                if (UI.rfb !== rfb ||
+                    UI.getSetting('clipboard_send_mode') !== 'clipboard') {
+                    return;
+                }
+                UI.enableClipboardFallback();
+                rfb.clipboardPasteEnabled = true;
             });
+    },
+
+    updateClipboardSendMode() {
+        const keyboardMode = UI.getSetting('clipboard_send_mode') === 'keyboard';
+        document.getElementById('noVNC_clipboard_send_button')
+            .classList.toggle('noVNC_hidden', !keyboardMode);
+        document.getElementById('noVNC_clipboard_status').textContent = "";
+
+        if (!keyboardMode && UI.textSendController !== null) {
+            UI.textSendController.abort();
+        }
+        if (UI.rfb) {
+            UI.updateClipboard();
+        }
     },
 
     updateShowDotCursor() {
