@@ -9,6 +9,12 @@
 
 import * as Log from '../util/logging.js';
 
+// Tolerate a couple of dropped frames before throttling: an occasional
+// hiccup shouldn't slow down an otherwise-healthy stream.
+const BACKOFF_DROP_THRESHOLD = 2;
+const BACKOFF_BASE_DELAY_MS = 50;
+const BACKOFF_MAX_DELAY_MS = 2000;
+
 export class H264Parser {
     constructor(data) {
         this._data = data;
@@ -119,19 +125,60 @@ export class H264Context {
         this._levelIdc = null;
         this._decoder = null;
         this._pendingFrames = [];
+        this._consecutiveDrops = 0;
+    }
+
+    // How long to hold off resolving a dropped frame's promise. The render
+    // queue (display.js) already waits on this promise before letting rfb.js
+    // read any more data from the server, so delaying it here throttles our
+    // own FramebufferUpdateRequest rate whenever decoding keeps failing --
+    // otherwise a stream that never successfully decodes turns into an
+    // unthrottled request loop that starves every other client sharing the
+    // same hardware encoder on the server.
+    _backoffDelay() {
+        if (this._consecutiveDrops <= BACKOFF_DROP_THRESHOLD) {
+            return 0;
+        }
+        const exponent = this._consecutiveDrops - BACKOFF_DROP_THRESHOLD;
+        return Math.min(BACKOFF_BASE_DELAY_MS * (2 ** exponent), BACKOFF_MAX_DELAY_MS);
+    }
+
+    _dropPending(pending) {
+        this._consecutiveDrops++;
+        pending.ready = true;
+
+        const delay = this._backoffDelay();
+        if (delay > 0) {
+            Log.Warn("H264: " + this._consecutiveDrops +
+                " consecutive dropped frames, backing off " + delay + "ms");
+            setTimeout(() => pending.resolve(), delay);
+        } else {
+            pending.resolve();
+        }
     }
 
     _handleFrame(frame) {
         let pending = this._pendingFrames.shift();
         if (pending === undefined) {
-            throw new Error("Pending frame queue empty when receiving frame from decoder");
+            this._consecutiveDrops++;
+            Log.Warn("Pending frame queue empty when receiving frame from decoder, dropping frame");
+            frame.close();
+            return;
         }
 
         if (pending.timestamp != frame.timestamp) {
-            throw new Error("Video frame timestamp mismatch. Expected " +
-                frame.timestamp + " but but got " + pending.timestamp);
+            // The queue is desynced from the decoder's output order. Drop
+            // this frame rather than throwing: an uncaught throw here would
+            // leave `pending` (and the render queue entry awaiting its
+            // promise) stuck unresolved forever.
+            Log.Warn("Video frame timestamp mismatch, dropping frame. Expected " +
+                pending.timestamp + " but got " + frame.timestamp);
+            frame.close();
+            this._dropPending(pending);
+            return;
         }
 
+        this._consecutiveDrops = 0;
         pending.frame = frame;
         pending.ready = true;
         pending.resolve();
@@ -142,7 +189,15 @@ export class H264Context {
     }
 
     _handleError(e) {
-        throw new Error("Failed to decode frame: " + e.message);
+        // The decoder aborts every in-flight decode() on error, so none of
+        // them will ever reach _handleFrame(). Resolve them all now (as
+        // dropped frames) instead of throwing, so nothing is left waiting
+        // forever on a promise that will never resolve.
+        Log.Warn("Failed to decode frame: " + e.message);
+        while (this._pendingFrames.length > 0) {
+            let pending = this._pendingFrames.shift();
+            this._dropPending(pending);
+        }
     }
 
     _configureDecoder(profileIdc, constraintSet, levelIdc) {
@@ -156,11 +211,22 @@ export class H264Context {
             profileIdc.toString(16).padStart(2, '0') +
             constraintSet.toString(16).padStart(2, '0') +
             levelIdc.toString(16).padStart(2, '0');
+
         this._decoder.configure({
             codec: codec,
             codedWidth: this._width,
             codedHeight: this._height,
             optimizeForLatency: true,
+            // Hardware decode sessions on this platform accept configure()
+            // and decode() but silently never invoke output()/error() --
+            // confirmed by isConfigSupported() reporting hardware as
+            // supported while frames never resolved. Software decode is the
+            // only path that actually delivers frames.
+            hardwareAcceleration: 'prefer-software',
+            // The stream is Annex-B (start-code delimited NAL units, see
+            // H264Parser above) -- without this, VideoDecoderConfig defaults
+            // to AVCC (length-prefixed) framing.
+            avc: { format: 'annexb' },
         });
     }
 
@@ -196,9 +262,9 @@ export class H264Context {
             }
 
             if (parser.profileIdc !== null) {
-                self._profileIdc = parser.profileIdc;
-                self._constraintSet = parser.constraintSet;
-                self._levelIdc = parser.levelIdc;
+                this._profileIdc = parser.profileIdc;
+                this._constraintSet = parser.constraintSet;
+                this._levelIdc = parser.levelIdc;
             }
 
             if (this._decoder === null || this._decoder.state !== 'configured') {
@@ -206,12 +272,12 @@ export class H264Context {
                     Log.Warn("Missing key frame. Can't decode until one arrives");
                     continue;
                 }
-                if (self._profileIdc === null) {
+                if (this._profileIdc === null) {
                     Log.Warn('Cannot config decoder. Have not received SPS and PPS yet.');
                     continue;
                 }
-                this._configureDecoder(self._profileIdc, self._constraintSet,
-                                       self._levelIdc);
+                this._configureDecoder(this._profileIdc, this._constraintSet,
+                                       this._levelIdc);
             }
 
             result = this._preparePendingFrame(timestamp);
@@ -225,7 +291,14 @@ export class H264Context {
             try {
                 this._decoder.decode(chunk);
             } catch (e) {
+                // decode() rejected the chunk synchronously -- it will never
+                // reach the decoder's output/error callback, so the pending
+                // frame just queued above would otherwise sit unresolved
+                // forever, permanently blocking the render queue (and this
+                // connection's FramebufferUpdateRequest loop) behind it.
                 Log.Warn("Failed to decode:", e);
+                this._pendingFrames.pop();
+                this._dropPending(result);
             }
         }
 
