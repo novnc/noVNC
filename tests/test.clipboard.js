@@ -61,6 +61,18 @@ describe('Async Clipboard', function () {
         expect(addListenerSpy.calledWith('focus')).to.be.false;
     });
 
+    it('ungrab() cancels a pending grab()', async function () {
+        stubClipboardPermissions('granted');
+
+        const addListenerSpy = sinon.spy(targetMock, 'addEventListener');
+        clipboard.grab();
+        clipboard.ungrab();
+
+        await nextTick();
+
+        expect(addListenerSpy.calledWith('focus')).to.be.false;
+    });
+
     it('focus event triggers onpaste() if permissions granted', async function () {
         stubClipboardPermissions('granted');
 
@@ -92,6 +104,25 @@ describe('Async Clipboard', function () {
         await nextTick();
 
         targetMock.dispatchEvent(new Event('focus'));
+
+        expect(clipboard.onpaste.called).to.be.false;
+    });
+
+    it('ungrab() cancels a pending clipboard read', async function () {
+        stubClipboardPermissions('granted');
+
+        let resolveRead;
+        navigator.clipboard.readText.returns(
+            new Promise(resolve => resolveRead = resolve)
+        );
+        clipboard.onpaste = sinon.spy();
+        clipboard.grab();
+        await nextTick();
+
+        targetMock.dispatchEvent(new Event('focus'));
+        clipboard.ungrab();
+        resolveRead('should not paste');
+        await nextTick();
 
         expect(clipboard.onpaste.called).to.be.false;
     });
