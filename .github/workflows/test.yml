@@ -13,10 +13,7 @@ jobs:
           - ChromeHeadless
           - FirefoxHeadless
         include:
-          # FIXME: We'd like to use "macos-latest", but Safari tests
-          #        are flaky on it and timeout often. As of 2026-05-23
-          #        macos-latest is still on 10.15.
-          - os: macos-26
+          - os: macos-latest
             browser: Safari
           - os: windows-latest
             browser: EdgeHeadless
