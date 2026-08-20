@@ -54,7 +54,14 @@ const WHEEL_LINE_HEIGHT = 19; // Assumed pixels for one line step
 const GESTURE_ZOOMSENS = 75;
 const GESTURE_SCRLSENS = 50;
 const DOUBLE_TAP_TIMEOUT = 1000;
+// Window after a tap in which a following drag counts as a double-tap-drag
+// (text selection) in trackpad mode.
+const SELECT_TAP_TIMEOUT = 200;
 const DOUBLE_TAP_THRESHOLD = 50;
+// Activation distance (client px) before a two-finger gesture commits to a
+// single intent (zoom vs move) in trackpad mode. A deadzone below this keeps
+// pinch and pan/scroll from fighting each other at the start of the gesture.
+const TRACKPAD_TWO_INTENT_THRESHOLD = 10;
 
 // Security types
 const securityTypeNone              = 1;
@@ -203,6 +210,30 @@ export default class RFB extends EventTargetMixin {
         this._gestureLastMagnitudeX = 0;
         this._gestureLastMagnitudeY = 0;
 
+        // Trackpad (relative pointer) mode state
+        this._trackpadPos = null;        // Virtual cursor, element coordinates
+        this._trackpadLastClient = null; // Last touch position, for delta calc
+        this._trackpadDragButton = 0;    // Button held during a drag gesture
+        // Local magnification (RDP-style), applied as a CSS transform on the
+        // canvas so it stays smooth and the remote is untouched.
+        this._trackpadZoom = 1.0;        // 1.0 = fit (no magnification)
+        this._trackpadPanX = 0;          // CSS-px translation of the canvas
+        this._trackpadPanY = 0;
+        this._trackpadMultitouch = false; // Two fingers down (pan/zoom in progress)
+        this._trackpadPinch = null;      // {cx, cy, dist} of the last two-finger sample
+        this._trackpadTwoStart = null;   // {cx, cy, dist} at two-finger gesture start
+        this._trackpadTwoIntent = null;  // locked intent: null | 'zoom' | 'move'
+        this._trackpadScrollAccumX = 0;  // Accumulated two-finger scroll (at fit)
+        this._trackpadScrollAccumY = 0;
+        this._trackpadEdgePanRAF = null; // requestAnimationFrame id for edge panning
+        this._trackpadOverX = 0;         // finger overshoot past the visible edge
+        this._trackpadOverY = 0;
+        this._trackpadBase = null;       // cached screen geometry for stable bounds
+        this._trackpadTwoTap = null;     // pending two-finger tap (right click)
+        this._trackpadTapEndTime = null; // time the last one-finger tap lifted
+        this._trackpadArmSelect = false; // this drag should select (double-tap-drag)
+        this._trackpadFingerStart = null; // one-finger touch start {time,x,y,moved}
+
         // Bound event handlers
         this._eventHandlers = {
             focusCanvas: this._focusCanvas.bind(this),
@@ -210,6 +241,10 @@ export default class RFB extends EventTargetMixin {
             handleMouse: this._handleMouse.bind(this),
             handleWheel: this._handleWheel.bind(this),
             handleGesture: this._handleGesture.bind(this),
+            handleTrackpadTouchStart: this._handleTrackpadTouchStart.bind(this),
+            handleTrackpadTouchMove: this._handleTrackpadTouchMove.bind(this),
+            handleTrackpadTouchEnd: this._handleTrackpadTouchEnd.bind(this),
+            trackpadEdgePanStep: this._trackpadEdgePanStep.bind(this),
             handleRSAAESCredentialsRequired: this._handleRSAAESCredentialsRequired.bind(this),
             handleRSAAESServerVerification: this._handleRSAAESServerVerification.bind(this),
         };
@@ -298,6 +333,15 @@ export default class RFB extends EventTargetMixin {
         this.dragViewport = false;
         this.focusOnClick = true;
 
+        // Trackpad mode: treat touch input as a relative trackpad rather than
+        // an absolute touchscreen. One finger moves a virtual cursor, a tap
+        // is a left click, two-finger tap a right click, two-finger drag
+        // scrolls, and a tap immediately followed by a drag ("tap-and-a-half")
+        // drags with the left button held. trackpadSensitivity scales the
+        // cursor speed relative to finger movement.
+        this._trackpadMode = false;
+        this.trackpadSensitivity = 1.5;
+
         this._viewOnly = false;
         this._clipViewport = false;
         this._clippingViewport = false;
@@ -375,6 +419,23 @@ export default class RFB extends EventTargetMixin {
     set showDotCursor(show) {
         this._showDotCursor = show;
         this._refreshCursor();
+    }
+
+    get trackpadMode() { return this._trackpadMode; }
+    set trackpadMode(enable) {
+        this._trackpadMode = enable;
+        // In trackpad mode the finger isn't on the cursor, so make sure a
+        // cursor is always visible (falls back to the dot when the server
+        // has no visible cursor) and reset the virtual cursor position.
+        this._trackpadPos = null;
+        // Reset any local magnification when toggling.
+        this._trackpadResetZoom();
+        this._refreshCursor();
+        // Give the virtual cursor an immediate, visible starting point.
+        if (enable && this._rfbConnectionState === 'connected') {
+            this._trackpadEnsurePos();
+            this._trackpadUpdateCursor();
+        }
     }
 
     get background() { return this._screen.style.background; }
@@ -581,6 +642,20 @@ export default class RFB extends EventTargetMixin {
 
         this._gestures.attach(this._canvas);
 
+        // Raw two-finger touch handling for trackpad-mode pan/zoom. These run
+        // alongside the gesture handler; while two fingers are down we drive
+        // pan+zoom directly and ignore the gesture handler's output.
+        this._canvas.addEventListener('touchstart',
+                                      this._eventHandlers.handleTrackpadTouchStart,
+                                      { passive: false });
+        this._canvas.addEventListener('touchmove',
+                                      this._eventHandlers.handleTrackpadTouchMove,
+                                      { passive: false });
+        this._canvas.addEventListener('touchend',
+                                      this._eventHandlers.handleTrackpadTouchEnd);
+        this._canvas.addEventListener('touchcancel',
+                                      this._eventHandlers.handleTrackpadTouchEnd);
+
         this._cursor.attach(this._canvas);
         this._refreshCursor();
 
@@ -629,6 +704,10 @@ export default class RFB extends EventTargetMixin {
         this._resizeObserver.disconnect();
         this._keyboard.ungrab();
         this._gestures.detach();
+        this._canvas.removeEventListener('touchstart', this._eventHandlers.handleTrackpadTouchStart);
+        this._canvas.removeEventListener('touchmove', this._eventHandlers.handleTrackpadTouchMove);
+        this._canvas.removeEventListener('touchend', this._eventHandlers.handleTrackpadTouchEnd);
+        this._canvas.removeEventListener('touchcancel', this._eventHandlers.handleTrackpadTouchEnd);
         this._sock.close();
         try {
             this._target.removeChild(this._screen);
@@ -729,6 +808,8 @@ export default class RFB extends EventTargetMixin {
 
     // Handle browser window resizes
     _handleResize() {
+        // Cached trackpad screen geometry is no longer valid after a resize.
+        this._trackpadBase = null;
         // Don't change anything if the client size is already as expected
         if (this._clientHasExpectedSize()) {
             return;
@@ -790,6 +871,273 @@ export default class RFB extends EventTargetMixin {
         this._fixScrollbars();
     }
 
+    // ===== TRACKPAD LOCAL ZOOM/PAN (RDP-style) =====
+    //
+    // Magnification is a purely local CSS transform on the canvas, so it is
+    // smooth (GPU-composited, no framebuffer re-render) and never touches the
+    // remote. Pointer coordinates are unaffected because the transform is
+    // visual only: the canvas keeps its layout size, so the virtual cursor
+    // (in canvas CSS pixels) still maps to the framebuffer via absX/absY.
+
+    _trackpadResetZoom() {
+        this._trackpadEdgePanStop();
+        this._trackpadZoom = 1.0;
+        this._trackpadPanX = 0;
+        this._trackpadPanY = 0;
+        this._trackpadApplyTransform();
+    }
+
+    _trackpadClampPan() {
+        const cw = this._canvas.clientWidth;
+        const ch = this._canvas.clientHeight;
+        const z = this._trackpadZoom;
+        if (z <= 1.0) {
+            this._trackpadPanX = 0;
+            this._trackpadPanY = 0;
+            return;
+        }
+        // Keep the magnified content covering the canvas footprint (no gaps).
+        this._trackpadPanX = Math.min(0, Math.max(cw * (1 - z), this._trackpadPanX));
+        this._trackpadPanY = Math.min(0, Math.max(ch * (1 - z), this._trackpadPanY));
+    }
+
+    _trackpadApplyTransform() {
+        if (this._trackpadZoom <= 1.0) {
+            this._canvas.style.transform = '';
+            this._canvas.style.transformOrigin = '';
+        } else {
+            this._canvas.style.transformOrigin = '0 0';
+            this._canvas.style.transform =
+                `translate(${this._trackpadPanX}px, ${this._trackpadPanY}px) ` +
+                `scale(${this._trackpadZoom})`;
+        }
+        this._trackpadUpdateCursor();
+    }
+
+    // Zoom by `factor` while keeping the framebuffer point under the focal
+    // client coordinate (fcx, fcy) fixed on screen.
+    _trackpadZoomAt(factor, fcx, fcy) {
+        const newZoom = Math.max(1.0, Math.min(5.0, this._trackpadZoom * factor));
+        const rect = this._canvas.getBoundingClientRect();
+        const cur = rect.width / (this._canvas.clientWidth || rect.width);
+        // The canvas's untransformed top-left in client coordinates.
+        const baseLeft = rect.left - this._trackpadPanX;
+        const baseTop = rect.top - this._trackpadPanY;
+        // Canvas-local coordinate currently under the focal point.
+        const lx = (fcx - rect.left) / cur;
+        const ly = (fcy - rect.top) / cur;
+        this._trackpadZoom = newZoom;
+        // Solve panX so that baseLeft + panX + lx*newZoom === fcx.
+        this._trackpadPanX = fcx - lx * newZoom - baseLeft;
+        this._trackpadPanY = fcy - ly * newZoom - baseTop;
+        this._trackpadClampPan();
+        this._trackpadApplyTransform();
+    }
+
+    _trackpadPinchInfo(ev) {
+        const t0 = ev.touches[0];
+        const t1 = ev.touches[1];
+        return {
+            cx: (t0.clientX + t1.clientX) / 2,
+            cy: (t0.clientY + t1.clientY) / 2,
+            dist: Math.hypot(t0.clientX - t1.clientX, t0.clientY - t1.clientY),
+        };
+    }
+
+    // Emit one mouse-wheel step (button down + up) at the virtual cursor.
+    _trackpadWheelStep(button) {
+        const x = this._trackpadPos ? this._trackpadPos.x : 0;
+        const y = this._trackpadPos ? this._trackpadPos.y : 0;
+        this._handleMouseButton(x, y, button);
+        this._handleMouseButton(x, y, 0x0);
+    }
+
+    // At fit (zoom == 1) a two-finger drag scrolls the remote (mouse wheel).
+    _trackpadScrollBy(dx, dy) {
+        const step = 24; // client px per wheel notch
+        this._trackpadScrollAccumX += dx;
+        this._trackpadScrollAccumY += dy;
+        // Fingers down (dy > 0) scrolls the content up (wheel up), like a
+        // touchscreen; left/right on the X axis.
+        while (this._trackpadScrollAccumY >= step) {
+            this._trackpadWheelStep(1 << 3); this._trackpadScrollAccumY -= step;
+        }
+        while (this._trackpadScrollAccumY <= -step) {
+            this._trackpadWheelStep(1 << 4); this._trackpadScrollAccumY += step;
+        }
+        while (this._trackpadScrollAccumX >= step) {
+            this._trackpadWheelStep(1 << 5); this._trackpadScrollAccumX -= step;
+        }
+        while (this._trackpadScrollAccumX <= -step) {
+            this._trackpadWheelStep(1 << 6); this._trackpadScrollAccumX += step;
+        }
+    }
+
+    _handleTrackpadTouchStart(ev) {
+        if (!this._trackpadMode) { return; }
+        if (ev.touches.length >= 2) {
+            this._trackpadMultitouch = true;
+            this._trackpadEdgePanStop();
+            this._trackpadPinch = this._trackpadPinchInfo(ev);
+            // Anchor for intent classification; deadzone until one intent wins.
+            this._trackpadTwoStart = this._trackpadPinch;
+            this._trackpadTwoIntent = null;
+            // A quick two-finger tap with no pinch/move is a right click at the
+            // virtual cursor (opens the remote context menu there, so copy etc.
+            // act on the cursor position, not the screen centre).
+            this._trackpadTwoTap = { time: Date.now(),
+                                     info: this._trackpadPinch, moved: false };
+            this._trackpadScrollAccumX = 0;
+            this._trackpadScrollAccumY = 0;
+        } else if (ev.touches.length === 1) {
+            // Track the finger so we can move the cursor live, from the very
+            // first pixel, without waiting for the drag-recognition threshold.
+            const t = ev.touches[0];
+            this._trackpadLastClient = { x: t.clientX, y: t.clientY };
+            this._trackpadFingerStart =
+                { time: Date.now(), x: t.clientX, y: t.clientY, moved: false };
+            // If this finger lands quickly after a previous tap, a drag now is a
+            // double-tap-drag: hold the left button so dragging selects text.
+            this._trackpadArmSelect =
+                this._trackpadTapEndTime !== null &&
+                (Date.now() - this._trackpadTapEndTime) < SELECT_TAP_TIMEOUT;
+        }
+    }
+
+    _handleTrackpadTouchMove(ev) {
+        if (!this._trackpadMode) { return; }
+
+        if (ev.touches.length >= 2) {
+            if (this._trackpadPinch === null) { return; }
+            ev.preventDefault();
+            ev.stopPropagation();
+            const cur = this._trackpadPinchInfo(ev);
+            const prev = this._trackpadPinch;
+            const dcx = cur.cx - prev.cx;
+            const dcy = cur.cy - prev.cy;
+            // Any real pinch or pan cancels a pending two-finger tap.
+            if (this._trackpadTwoTap !== null) {
+                const s = this._trackpadTwoTap.info;
+                if (Math.abs(cur.cx - s.cx) > 12 || Math.abs(cur.cy - s.cy) > 12 ||
+                    Math.abs(cur.dist - s.dist) > 12) {
+                    this._trackpadTwoTap.moved = true;
+                }
+            }
+            // Commit to a single intent (zoom OR move) once the gesture leaves
+            // the deadzone, then stick with it until the fingers lift. This
+            // stops a pinch from also panning (the midpoint drifts) and a pan
+            // from also zooming (the finger spacing wobbles).
+            if (this._trackpadTwoIntent === null && this._trackpadTwoStart !== null) {
+                const start = this._trackpadTwoStart;
+                const distDelta = Math.abs(cur.dist - start.dist);
+                const moveDelta = Math.hypot(cur.cx - start.cx, cur.cy - start.cy);
+                if (Math.max(distDelta, moveDelta) >= TRACKPAD_TWO_INTENT_THRESHOLD) {
+                    this._trackpadTwoIntent =
+                        distDelta > moveDelta ? 'zoom' : 'move';
+                }
+            }
+            if (this._trackpadTwoIntent === 'zoom') {
+                // Zoom toward the midpoint between the fingers.
+                if (prev.dist > 0 && cur.dist > 0 && cur.dist !== prev.dist) {
+                    this._trackpadZoomAt(cur.dist / prev.dist, cur.cx, cur.cy);
+                }
+                // Pinch-and-drag: also pan within the same gesture so the user
+                // can move the view while still pinching, without lifting. Only
+                // zoom-intent pans during a pinch; pure 'move' never zooms, so a
+                // straight pan can't wobble the magnification.
+                if (this._trackpadZoom > 1.0 && (dcx !== 0 || dcy !== 0)) {
+                    this._trackpadPanX += dcx;
+                    this._trackpadPanY += dcy;
+                    this._trackpadClampPan();
+                    this._trackpadApplyTransform();
+                }
+            } else if (this._trackpadTwoIntent === 'move') {
+                if (this._trackpadZoom > 1.0) {
+                    // Magnified: the midpoint movement pans the view.
+                    this._trackpadPanX += dcx;
+                    this._trackpadPanY += dcy;
+                    this._trackpadClampPan();
+                    this._trackpadApplyTransform();
+                } else {
+                    // At fit: the midpoint movement scrolls the remote.
+                    this._trackpadScrollBy(dcx, dcy);
+                }
+            }
+            this._trackpadPinch = cur;
+            return;
+        }
+
+        // One finger: move the virtual cursor live (relative), so there is no
+        // dead zone before noVNC's gesture handler recognises a drag. Clicks
+        // (tap / two-finger tap / tap-and-a-half) still come from the gesture
+        // handler; it just no longer drives cursor position in trackpad mode.
+        if (this._trackpadMultitouch || this._trackpadLastClient === null) {
+            return;
+        }
+        const t = ev.touches[0];
+        const dx = t.clientX - this._trackpadLastClient.x;
+        const dy = t.clientY - this._trackpadLastClient.y;
+        this._trackpadLastClient = { x: t.clientX, y: t.clientY };
+        this._trackpadEnsurePos();
+        // On the first real movement of a double-tap-drag, press and hold the
+        // left button so the drag selects text from the very first pixel.
+        if (this._trackpadFingerStart !== null && !this._trackpadFingerStart.moved) {
+            const mdx = t.clientX - this._trackpadFingerStart.x;
+            const mdy = t.clientY - this._trackpadFingerStart.y;
+            if (Math.hypot(mdx, mdy) > 6) {
+                this._trackpadFingerStart.moved = true;
+                if (this._trackpadArmSelect && !this._trackpadDragButton) {
+                    this._trackpadDragButton = 0x1;
+                    this._handleMouseButton(this._trackpadPos.x,
+                                            this._trackpadPos.y, 0x1);
+                }
+            }
+        }
+        this._trackpadMoveBy(dx, dy);
+        this._trackpadUpdateCursor();
+        this._handleMouseMove(this._trackpadPos.x, this._trackpadPos.y);
+        ev.preventDefault();
+    }
+
+    _handleTrackpadTouchEnd(ev) {
+        if (ev.touches.length === 0) {
+            // All fingers up: end any interaction.
+            // Complete a two-finger tap as a right click at the virtual cursor.
+            if (this._trackpadTwoTap !== null && !this._trackpadTwoTap.moved &&
+                (Date.now() - this._trackpadTwoTap.time) < 300) {
+                this._trackpadClick(0x4);
+            }
+            this._trackpadTwoTap = null;
+            // Record a clean one-finger tap (no movement) so a following finger
+            // can be recognised as a double-tap-drag.
+            if (this._trackpadFingerStart !== null &&
+                !this._trackpadFingerStart.moved && !this._trackpadDragButton) {
+                this._trackpadTapEndTime = Date.now();
+            }
+            // Release a held selection/drag button at the end of the gesture.
+            if (this._trackpadDragButton) {
+                this._handleMouseButton(this._trackpadPos.x,
+                                        this._trackpadPos.y, 0x0);
+                this._trackpadDragButton = 0;
+            }
+            this._trackpadFingerStart = null;
+            this._trackpadArmSelect = false;
+            this._trackpadMultitouch = false;
+            this._trackpadPinch = null;
+            this._trackpadTwoStart = null;
+            this._trackpadTwoIntent = null;
+            this._trackpadLastClient = null;
+            this._trackpadEdgePanStop();
+        } else if (ev.touches.length < 2) {
+            // One finger left: stop pan/zoom but keep ignoring single-finger
+            // gestures until everything is lifted, so the leftover finger
+            // doesn't suddenly fling the cursor.
+            this._trackpadPinch = null;
+            this._trackpadTwoStart = null;
+            this._trackpadTwoIntent = null;
+        }
+    }
+
     // Requests a change of remote desktop size. This message is an extension
     // and may only be sent if we have received an ExtendedDesktopSize message
     _requestRemoteResize() {
@@ -836,8 +1184,12 @@ export default class RFB extends EventTargetMixin {
 
     // Gets the the size of the available screen
     _screenSize() {
+        // HiDPI: request the remote framebuffer at device pixels (CSS px ×
+        // devicePixelRatio) so a remote-resized desktop renders crisp on retina
+        // displays. Paired with the _rescale patch in display.js.
         let r = this._screen.getBoundingClientRect();
-        return { w: r.width, h: r.height };
+        let dpr = window.devicePixelRatio || 1;
+        return { w: r.width * dpr, h: r.height * dpr };
     }
 
     _fixScrollbars() {
@@ -1323,8 +1675,308 @@ export default class RFB extends EventTargetMixin {
         this._handleMouseButton(pos.x, pos.y, 0x0);
     }
 
+    // Emit mouse wheel button presses for a two-finger drag gesture, based on
+    // the accumulated drag magnitude relative to the last emitted step.
+    _gestureTwoDragScroll(x, y, magnitudeX, magnitudeY) {
+        while ((magnitudeY - this._gestureLastMagnitudeY) > GESTURE_SCRLSENS) {
+            this._handleMouseButton(x, y, 0x8);
+            this._handleMouseButton(x, y, 0x0);
+            this._gestureLastMagnitudeY += GESTURE_SCRLSENS;
+        }
+        while ((magnitudeY - this._gestureLastMagnitudeY) < -GESTURE_SCRLSENS) {
+            this._handleMouseButton(x, y, 0x10);
+            this._handleMouseButton(x, y, 0x0);
+            this._gestureLastMagnitudeY -= GESTURE_SCRLSENS;
+        }
+        while ((magnitudeX - this._gestureLastMagnitudeX) > GESTURE_SCRLSENS) {
+            this._handleMouseButton(x, y, 0x20);
+            this._handleMouseButton(x, y, 0x0);
+            this._gestureLastMagnitudeX += GESTURE_SCRLSENS;
+        }
+        while ((magnitudeX - this._gestureLastMagnitudeX) < -GESTURE_SCRLSENS) {
+            this._handleMouseButton(x, y, 0x40);
+            this._handleMouseButton(x, y, 0x0);
+            this._gestureLastMagnitudeX -= GESTURE_SCRLSENS;
+        }
+    }
+
+    // Emit Ctrl+wheel button presses for a pinch gesture (zoom).
+    _gesturePinchZoom(x, y, magnitudeX, magnitudeY) {
+        let magnitude = Math.hypot(magnitudeX, magnitudeY);
+        if (Math.abs(magnitude - this._gestureLastMagnitudeX) > GESTURE_ZOOMSENS) {
+            this._handleKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
+            while ((magnitude - this._gestureLastMagnitudeX) > GESTURE_ZOOMSENS) {
+                this._handleMouseButton(x, y, 0x8);
+                this._handleMouseButton(x, y, 0x0);
+                this._gestureLastMagnitudeX += GESTURE_ZOOMSENS;
+            }
+            while ((magnitude - this._gestureLastMagnitudeX) < -GESTURE_ZOOMSENS) {
+                this._handleMouseButton(x, y, 0x10);
+                this._handleMouseButton(x, y, 0x0);
+                this._gestureLastMagnitudeX -= GESTURE_ZOOMSENS;
+            }
+        }
+        this._handleKeyEvent(KeyTable.XK_Control_L, "ControlLeft", false);
+    }
+
+    // Make sure the virtual cursor has a position. Initialise it to the centre
+    // of the canvas (in untransformed CSS pixels) the first time it is needed.
+    _trackpadEnsurePos() {
+        if (this._trackpadPos !== null) {
+            return;
+        }
+        this._trackpadPos = { x: this._canvas.clientWidth / 2,
+                              y: this._canvas.clientHeight / 2 };
+    }
+
+    // Visible region of the canvas, in untransformed canvas CSS px, given the
+    // current pan/zoom. Derived from real on-screen geometry: the cursor is
+    // confined to the intersection of the framebuffer and the actual viewport
+    // (the _screen container), so the pan-trigger edges follow the screen edges
+    // rather than the canvas footprint (which is centred with margins at fit).
+    // Cache the canvas's untransformed screen origin and the viewport rect.
+    // These are invariant to pan/zoom (transform origin 0,0), so caching them
+    // lets the edge-pan loop compute bounds analytically without reading layout
+    // mid-transform (which gave noisy, jumping bounds).
+    _trackpadEnsureBase() {
+        if (this._trackpadBase !== null) { return; }
+        const crect = this._canvas.getBoundingClientRect();
+        const srect = this._screen.getBoundingClientRect();
+        this._trackpadBase = {
+            p0x: crect.left - this._trackpadPanX,
+            p0y: crect.top - this._trackpadPanY,
+            sl: srect.left, st: srect.top,
+            sr: srect.right, sb: srect.bottom,
+        };
+    }
+
+    _trackpadVisibleBounds() {
+        const cw = this._canvas.clientWidth;
+        const ch = this._canvas.clientHeight;
+        const z = this._trackpadZoom;
+        if (z <= 1.0) {
+            return { loX: 0, hiX: cw - 1, loY: 0, hiY: ch - 1 };
+        }
+        this._trackpadEnsureBase();
+        const base = this._trackpadBase;
+        const left = base.p0x + this._trackpadPanX;
+        const top = base.p0y + this._trackpadPanY;
+        return {
+            loX: Math.max(0, (base.sl - left) / z),
+            hiX: Math.min(cw - 1, (base.sr - left) / z),
+            loY: Math.max(0, (base.st - top) / z),
+            hiY: Math.min(ch - 1, (base.sb - top) / z),
+        };
+    }
+
+    // Move the virtual cursor by a touch delta. The position is kept in
+    // untransformed canvas CSS pixels; dividing by the zoom keeps the cursor
+    // moving 1:1 with the finger on screen even while magnified. The cursor is
+    // confined to the *visible* region; any finger motion that would push it
+    // past the visible edge accumulates as "overshoot" which drives edge
+    // panning (RDP-style: pan only starts at the edge, faster the harder you
+    // keep pushing past it).
+    _trackpadMoveBy(deltaX, deltaY) {
+        const z = this._trackpadZoom || 1.0;
+        const gain = this.trackpadSensitivity / z;
+        const desX = this._trackpadPos.x + deltaX * gain;
+        const desY = this._trackpadPos.y + deltaY * gain;
+        const b = this._trackpadVisibleBounds();
+        const x = Math.max(b.loX, Math.min(b.hiX, desX));
+        const y = Math.max(b.loY, Math.min(b.hiY, desY));
+        this._trackpadPos = { x: x, y: y };
+        if (z > 1.0) {
+            const exX = desX > b.hiX ? desX - b.hiX
+                : (desX < b.loX ? desX - b.loX : 0);
+            const exY = desY > b.hiY ? desY - b.hiY
+                : (desY < b.loY ? desY - b.loY : 0);
+            this._trackpadOverX =
+                this._trackpadAccumOver(this._trackpadOverX, exX, deltaX * gain);
+            this._trackpadOverY =
+                this._trackpadAccumOver(this._trackpadOverY, exY, deltaY * gain);
+            this._trackpadEdgePanKick();
+        }
+    }
+
+    // Update an overshoot accumulator. While the finger keeps pushing past the
+    // edge (ex != 0) it accumulates in that direction; when the finger is back
+    // inside, it bleeds toward zero by the inward motion instead of hard-
+    // resetting, so the auto-pan shifting the bounds doesn't make it stutter.
+    _trackpadAccumOver(cur, ex, inward) {
+        if (ex !== 0) {
+            return Math.sign(ex) === Math.sign(cur) ? cur + ex : ex;
+        }
+        if (cur > 0) { return Math.max(0, cur + Math.min(0, inward)); }
+        if (cur < 0) { return Math.min(0, cur + Math.max(0, inward)); }
+        return 0;
+    }
+
+    // Pan velocity (CSS px/frame). Magnitude comes from how far the finger is
+    // pushed past the edge (overshoot); direction follows the cursor's position
+    // relative to the visible centre, so panning goes diagonally toward the
+    // corner the cursor sits in rather than snapping to pure H/V.
+    _trackpadEdgePanVelocity() {
+        const z = this._trackpadZoom;
+        if (z <= 1.0) { return { vx: 0, vy: 0 }; }
+        const overMag = Math.hypot(this._trackpadOverX, this._trackpadOverY);
+        if (overMag === 0) { return { vx: 0, vy: 0 }; }
+        const cw = this._canvas.clientWidth;
+        const ch = this._canvas.clientHeight;
+        const min = 4;                              // px/frame as soon as past edge
+        const max = 18;                             // px/frame at full push
+        const ref = Math.min(cw, ch) * 0.20;        // overshoot for full speed
+        const speed = min + Math.min(1, overMag / ref) * (max - min);
+        // Direction from the cursor's position within the visible region.
+        const b = this._trackpadVisibleBounds();
+        const halfW = Math.max(1, (b.hiX - b.loX) / 2);
+        const halfH = Math.max(1, (b.hiY - b.loY) / 2);
+        const offX = (this._trackpadPos.x - (b.loX + b.hiX) / 2) / halfW;
+        const offY = (this._trackpadPos.y - (b.loY + b.hiY) / 2) / halfH;
+        const dirX = Math.max(-1, Math.min(1, offX));
+        const dirY = Math.max(-1, Math.min(1, offY));
+        // Normalise so the dominant axis reaches `speed`; reveal-direction is
+        // opposite the cursor offset (cursor at right edge -> panX decreases).
+        const dlen = Math.max(Math.abs(dirX), Math.abs(dirY), 1e-3);
+        return { vx: -(dirX / dlen) * speed, vy: -(dirY / dlen) * speed };
+    }
+
+    // One animation frame of edge panning: scroll the view while keeping the
+    // cursor fixed on screen, so its logical position rides onto the revealed
+    // content. Reschedules while overshoot remains and content is left.
+    _trackpadEdgePanStep() {
+        this._trackpadEdgePanRAF = null;
+        if (!this._trackpadMode || this._trackpadMultitouch ||
+            this._trackpadLastClient === null || this._trackpadZoom <= 1.0) {
+            return;
+        }
+        const vel = this._trackpadEdgePanVelocity();
+        if (vel.vx === 0 && vel.vy === 0) { return; }
+        const z = this._trackpadZoom;
+        const beforeX = this._trackpadPanX;
+        const beforeY = this._trackpadPanY;
+        this._trackpadPanX += vel.vx;
+        this._trackpadPanY += vel.vy;
+        this._trackpadClampPan();
+        const movedX = this._trackpadPanX - beforeX;
+        const movedY = this._trackpadPanY - beforeY;
+        // Out of content to reveal in both axes: stop (don't spin the loop).
+        if (movedX === 0 && movedY === 0) { return; }
+        // Keep the cursor fixed on screen as the view scrolls under it.
+        const b = this._trackpadVisibleBounds();
+        const px = Math.max(b.loX, Math.min(b.hiX, this._trackpadPos.x - movedX / z));
+        const py = Math.max(b.loY, Math.min(b.hiY, this._trackpadPos.y - movedY / z));
+        this._trackpadPos = { x: px, y: py };
+        this._trackpadApplyTransform();
+        this._handleMouseMove(px, py);
+        this._trackpadEdgePanRAF =
+            window.requestAnimationFrame(this._eventHandlers.trackpadEdgePanStep);
+    }
+
+    _trackpadEdgePanKick() {
+        if (this._trackpadEdgePanRAF !== null) { return; }
+        const vel = this._trackpadEdgePanVelocity();
+        if (vel.vx === 0 && vel.vy === 0) { return; }
+        this._trackpadEdgePanRAF =
+            window.requestAnimationFrame(this._eventHandlers.trackpadEdgePanStep);
+    }
+
+    _trackpadEdgePanStop() {
+        this._trackpadOverX = 0;
+        this._trackpadOverY = 0;
+        this._trackpadBase = null;
+        if (this._trackpadEdgePanRAF !== null) {
+            window.cancelAnimationFrame(this._trackpadEdgePanRAF);
+            this._trackpadEdgePanRAF = null;
+        }
+    }
+
+    // Position the local cursor indicator at the virtual cursor. The canvas's
+    // bounding rect already reflects any zoom/pan transform, so map the
+    // (untransformed) virtual position through the rect's effective scale.
+    _trackpadUpdateCursor() {
+        if (this._trackpadPos === null) {
+            return;
+        }
+        const rect = this._canvas.getBoundingClientRect();
+        const sx = rect.width / (this._canvas.clientWidth || rect.width || 1);
+        const sy = rect.height / (this._canvas.clientHeight || rect.height || 1);
+        this._cursor.move(rect.left + this._trackpadPos.x * sx,
+                          rect.top + this._trackpadPos.y * sy);
+    }
+
+    // Emit a click of the given button at the virtual cursor position.
+    _trackpadClick(bmask) {
+        this._trackpadEnsurePos();
+        this._trackpadUpdateCursor();
+        this._handleMouseMove(this._trackpadPos.x, this._trackpadPos.y);
+        this._handleMouseButton(this._trackpadPos.x, this._trackpadPos.y, bmask);
+        this._handleMouseButton(this._trackpadPos.x, this._trackpadPos.y, 0x0);
+    }
+
+    // Trackpad mode: touch input drives a relative virtual cursor instead of
+    // mapping directly to absolute framebuffer coordinates.
+    _handleTrackpadGesture(ev) {
+        // Two-finger gestures are handled directly from raw touch events
+        // (pan + zoom together), so ignore the gesture handler's two-finger
+        // output while a multitouch interaction is in progress.
+        if (this._trackpadMultitouch) {
+            return;
+        }
+
+        this._trackpadEnsurePos();
+        const pos = this._trackpadPos;
+
+        switch (ev.type) {
+            case 'gesturestart':
+                switch (ev.detail.type) {
+                    case 'onetap':
+                        this._trackpadClick(0x1);
+                        break;
+                    case 'twotap':
+                        // Two-finger tap (right click) is handled from raw touch
+                        // events so it lands on the virtual cursor; ignore here
+                        // to avoid a duplicate click.
+                        break;
+                    case 'threetap':
+                        this._trackpadClick(0x2);
+                        break;
+                    case 'drag':
+                        // A plain drag just moves the cursor (driven from raw
+                        // touch). Selection drag (double-tap then drag) is also
+                        // handled from raw touch so the button is held from the
+                        // first pixel; nothing to do here.
+                        break;
+                    case 'longpress':
+                        // Press-and-hold then drag: grab the left button (unless
+                        // raw touch already holds it for a selection drag).
+                        if (!this._trackpadDragButton) {
+                            this._trackpadDragButton = 0x1;
+                            this._handleMouseButton(pos.x, pos.y, 0x1);
+                        }
+                        break;
+                    case 'twodrag':
+                    case 'pinch':
+                        // Handled via raw touch events (see _handleTrackpadTouch*).
+                        break;
+                }
+                break;
+
+            case 'gesturemove':
+                // Cursor movement comes from raw touch events, not gestures.
+                break;
+
+            case 'gestureend':
+                // The held button (longpress/selection drag) is released from
+                // the raw touchend handler, so nothing to do here.
+                break;
+        }
+    }
+
     _handleGesture(ev) {
-        let magnitude;
+        if (this.trackpadMode) {
+            this._handleTrackpadGesture(ev);
+            return;
+        }
 
         let pos = clientToElement(ev.detail.clientX, ev.detail.clientY,
                                   this._canvas);
@@ -1404,47 +2056,18 @@ export default class RFB extends EventTargetMixin {
                         // We don't know if the mouse was moved so we need to move it
                         // every update.
                         this._fakeMouseMove(ev, pos.x, pos.y);
-                        while ((ev.detail.magnitudeY - this._gestureLastMagnitudeY) > GESTURE_SCRLSENS) {
-                            this._handleMouseButton(pos.x, pos.y, 0x8);
-                            this._handleMouseButton(pos.x, pos.y, 0x0);
-                            this._gestureLastMagnitudeY += GESTURE_SCRLSENS;
-                        }
-                        while ((ev.detail.magnitudeY - this._gestureLastMagnitudeY) < -GESTURE_SCRLSENS) {
-                            this._handleMouseButton(pos.x, pos.y, 0x10);
-                            this._handleMouseButton(pos.x, pos.y, 0x0);
-                            this._gestureLastMagnitudeY -= GESTURE_SCRLSENS;
-                        }
-                        while ((ev.detail.magnitudeX - this._gestureLastMagnitudeX) > GESTURE_SCRLSENS) {
-                            this._handleMouseButton(pos.x, pos.y, 0x20);
-                            this._handleMouseButton(pos.x, pos.y, 0x0);
-                            this._gestureLastMagnitudeX += GESTURE_SCRLSENS;
-                        }
-                        while ((ev.detail.magnitudeX - this._gestureLastMagnitudeX) < -GESTURE_SCRLSENS) {
-                            this._handleMouseButton(pos.x, pos.y, 0x40);
-                            this._handleMouseButton(pos.x, pos.y, 0x0);
-                            this._gestureLastMagnitudeX -= GESTURE_SCRLSENS;
-                        }
+                        this._gestureTwoDragScroll(pos.x, pos.y,
+                                                   ev.detail.magnitudeX,
+                                                   ev.detail.magnitudeY);
                         break;
                     case 'pinch':
                         // Always scroll in the same position.
                         // We don't know if the mouse was moved so we need to move it
                         // every update.
                         this._fakeMouseMove(ev, pos.x, pos.y);
-                        magnitude = Math.hypot(ev.detail.magnitudeX, ev.detail.magnitudeY);
-                        if (Math.abs(magnitude - this._gestureLastMagnitudeX) > GESTURE_ZOOMSENS) {
-                            this._handleKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
-                            while ((magnitude - this._gestureLastMagnitudeX) > GESTURE_ZOOMSENS) {
-                                this._handleMouseButton(pos.x, pos.y, 0x8);
-                                this._handleMouseButton(pos.x, pos.y, 0x0);
-                                this._gestureLastMagnitudeX += GESTURE_ZOOMSENS;
-                            }
-                            while ((magnitude -  this._gestureLastMagnitudeX) < -GESTURE_ZOOMSENS) {
-                                this._handleMouseButton(pos.x, pos.y, 0x10);
-                                this._handleMouseButton(pos.x, pos.y, 0x0);
-                                this._gestureLastMagnitudeX -= GESTURE_ZOOMSENS;
-                            }
-                        }
-                        this._handleKeyEvent(KeyTable.XK_Control_L, "ControlLeft", false);
+                        this._gesturePinchZoom(pos.x, pos.y,
+                                               ev.detail.magnitudeX,
+                                               ev.detail.magnitudeY);
                         break;
                 }
                 break;
@@ -3047,7 +3670,7 @@ export default class RFB extends EventTargetMixin {
 
     _shouldShowDotCursor() {
         // Called when this._cursorImage is updated
-        if (!this._showDotCursor) {
+        if (!this._showDotCursor && !this._trackpadMode) {
             // User does not want to see the dot, so...
             return false;
         }

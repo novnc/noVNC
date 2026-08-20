@@ -185,6 +185,12 @@
                     Edit clipboard content in the textbox below.
                 </p>
                 <textarea id="noVNC_clipboard_text" rows=5></textarea>
+                <div class="noVNC_clipboard_actions">
+                    <input type="button" id="noVNC_clipboard_from_device"
+                        value="Paste from device">
+                    <input type="button" id="noVNC_clipboard_to_device"
+                        value="Copy to device">
+                </div>
             </div>
             </div>
 
@@ -215,6 +221,13 @@
                             <input id="noVNC_setting_view_only" type="checkbox"
                                    class="toggle">
                             View only
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input id="noVNC_setting_trackpad_mode" type="checkbox"
+                                   class="toggle">
+                            Trackpad mode (touch)
                         </label>
                     </li>
                     <li><hr></li>

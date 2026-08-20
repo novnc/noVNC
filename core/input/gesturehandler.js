@@ -410,10 +410,13 @@ export default class GestureHandler {
             throw new Error("A pinch or two drag gesture failed, no tracked touches");
         }
 
-        // How far each touch point has moved since start
+        // How far the touch points have moved (as a whole) since start.
+        // Use the magnitude of the 2D movement, not each axis separately:
+        // a diagonal drag splits its movement across both axes, so a per-axis
+        // comparison would wrongly bias diagonal two-finger drags towards
+        // PINCH even when the fingers stayed parallel.
         let avgM = this._getAverageMovement();
-        let avgMoveH = Math.abs(avgM.x);
-        let avgMoveV = Math.abs(avgM.y);
+        let avgMove = Math.hypot(avgM.x, avgM.y);
 
         // The difference in the distance between where
         // the touch points started and where they are now
@@ -421,8 +424,7 @@ export default class GestureHandler {
         let deltaTouchDistance = Math.abs(Math.hypot(avgD.first.x, avgD.first.y) -
                                           Math.hypot(avgD.last.x, avgD.last.y));
 
-        if ((avgMoveV < deltaTouchDistance) &&
-            (avgMoveH < deltaTouchDistance)) {
+        if (avgMove < deltaTouchDistance) {
             this._state = GH_PINCH;
         } else {
             this._state = GH_TWODRAG;
