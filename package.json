@@ -12,7 +12,10 @@
     "docs/LIBRARY.md",
     "docs/LICENSE*"
   ],
-  "exports": "./core/rfb.js",
+  "exports": {
+    ".": "./core/rfb.js",
+    "./core/input/keyboard": "./core/input/keyboard.js"
+  },
   "scripts": {
     "lint": "eslint app core po/po2js po/xgettext-html tests utils",
     "test": "karma start karma.conf.cjs"
