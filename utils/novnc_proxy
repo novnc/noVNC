@@ -17,6 +17,8 @@ usage() {
     echo "                          Default: 6080 (on all interfaces)"
     echo "    --vnc VNC_HOST:PORT   VNC server host:port proxy target"
     echo "                          Default: localhost:5900"
+    echo "    --self-sign hostname  Generate self-signed certificates for hostname"
+    echo "                          Requires OpenSSL to be installed"
     echo "    --cert CERT           Path to combined cert/key file, or just"
     echo "                          the cert file if used with --key"
     echo "                          Default: self.pem"
@@ -51,6 +53,7 @@ HOST=""
 PORT="6080"
 LISTEN="$PORT"
 VNC_DEST="localhost:5900"
+SELF_SIGN=""
 CERT=""
 KEY=""
 WEB=""
@@ -90,6 +93,7 @@ while [ "$*" ]; do
     case $param in
     --listen)  LISTEN="${OPTARG}"; shift            ;;
     --vnc)     VNC_DEST="${OPTARG}"; shift        ;;
+    --self-sign) SELF_SIGN="${OPTARG}"; shift     ;;
     --cert)    CERT="${OPTARG}"; shift            ;;
     --key)     KEY="${OPTARG}"; shift             ;;
     --web)     WEB="${OPTARG}"; shift            ;;
@@ -128,6 +132,14 @@ if [ -z "${HOST}" ]; then
     fi
 fi
 
+# Check if (cert | key) & self-sign are set, as they are incompatible
+if [ -n "$CERT" ] || [ -n "$KEY" ] && [ -n "$SELF_SIGN" ]; then
+    echo "Arguments --cert and --key and incompatible with --self-sign"
+    echo ""
+    usage
+    exit 1
+fi
+
 trap "cleanup" TERM QUIT INT EXIT
 
 # Find vnc.html
@@ -145,6 +157,29 @@ elif [ -e "${HERE}/../share/novnc/vnc.html" ]; then
     WEB=${HERE}/../share/novnc/
 else
     die "Could not find vnc.html"
+fi
+
+# Create self-signed certificates
+if [ -n "${SELF_SIGN}" ]; then
+    # Check if OpenSSL is installed
+    which openssl > /dev/null
+    if [ $? != 0 ]; then
+        echo "Unable to find OpenSSL, please ensure you have OpenSSL installed and available in \$PATH"
+        exit 1
+    fi
+    # Check that the file doesn't already exist
+	if [ -f $(pwd)/self.pem ]; then
+        read -p "$(pwd)/self.pem aleady exists, overwrite? (Y/N) " overwrite
+        if [ "$overwrite" != "Y" ]; then
+            echo "Not overwriting $(pwd)/self.pem"
+            exit 1
+        fi
+    fi
+	echo "Generating Certificate for: ${SELF_SIGN}"
+	openssl req -x509 -newkey rsa:4096 -keyout key.pem -out self.pem -sha256 -days 3650 -nodes -subj "/C=XX/ST=NoVNC/L=NoVNC/O=NoVNC/OU=NoVNC/CN=${SELF_SIGN}"
+
+	CERT=$(pwd)/self.pem
+	KEY=$(pwd)/key.pem
 fi
 
 # Find self.pem
