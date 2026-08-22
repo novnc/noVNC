@@ -187,6 +187,12 @@ export default class RFB extends EventTargetMixin {
             encoding: null,
         };
 
+        // Encoding and FPS tracking
+        this._lastEncoding = null;
+        this._frameCount = 0;
+        this._lastFpsTime = performance.now();
+        this._lastBandwidthTime = performance.now();
+
         // Mouse state
         this._mousePos = {};
         this._mouseButtonMask = 0;
@@ -2663,6 +2669,13 @@ export default class RFB extends EventTargetMixin {
                 this._FBU.encoding = this._sock.rQshift32();
                 /* Encodings are signed */
                 this._FBU.encoding >>= 0;
+
+                // Emit encoding change event for real encodings (not pseudo-encodings)
+                if (this._lastEncoding !== this._FBU.encoding && this._FBU.encoding >= 0) {
+                    this._lastEncoding = this._FBU.encoding;
+                    this.dispatchEvent(new CustomEvent("encodingchange",
+                        { detail: { encoding: this._FBU.encoding } }));
+                }
             }
 
             if (!this._handleRect()) {
@@ -2674,6 +2687,25 @@ export default class RFB extends EventTargetMixin {
         }
 
         this._display.flip();
+
+        // FPS counter
+        this._frameCount++;
+        const now = performance.now();
+        if (now - this._lastFpsTime >= 1000) {
+            this.dispatchEvent(new CustomEvent("fps",
+                { detail: { fps: this._frameCount } }));
+            this._frameCount = 0;
+            this._lastFpsTime = now;
+        }
+
+        // Bandwidth counter (every 2 seconds for smoother readings)
+        if (now - this._lastBandwidthTime >= 2000) {
+            const stats = this._sock.getBandwidthStats();
+            this.dispatchEvent(new CustomEvent("bandwidth",
+                { detail: stats }));
+            this._sock.resetBandwidthStats();
+            this._lastBandwidthTime = now;
+        }
 
         return true;  // We finished this FBU
     }
