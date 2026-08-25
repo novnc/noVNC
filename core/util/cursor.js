@@ -7,11 +7,9 @@
 export default class Cursor {
     constructor() {
         this._target = null;
-        this._parent = null;
-        this._parentPosition = null;
 
         this._container = document.createElement('div');
-        this._container.style.position = 'absolute';
+        this._container.style.position = 'fixed';
         this._container.style.zIndex = '65535';
         this._container.style.overflow = 'hidden';
         this._container.style.pointerEvents = 'none';
@@ -51,18 +49,8 @@ export default class Cursor {
         }
 
         this._target = target;
-        this._parent = this._target.parentElement;
 
-        if (!this._parent) {
-            throw new Error("Cursor target must have a parent element");
-        }
-
-        if (window.getComputedStyle(this._parent).position === 'static') {
-            this._parentPosition = this._parent.style.position;
-            this._parent.style.position = 'relative';
-        }
-
-        this._parent.appendChild(this._container);
+        document.body.appendChild(this._container);
 
         const options = { capture: true, passive: true };
         this._target.addEventListener('mouseover', this._eventHandlers.mouseover, options);
@@ -72,11 +60,15 @@ export default class Cursor {
 
         // Local scaling changes the canvas's CSS size without changing its
         // framebuffer dimensions. Recalculate the cursor even if the mouse is
-        // stationary when that happens, or when scrolling moves the canvas.
+        // stationary when that happens, or when scrolling or browser zoom
+        // moves the canvas.
         this._resizeObserver.observe(this._target);
-        this._resizeObserver.observe(this._parent);
         window.addEventListener('resize', this._eventHandlers.geometrychange);
         window.addEventListener('scroll', this._eventHandlers.geometrychange, true);
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', this._eventHandlers.geometrychange);
+            window.visualViewport.addEventListener('scroll', this._eventHandlers.geometrychange);
+        }
 
         this.clear();
     }
@@ -95,18 +87,16 @@ export default class Cursor {
         this._resizeObserver.disconnect();
         window.removeEventListener('resize', this._eventHandlers.geometrychange);
         window.removeEventListener('scroll', this._eventHandlers.geometrychange, true);
-
-        if (this._parent.contains(this._container)) {
-            this._parent.removeChild(this._container);
+        if (window.visualViewport) {
+            window.visualViewport.removeEventListener('resize', this._eventHandlers.geometrychange);
+            window.visualViewport.removeEventListener('scroll', this._eventHandlers.geometrychange);
         }
 
-        if (this._parentPosition !== null) {
-            this._parent.style.position = this._parentPosition;
+        if (document.contains(this._container)) {
+            document.body.removeChild(this._container);
         }
 
         this._target = null;
-        this._parent = null;
-        this._parentPosition = null;
     }
 
     change(rgba, hotx, hoty, w, h) {
@@ -274,11 +264,11 @@ export default class Cursor {
         const left = (this._position.x - this._hotSpot.x) * scaleX;
         const top = (this._position.y - this._hotSpot.y) * scaleY;
 
-        // Keep the cursor overlay in the same layout and scrolling coordinate
-        // system as the framebuffer canvas. This avoids any mismatch between
-        // client coordinates and page-level fixed positioning.
-        this._container.style.left = this._target.offsetLeft + "px";
-        this._container.style.top = this._target.offsetTop + "px";
+        // Use the same viewport rectangle for every part of the overlay. In
+        // particular, do not mix offsetLeft/offsetTop layout coordinates with
+        // getBoundingClientRect() coordinates after browser pinch zoom.
+        this._container.style.left = targetRect.left + "px";
+        this._container.style.top = targetRect.top + "px";
         this._container.style.width = targetRect.width + "px";
         this._container.style.height = targetRect.height + "px";
 
