@@ -7,10 +7,17 @@
 export default class Cursor {
     constructor() {
         this._target = null;
+        this._parent = null;
+        this._parentPosition = null;
+
+        this._container = document.createElement('div');
+        this._container.style.position = 'absolute';
+        this._container.style.zIndex = '65535';
+        this._container.style.overflow = 'hidden';
+        this._container.style.pointerEvents = 'none';
 
         this._canvas = document.createElement('canvas');
-        this._canvas.style.position = 'fixed';
-        this._canvas.style.zIndex = '65535';
+        this._canvas.style.position = 'absolute';
         this._canvas.style.pointerEvents = 'none';
         // Safari on iOS can select the cursor image
         // https://bugs.webkit.org/show_bug.cgi?id=249223
@@ -19,9 +26,11 @@ export default class Cursor {
         // Can't use "display" because of Firefox bug #1445997
         this._canvas.style.visibility = 'hidden';
 
-        // The position is the cursor hotspot in client coordinates. Keeping
-        // it separate from the bitmap position lets us apply the same local
-        // scale to both the cursor image and its hotspot.
+        this._container.appendChild(this._canvas);
+
+        // The position is the cursor hotspot in framebuffer canvas
+        // coordinates. Keeping it in the same coordinate system as the
+        // cursor bitmap makes browser pinch zoom irrelevant to positioning.
         this._position = { x: 0, y: 0 };
         this._hotSpot = { x: 0, y: 0 };
 
@@ -42,8 +51,18 @@ export default class Cursor {
         }
 
         this._target = target;
+        this._parent = this._target.parentElement;
 
-        document.body.appendChild(this._canvas);
+        if (!this._parent) {
+            throw new Error("Cursor target must have a parent element");
+        }
+
+        if (window.getComputedStyle(this._parent).position === 'static') {
+            this._parentPosition = this._parent.style.position;
+            this._parent.style.position = 'relative';
+        }
+
+        this._parent.appendChild(this._container);
 
         const options = { capture: true, passive: true };
         this._target.addEventListener('mouseover', this._eventHandlers.mouseover, options);
@@ -55,6 +74,7 @@ export default class Cursor {
         // framebuffer dimensions. Recalculate the cursor even if the mouse is
         // stationary when that happens, or when scrolling moves the canvas.
         this._resizeObserver.observe(this._target);
+        this._resizeObserver.observe(this._parent);
         window.addEventListener('resize', this._eventHandlers.geometrychange);
         window.addEventListener('scroll', this._eventHandlers.geometrychange, true);
 
@@ -76,11 +96,17 @@ export default class Cursor {
         window.removeEventListener('resize', this._eventHandlers.geometrychange);
         window.removeEventListener('scroll', this._eventHandlers.geometrychange, true);
 
-        if (document.contains(this._canvas)) {
-            document.body.removeChild(this._canvas);
+        if (this._parent.contains(this._container)) {
+            this._parent.removeChild(this._container);
+        }
+
+        if (this._parentPosition !== null) {
+            this._parent.style.position = this._parentPosition;
         }
 
         this._target = null;
+        this._parent = null;
+        this._parentPosition = null;
     }
 
     change(rgba, hotx, hoty, w, h) {
@@ -117,16 +143,7 @@ export default class Cursor {
     // Mouse events might be emulated, this allows
     // moving the cursor in such cases
     move(clientX, clientY) {
-        // clientX/clientY are relative the _visual viewport_,
-        // but our position is relative the _layout viewport_,
-        // so try to compensate when we can
-        if (window.visualViewport) {
-            this._position.x = clientX + window.visualViewport.offsetLeft;
-            this._position.y = clientY + window.visualViewport.offsetTop;
-        } else {
-            this._position.x = clientX;
-            this._position.y = clientY;
-        }
+        this._setPosition(clientX, clientY);
         this._updatePosition();
         let target = document.elementFromPoint(clientX, clientY);
         this._updateVisibility(target);
@@ -147,8 +164,7 @@ export default class Cursor {
     _handleMouseMove(event) {
         this._updateVisibility(event.target);
 
-        this._position.x = event.clientX;
-        this._position.y = event.clientY;
+        this._setPosition(event.clientX, event.clientY);
 
         this._updatePosition();
     }
@@ -233,43 +249,16 @@ export default class Cursor {
         }
     }
 
-    _getVisibleTargetRect() {
+    _setPosition(clientX, clientY) {
         const targetRect = this._target.getBoundingClientRect();
-        const rect = {
-            left: targetRect.left,
-            top: targetRect.top,
-            right: targetRect.right,
-            bottom: targetRect.bottom,
-        };
+        const scaleX = this._target.width ? targetRect.width / this._target.width : 1;
+        const scaleY = this._target.height ? targetRect.height / this._target.height : 1;
 
-        // The canvas can be larger than noVNC's scrolling viewport. Limit the
-        // cursor to the part of the canvas that each clipping ancestor exposes.
-        let element = this._target.parentElement;
-        while (element) {
-            const style = window.getComputedStyle(element);
-            const bounds = element.getBoundingClientRect();
-            const overflowX = style.overflowX || style.overflow;
-            const overflowY = style.overflowY || style.overflow;
-
-            if (overflowX !== 'visible') {
-                rect.left = Math.max(rect.left, bounds.left);
-                rect.right = Math.min(rect.right, bounds.right);
-            }
-            if (overflowY !== 'visible') {
-                rect.top = Math.max(rect.top, bounds.top);
-                rect.bottom = Math.min(rect.bottom, bounds.bottom);
-            }
-
-            element = element.parentElement;
-        }
-
-        // A fixed-position cursor is also limited to the browser viewport.
-        rect.left = Math.max(rect.left, 0);
-        rect.top = Math.max(rect.top, 0);
-        rect.right = Math.min(rect.right, document.documentElement.clientWidth);
-        rect.bottom = Math.min(rect.bottom, document.documentElement.clientHeight);
-
-        return rect;
+        // Use the same client-to-canvas conversion as noVNC's mouse input.
+        // The visual viewport offset from Android pinch zoom is already
+        // reflected in client coordinates and the target rectangle.
+        this._position.x = scaleX ? (clientX - targetRect.left) / scaleX : 0;
+        this._position.y = scaleY ? (clientY - targetRect.top) / scaleY : 0;
     }
 
     _updatePosition() {
@@ -282,23 +271,21 @@ export default class Cursor {
         const scaleY = this._target.height ? targetRect.height / this._target.height : 1;
         const width = this._canvas.width * scaleX;
         const height = this._canvas.height * scaleY;
-        const left = this._position.x - this._hotSpot.x * scaleX;
-        const top = this._position.y - this._hotSpot.y * scaleY;
+        const left = (this._position.x - this._hotSpot.x) * scaleX;
+        const top = (this._position.y - this._hotSpot.y) * scaleY;
+
+        // Keep the cursor overlay in the same layout and scrolling coordinate
+        // system as the framebuffer canvas. This avoids any mismatch between
+        // client coordinates and page-level fixed positioning.
+        this._container.style.left = this._target.offsetLeft + "px";
+        this._container.style.top = this._target.offsetTop + "px";
+        this._container.style.width = targetRect.width + "px";
+        this._container.style.height = targetRect.height + "px";
 
         this._canvas.style.width = width + "px";
         this._canvas.style.height = height + "px";
         this._canvas.style.left = left + "px";
         this._canvas.style.top = top + "px";
-
-        // A CSS cursor is allowed to paint outside its target element. Clip the
-        // emulated cursor instead so it behaves like pixels in the framebuffer.
-        const visibleRect = this._getVisibleTargetRect();
-        const clipTop = Math.max(visibleRect.top - top, 0);
-        const clipRight = Math.max(left + width - visibleRect.right, 0);
-        const clipBottom = Math.max(top + height - visibleRect.bottom, 0);
-        const clipLeft = Math.max(visibleRect.left - left, 0);
-
-        this._canvas.style.clipPath = `inset(${clipTop}px ${clipRight}px ${clipBottom}px ${clipLeft}px)`;
     }
 
     _captureIsActive() {
