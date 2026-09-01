@@ -126,10 +126,10 @@
         document.getElementById('sendCtrlAltDelButton')
             .onclick = sendCtrlAltDel;
 
-        // Read parameters specified in the URL query string
-        // By default, use the host and port of server that served this file
-        const host = readQueryVariable('host', window.location.hostname);
-        let port = readQueryVariable('port', window.location.port);
+        // Use same logic as vnc.html, but to keep lite, without hash fragment,
+        // encrypt flag, .etc
+        const host = readQueryVariable('host', '');
+        const port = readQueryVariable('port', 0);
         const password = readQueryVariable('password');
         const path = readQueryVariable('path', 'websockify');
 
@@ -140,20 +140,26 @@
         status("Connecting");
 
         // Build the websocket URL used to connect
+        const protocol = (window.location.protocol === "https:")
+            ? 'wss:' : 'ws:';
         let url;
-        if (window.location.protocol === "https:") {
-            url = 'wss';
+
+        if (host) {
+            url = new URL("https://" + host);
+
+            url.protocol = protocol;
+            if (port) {
+                url.port = port;
+            }
+
+            url = new URL("./" + path, url);
         } else {
-            url = 'ws';
+            url = new URL(path, location.href);
+            url.protocol = protocol;
         }
-        url += '://' + host;
-        if(port) {
-            url += ':' + port;
-        }
-        url += '/' + path;
 
         // Creating a new RFB object will start a new connection
-        rfb = new RFB(document.getElementById('screen'), url,
+        rfb = new RFB(document.getElementById('screen'), url.href,
                       { credentials: { password: password } });
 
         // Add listeners to important events from the RFB module
