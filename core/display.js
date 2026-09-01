@@ -534,25 +534,29 @@ export default class Display {
                     break;
                 case 'frame':
                     if (a.frame.ready) {
-                        // The encoded frame may be larger than the rect due to
-                        // limitations of the encoder, so we need to crop the
-                        // frame.
+                        // A dropped/jammed frame resolves with no actual
+                        // VideoFrame attached -- skip drawing it and move on.
                         let frame = a.frame.frame;
-                        if (frame.codedWidth < a.width || frame.codedHeight < a.height) {
-                            Log.Warn("Decoded video frame does not cover its full rectangle area. Expecting at least " +
-                                      a.width + "x" + a.height + " but got " +
-                                      frame.codedWidth + "x" + frame.codedHeight);
+                        if (frame !== null) {
+                            // The encoded frame may be larger than the rect due to
+                            // limitations of the encoder, so we need to crop the
+                            // frame.
+                            if (frame.codedWidth < a.width || frame.codedHeight < a.height) {
+                                Log.Warn("Decoded video frame does not cover its full rectangle area. Expecting at least " +
+                                          a.width + "x" + a.height + " but got " +
+                                          frame.codedWidth + "x" + frame.codedHeight);
+                            }
+                            const sx = 0;
+                            const sy = 0;
+                            const sw = a.width;
+                            const sh = a.height;
+                            const dx = a.x;
+                            const dy = a.y;
+                            const dw = sw;
+                            const dh = sh;
+                            this.drawImage(frame, sx, sy, sw, sh, dx, dy, dw, dh);
+                            frame.close();
                         }
-                        const sx = 0;
-                        const sy = 0;
-                        const sw = a.width;
-                        const sh = a.height;
-                        const dx = a.x;
-                        const dy = a.y;
-                        const dw = sw;
-                        const dh = sh;
-                        this.drawImage(frame, sx, sy, sw, sh, dx, dy, dw, dh);
-                        frame.close();
                     } else {
                         let display = this;
                         a.frame.promise.then(() => {
