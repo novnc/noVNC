@@ -79,6 +79,11 @@ Currently, the following options are available:
 
 * `view_only` - If the remote session should be in non-interactive mode.
 
+* `clipboard_send_mode` - How text entered in the clipboard panel should be
+  sent. Can be `clipboard` for RFB clipboard transfer or `keyboard` to type
+  the text as US keyboard input. Keyboard input supports printable ASCII
+  characters, newline, and tab.
+
 * `view_clip` - If the remote session should be clipped or use scrollbars if
   it cannot fit in the browser.
 
