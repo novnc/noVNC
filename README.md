@@ -1,8 +1,5 @@
 ## noVNC: HTML VNC client library and application
 
-[![Test Status](https://github.com/novnc/noVNC/workflows/Test/badge.svg)](https://github.com/novnc/noVNC/actions?query=workflow%3ATest)
-[![Lint Status](https://github.com/novnc/noVNC/workflows/Lint/badge.svg)](https://github.com/novnc/noVNC/actions?query=workflow%3ALint)
-
 **English** | [中文](README.zh-CN.md)
 
 ### Description

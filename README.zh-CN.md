@@ -2,9 +2,6 @@
 
 [English](README.md) | **中文**
 
-[![Test Status](https://github.com/novnc/noVNC/workflows/Test/badge.svg)](https://github.com/novnc/noVNC/actions?query=workflow%3ATest)
-[![Lint Status](https://github.com/novnc/noVNC/workflows/Lint/badge.svg)](https://github.com/novnc/noVNC/actions?query=workflow%3ALint)
-
 ### 简介
 
 noVNC 既是一个 HTML VNC 客户端 JavaScript 库，也是基于该库构建的应用程序。
