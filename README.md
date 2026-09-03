@@ -3,6 +3,8 @@
 [![Test Status](https://github.com/novnc/noVNC/workflows/Test/badge.svg)](https://github.com/novnc/noVNC/actions?query=workflow%3ATest)
 [![Lint Status](https://github.com/novnc/noVNC/workflows/Lint/badge.svg)](https://github.com/novnc/noVNC/actions?query=workflow%3ALint)
 
+**English** | [中文](README.zh-CN.md)
+
 ### Description
 
 noVNC is both a HTML VNC client JavaScript library and an application built on
@@ -17,11 +19,34 @@ Many companies, projects and products have integrated noVNC including
 [the Projects and companies wiki page](https://github.com/novnc/noVNC/wiki/Projects-and-companies-using-noVNC)
 for a more complete list with additional info and links.
 
+### Chrome Extension
+
+This branch packages noVNC v1.7.0 into a **Chrome extension** (Manifest V3),
+letting you access remote desktops directly in a tab without any extra plugin.
+
+**Connect**
+- Click the toolbar icon to open the launcher, or right-click a `ws://` / `wss://`
+  link or a selected `host:port` text to connect with one click.
+
+**Saved servers**
+- The launcher lets you save / edit / delete a list of frequently used servers.
+
+**Full-featured**
+- Reuses all of noVNC's capabilities, including remote desktop rendering,
+  keyboard/mouse input and bidirectional clipboard transfer.
+
+**Install**
+- Open `chrome://extensions`, enable "Developer mode", choose "Load unpacked",
+  and point to this repository directory.
+
+> To comply with the Manifest V3 CSP, the inline bootstrap scripts in `vnc.html` /
+> `vnc_lite.html` have been extracted to `app/main.js` / `app/vnc_lite.js`;
+> direct browser access to noVNC is unaffected.
+
 ### Table of contents
 
 - [News/help/contact](#newshelpcontact)
 - [Features](#features)
-- [Screenshots](#screenshots)
 - [Browser requirements](#browser-requirements)
 - [Server requirements](#server-requirements)
 - [Quick start](#quick-start)
@@ -58,7 +83,6 @@ profits such as:
 [Against Malaria Foundation](http://www.againstmalaria.com/),
 [Nothing But Nets](http://www.nothingbutnets.net/), etc.
 
-
 ### Features
 
 * Supports all modern browsers including mobile (iOS, Android)
@@ -76,17 +100,6 @@ profits such as:
 * Licensed mainly under the [MPL 2.0](http://www.mozilla.org/MPL/2.0/), see
   [the license document](LICENSE.txt) for details
 
-### Screenshots
-
-Running in Firefox before and after connecting:
-
-<img src="http://novnc.com/img/noVNC-1-login.png" width=400>&nbsp;
-<img src="http://novnc.com/img/noVNC-3-connected.png" width=400>
-
-See more screenshots
-[here](http://novnc.com/screenshots.html).
-
-
 ### Browser requirements
 
 noVNC uses many modern web technologies so a formal requirement list is
@@ -94,7 +107,6 @@ not available. However these are the minimum versions we are currently
 aware of:
 
 * Chrome 89, Firefox 89, Safari 15, Opera 75, Edge 89
-
 
 ### Server requirements
 
@@ -107,7 +119,6 @@ use a WebSockets to TCP socket proxy. noVNC has a sister project
 [websockify](https://github.com/novnc/websockify) that provides a simple such
 proxy.
 
-
 ### Quick start
 
 * Use the `novnc_proxy` script to automatically download and start websockify, which
@@ -115,10 +126,10 @@ proxy.
   used to specify the location of a running VNC server:
 
     `./utils/novnc_proxy --vnc localhost:5901`
-    
+
 * If you don't need to expose the web server to public internet, you can
   bind to localhost:
-  
+
     `./utils/novnc_proxy --vnc localhost:5901 --listen localhost:6081`
 
 * Point your browser to the cut-and-paste URL that is output by the `novnc_proxy`
@@ -137,12 +148,12 @@ You can run the snap package installed novnc directly with, for example:
 `novnc --listen 6081 --vnc localhost:5901 # /snap/bin/novnc if /snap/bin is not in your PATH`
 
 If you want to use certificate files, due to standard snap confinement restrictions you need to have them in the /home/\<user\>/snap/novnc/current/ directory. If your username is jsmith an example command would be:
-  
+
   `novnc --listen 8443 --cert ~jsmith/snap/novnc/current/self.crt --key ~jsmith/snap/novnc/current/self.key --vnc ubuntu.example.com:5901`
 
 #### Running noVNC from snap as a service (daemon)
 The snap package also has the capability to run a 'novnc' service which can be
-configured to listen on multiple ports connecting to multiple VNC servers 
+configured to listen on multiple ports connecting to multiple VNC servers
 (effectively a service running multiple instances of novnc).
 Instructions (with example values):
 
@@ -155,13 +166,13 @@ services.n6080  {...}
 services.n6081  {...}
 ```
 
-Create a new service that listens on port 6082 and connects to the VNC server 
+Create a new service that listens on port 6082 and connects to the VNC server
 running on port 5902 on localhost:
 
 `sudo snap set novnc services.n6082.listen=6082 services.n6082.vnc=localhost:5902`
 
 (Any services you define with 'snap set' will be automatically started)
-Note that the name of the service, 'n6082' in this example, can be anything 
+Note that the name of the service, 'n6082' in this example, can be anything
 as long as it doesn't start with a number or contain spaces/special characters.
 
 View the configuration of the service just created:
@@ -174,7 +185,7 @@ services.n6082.vnc     localhost:5902
 ```
 
 Disable a service (note that because of a limitation in snap it's currently not
-possible to unset config variables, setting them to blank values is the way 
+possible to unset config variables, setting them to blank values is the way
 to disable a service):
 
 `sudo snap set novnc services.n6082.listen='' services.n6082.vnc=''`
@@ -186,7 +197,7 @@ Verify that the service is disabled (blank values):
 ```
 sudo snap get novnc services.n6082
 Key                    Value
-services.n6082.listen  
+services.n6082.listen
 services.n6082.vnc
 ```
 
@@ -197,7 +208,6 @@ or deploying the noVNC application in production environments:
 
 * [Embedding](docs/EMBEDDING.md) - For the noVNC application
 * [Library](docs/LIBRARY.md) - For the noVNC JavaScript library
-
 
 ### Authors/Contributors
 

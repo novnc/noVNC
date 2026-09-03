@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>noVNC Client</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <header class="page-head">
+    <img class="logo" src="icons/icon48.png" alt="noVNC Client 图标" width="40" height="40">
+    <div>
+      <h1>noVNC Client</h1>
+      <p class="subtitle">基于 noVNC v1.7.0 —— 在浏览器标签页中连接任意 VNC 远程桌面</p>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="card">
+      <h2>快速连接</h2>
+      <div class="form-grid">
+        <label>主机名 / IP
+          <input id="q-host" type="text" placeholder="192.168.1.10" spellcheck="false" autocomplete="off">
+        </label>
+        <label>端口
+          <input id="q-port" type="text" placeholder="6080" spellcheck="false" autocomplete="off">
+        </label>
+        <label class="span2">路径（可选）
+          <input id="q-path" type="text" placeholder="直连 websockify 通常留空即可" spellcheck="false" autocomplete="off">
+        </label>
+      </div>
+      <div class="row-actions">
+        <button id="q-connect" class="btn primary" type="button">连接</button>
+        <label class="checkbox"><input id="q-auto" type="checkbox" checked>打开后自动连接</label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>我的服务器</h2>
+      <div class="form-grid">
+        <label>名称
+          <input id="s-name" type="text" placeholder="例如：办公室主机" spellcheck="false" autocomplete="off">
+        </label>
+        <label>主机名 / IP
+          <input id="s-host" type="text" placeholder="192.168.1.10" spellcheck="false" autocomplete="off">
+        </label>
+        <label>端口
+          <input id="s-port" type="text" placeholder="6080" spellcheck="false" autocomplete="off">
+        </label>
+        <label class="span2">路径（可选）
+          <input id="s-path" type="text" placeholder="留空使用默认值" spellcheck="false" autocomplete="off">
+        </label>
+      </div>
+      <div class="row-actions">
+        <button id="s-save" class="btn primary" type="button">保存服务器</button>
+        <button id="s-cancel" class="btn ghost hidden" type="button">取消编辑</button>
+      </div>
+      <ul id="s-list" class="server-list"></ul>
+      <p id="s-empty" class="empty">还没有保存的服务器，先在“我的服务器”里添加一个。</p>
+    </section>
+  </main>
+
+  <footer class="page-foot">
+    服务器密码不会保存，请在 noVNC 连接界面中输入。连接走 wss:// / ws:// 直连，请自行保证网络与安全。
+  </footer>
+
+  <script src="options.js"></script>
+</body>
+</html>
