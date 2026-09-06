@@ -6,6 +6,7 @@ utils/websockify
 /node_modules
 /build
 /lib
+/.trae-html-share-packages
 recordings
 *.swp
 *~
