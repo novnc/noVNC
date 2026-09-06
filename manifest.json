@@ -4,7 +4,6 @@
   "version": "1.7.0",
   "description": "基于最新版 noVNC v1.7.0 封装的 Chrome 扩展：点击工具栏图标或右键 WebSocket 链接 / 选中主机，即可在浏览器标签页中连接任意 VNC 远程桌面，无需安装任何插件。",
   "permissions": [
-    "storage",
     "contextMenus",
     "clipboardRead",
     "clipboardWrite"
@@ -24,10 +23,6 @@
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     }
-  },
-  "options_ui": {
-    "page": "options.html",
-    "open_in_tab": true
   },
   "icons": {
     "16": "icons/icon16.png",

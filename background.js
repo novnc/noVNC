@@ -1,8 +1,8 @@
 // noVNC Client —— Service Worker（Manifest V3）
-// 职责：1) 点击工具栏图标 → 打开启动器页
+// 职责：1) 点击工具栏图标 → 打开原版 noVNC 页面
 //       2) 右键菜单：对 ws:// / wss:// 链接、或选中的 "host:port" 一键连接
 
-const LAUNCHER_URL = 'options.html';
+const VNC_URL = 'vnc.html';
 
 // 安装 / 更新时注册右键菜单
 chrome.runtime.onInstalled.addListener(() => {
@@ -21,9 +21,9 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-// 点击工具栏图标 → 打开启动器页
+// 点击工具栏图标 → 打开原版 noVNC 页面
 chrome.action.onClicked.addListener(() => {
-  chrome.tabs.create({ url: chrome.runtime.getURL(LAUNCHER_URL) });
+  chrome.tabs.create({ url: chrome.runtime.getURL(VNC_URL) });
 });
 
 // 解析选中的 "host:port" 文本
@@ -58,7 +58,7 @@ function parseWsUrl(wsUrl) {
 
 // 打开 noVNC 页面并自动连接
 function openNoVNC({ host, port, path }) {
-  const url = new URL(chrome.runtime.getURL('novnc/vnc.html'));
+  const url = new URL(chrome.runtime.getURL(VNC_URL));
   if (host) url.searchParams.set('host', host);
   if (port) url.searchParams.set('port', port);
   if (path) url.searchParams.set('path', path);

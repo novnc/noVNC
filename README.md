@@ -7,9 +7,8 @@ extension** (Manifest V3) for one-click remote desktop access in a browser tab.
 
 ## Features
 
-- Click the toolbar icon to open the launcher, or right-click a `ws://` / `wss://`
-  link or a selected `host:port` text to connect instantly.
-- Save / edit / delete frequently used servers in the launcher.
+- Click the toolbar icon to open the original noVNC page, or right-click a
+  `ws://` / `wss://` link or a selected `host:port` text to connect instantly.
 - Full noVNC feature set: remote desktop rendering, keyboard/mouse input, and
   bidirectional clipboard transfer.
 
