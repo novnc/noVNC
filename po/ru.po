@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: noVNC 1.5.0\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
-"POT-Creation-Date: 2021-08-27 16:03+0200\n"
+"POT-Creation-Date: 2026-07-23 23:19+0000\n"
 "PO-Revision-Date: 2024-02-11 03:58+0300\n"
 "Last-Translator: Dim5x <dim5x@yahoo.com>\n"
 "Language-Team: Russian\n"
@@ -16,287 +16,376 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Generator: Poedit 2.2.1\n"
 "X-Poedit-Flags-xgettext: --add-comments\n"
 
-#: ../app/ui.js:400
+#: ../app/ui.js:90
+msgid ""
+"Running without HTTPS is not recommended, crashes or other issues are likely."
+msgstr ""
+"Не рекомендуется использовать noVNC без HTTPS: возможны сбои и другие "
+"проблемы."
+
+#: ../app/ui.js:429
 msgid "Connecting..."
 msgstr "Подключение..."
 
-#: ../app/ui.js:407
+#: ../app/ui.js:436
 msgid "Disconnecting..."
 msgstr "Отключение..."
 
-#: ../app/ui.js:413
+#: ../app/ui.js:442
 msgid "Reconnecting..."
 msgstr "Переподключение..."
 
-#: ../app/ui.js:418
+#: ../app/ui.js:447
 msgid "Internal error"
 msgstr "Внутренняя ошибка"
 
-#: ../app/ui.js:1009
-msgid "Must set host"
-msgstr "Задайте имя сервера или IP"
+#: ../app/ui.js:1107
+msgid "Enter text to send"
+msgstr "Введите текст для отправки"
 
-#: ../app/ui.js:1091
+#: ../app/ui.js:1118 ../vnc.html:421
+msgid "Cancel"
+msgstr "Отмена"
+
+#: ../app/ui.js:1119
+msgid "Sending text..."
+msgstr "Отправка текста..."
+
+#: ../app/ui.js:1123
+msgid "Text sent"
+msgstr "Текст отправлен"
+
+#: ../app/ui.js:1127
+msgid "Text sending cancelled"
+msgstr "Отправка текста отменена"
+
+#: ../app/ui.js:1129
+msgid "Keyboard input supports ASCII characters only"
+msgstr "Ввод с клавиатуры поддерживает только символы ASCII"
+
+#: ../app/ui.js:1132
+msgid "Failed to send text"
+msgstr "Не удалось отправить текст"
+
+#: ../app/ui.js:1137 ../vnc.html:186
+msgid "Send"
+msgstr "Отправить"
+
+#: ../app/ui.js:1220
+msgid "Failed to connect to server: "
+msgstr "Ошибка подключения к серверу: "
+
+#: ../app/ui.js:1287
 msgid "Connected (encrypted) to "
 msgstr "Подключено (с шифрованием) к "
 
-#: ../app/ui.js:1093
+#: ../app/ui.js:1289
 msgid "Connected (unencrypted) to "
 msgstr "Подключено (без шифрования) к "
 
-#: ../app/ui.js:1116
+#: ../app/ui.js:1315
 msgid "Something went wrong, connection is closed"
 msgstr "Что-то пошло не так, подключение разорвано"
 
-#: ../app/ui.js:1119
+#: ../app/ui.js:1318
 msgid "Failed to connect to server"
 msgstr "Ошибка подключения к серверу"
 
-#: ../app/ui.js:1129
+#: ../app/ui.js:1330
 msgid "Disconnected"
 msgstr "Отключено"
 
-#: ../app/ui.js:1144
+#: ../app/ui.js:1347
 msgid "New connection has been rejected with reason: "
 msgstr "Новое соединение отклонено по причине: "
 
-#: ../app/ui.js:1147
+#: ../app/ui.js:1350
 msgid "New connection has been rejected"
 msgstr "Новое соединение отклонено"
 
-#: ../app/ui.js:1182
+#: ../app/ui.js:1362
+msgid "Are you sure you want to disconnect the session?"
+msgstr "Вы уверены, что хотите отключиться от сеанса?"
+
+#: ../app/ui.js:1434
 msgid "Credentials are required"
 msgstr "Требуются учетные данные"
 
-#: ../vnc.html:61
+#: ../vnc.html:106
 msgid "noVNC encountered an error:"
 msgstr "Ошибка noVNC: "
 
-#: ../vnc.html:71
+#: ../vnc.html:115
 msgid "Hide/Show the control bar"
 msgstr "Скрыть/Показать контрольную панель"
 
-#: ../vnc.html:78
+#: ../vnc.html:119
+msgid "noVNC"
+msgstr "noVNC"
+
+#: ../vnc.html:125
 msgid "Drag"
 msgstr "Переместить"
 
-#: ../vnc.html:78
+#: ../vnc.html:125
 msgid "Move/Drag viewport"
 msgstr "Переместить окно"
 
-#: ../vnc.html:84
+#: ../vnc.html:130
 msgid "Keyboard"
 msgstr "Клавиатура"
 
-#: ../vnc.html:84
+#: ../vnc.html:130
 msgid "Show keyboard"
 msgstr "Показать клавиатуру"
 
-#: ../vnc.html:89
+#: ../vnc.html:134
 msgid "Extra keys"
-msgstr "Дополнительные Кнопки"
+msgstr "Дополнительные кнопки"
 
-#: ../vnc.html:89
-msgid "Show Extra Keys"
-msgstr "Показать Дополнительные Кнопки"
+#: ../vnc.html:134
+msgid "Show extra keys"
+msgstr "Показать дополнительные кнопки"
 
-#: ../vnc.html:94
+#: ../vnc.html:139
 msgid "Ctrl"
 msgstr "Ctrl"
 
-#: ../vnc.html:94
+#: ../vnc.html:139
 msgid "Toggle Ctrl"
 msgstr "Зажать Ctrl"
 
-#: ../vnc.html:97
+#: ../vnc.html:142
 msgid "Alt"
 msgstr "Alt"
 
-#: ../vnc.html:97
+#: ../vnc.html:142
 msgid "Toggle Alt"
 msgstr "Зажать Alt"
 
-#: ../vnc.html:100
+#: ../vnc.html:145
 msgid "Toggle Windows"
 msgstr "Зажать Windows"
 
-#: ../vnc.html:100
+#: ../vnc.html:145
 msgid "Windows"
 msgstr "Вкладка"
 
-#: ../vnc.html:103
+#: ../vnc.html:148
 msgid "Send Tab"
 msgstr "Передать нажатие Tab"
 
-#: ../vnc.html:103
+#: ../vnc.html:148
 msgid "Tab"
 msgstr "Tab"
 
-#: ../vnc.html:106
+#: ../vnc.html:151
 msgid "Esc"
 msgstr "Esc"
 
-#: ../vnc.html:106
+#: ../vnc.html:151
 msgid "Send Escape"
 msgstr "Передать нажатие Escape"
 
-#: ../vnc.html:109
+#: ../vnc.html:154
 msgid "Ctrl+Alt+Del"
 msgstr "Ctrl+Alt+Del"
 
-#: ../vnc.html:109
+#: ../vnc.html:154
 msgid "Send Ctrl-Alt-Del"
 msgstr "Передать нажатие Ctrl-Alt-Del"
 
-#: ../vnc.html:116
+#: ../vnc.html:161
 msgid "Shutdown/Reboot"
 msgstr "Выключить/Перезагрузить"
 
-#: ../vnc.html:116
+#: ../vnc.html:161
 msgid "Shutdown/Reboot..."
 msgstr "Выключить/Перезагрузить..."
 
-#: ../vnc.html:122
+#: ../vnc.html:167
 msgid "Power"
 msgstr "Питание"
 
-#: ../vnc.html:124
+#: ../vnc.html:169
 msgid "Shutdown"
 msgstr "Выключить"
 
-#: ../vnc.html:125
+#: ../vnc.html:170
 msgid "Reboot"
 msgstr "Перезагрузить"
 
-#: ../vnc.html:126
+#: ../vnc.html:171
 msgid "Reset"
 msgstr "Сброс"
 
-#: ../vnc.html:131 ../vnc.html:137
+#: ../vnc.html:176 ../vnc.html:182 ../vnc.html:224
 msgid "Clipboard"
 msgstr "Буфер обмена"
 
-#: ../vnc.html:141
-msgid "Clear"
-msgstr "Очистить"
-
-#: ../vnc.html:147
-msgid "Fullscreen"
+#: ../vnc.html:193
+msgid "Full screen"
 msgstr "Во весь экран"
 
-#: ../vnc.html:152 ../vnc.html:159
+#: ../vnc.html:198 ../vnc.html:204
 msgid "Settings"
 msgstr "Настройки"
 
-#: ../vnc.html:162
+#: ../vnc.html:210
 msgid "Shared mode"
 msgstr "Общий режим"
 
-#: ../vnc.html:165
-msgid "View Only"
-msgstr "Только Просмотр"
+#: ../vnc.html:217
+msgid "View only"
+msgstr "Только просмотр"
 
-#: ../vnc.html:169
+#: ../vnc.html:222
+msgid "Clipboard send mode:"
+msgstr "Способ отправки текста:"
+
+#: ../vnc.html:225
+msgid "Keyboard input"
+msgstr "Ввод с клавиатуры"
+
+#: ../vnc.html:232
 msgid "Clip to window"
 msgstr "В окно"
 
-#: ../vnc.html:172
+#: ../vnc.html:237
 msgid "Scaling mode:"
 msgstr "Масштаб:"
 
-#: ../vnc.html:174
+#: ../vnc.html:239
 msgid "None"
 msgstr "Нет"
 
-#: ../vnc.html:175
+#: ../vnc.html:240
 msgid "Local scaling"
 msgstr "Локальный масштаб"
 
-#: ../vnc.html:176
+#: ../vnc.html:241
 msgid "Remote resizing"
 msgstr "Удаленная перенастройка размера"
 
-#: ../vnc.html:181
+#: ../vnc.html:246
 msgid "Advanced"
 msgstr "Дополнительно"
 
-#: ../vnc.html:184
+#: ../vnc.html:249
 msgid "Quality:"
 msgstr "Качество"
 
-#: ../vnc.html:188
+#: ../vnc.html:253
 msgid "Compression level:"
 msgstr "Уровень Сжатия"
 
-#: ../vnc.html:193
+#: ../vnc.html:258
 msgid "Repeater ID:"
 msgstr "Идентификатор ID:"
 
-#: ../vnc.html:197
+#: ../vnc.html:262
 msgid "WebSocket"
 msgstr "WebSocket"
 
-#: ../vnc.html:200
+#: ../vnc.html:267
 msgid "Encrypt"
 msgstr "Шифрование"
 
-#: ../vnc.html:203
+#: ../vnc.html:272
 msgid "Host:"
 msgstr "Сервер:"
 
-#: ../vnc.html:207
+#: ../vnc.html:276
 msgid "Port:"
 msgstr "Порт:"
 
-#: ../vnc.html:211
+#: ../vnc.html:280
 msgid "Path:"
 msgstr "Путь:"
 
-#: ../vnc.html:218
+#: ../vnc.html:289
 msgid "Automatic reconnect"
 msgstr "Автоматическое переподключение"
 
-#: ../vnc.html:221
+#: ../vnc.html:294
 msgid "Reconnect delay (ms):"
 msgstr "Задержка переподключения (мс):"
 
-#: ../vnc.html:226
+#: ../vnc.html:301
 msgid "Show dot when no cursor"
 msgstr "Показать точку вместо курсора"
 
-#: ../vnc.html:231
+#: ../vnc.html:308
+msgid "Keep client display awake while connected"
+msgstr "Не выключать экран устройства во время подключения"
+
+#: ../vnc.html:315
 msgid "Logging:"
 msgstr "Лог:"
 
-#: ../vnc.html:240
+#: ../vnc.html:324
 msgid "Version:"
 msgstr "Версия"
 
-#: ../vnc.html:248
+#: ../vnc.html:332
 msgid "Disconnect"
 msgstr "Отключение"
 
-#: ../vnc.html:267
+#: ../vnc.html:367
 msgid "Connect"
 msgstr "Подключение"
 
-#: ../vnc.html:277
+#: ../vnc.html:376
+msgid "Server identity"
+msgstr "Идентификация сервера"
+
+#: ../vnc.html:379
+msgid "The server has provided the following identifying information:"
+msgstr "Сервер предоставил следующую идентификационную информацию:"
+
+#: ../vnc.html:382
+msgid "Fingerprint:"
+msgstr "Отпечаток:"
+
+#: ../vnc.html:386
+msgid ""
+"Please verify that the information is correct and press \"Approve\". "
+"Otherwise press \"Reject\"."
+msgstr ""
+"Проверьте правильность информации и нажмите «Одобрить». В противном случае "
+"нажмите «Отклонить»."
+
+#: ../vnc.html:391
+msgid "Approve"
+msgstr "Одобрить"
+
+#: ../vnc.html:392
+msgid "Reject"
+msgstr "Отклонить"
+
+#: ../vnc.html:400
+msgid "Credentials"
+msgstr "Учётные данные"
+
+#: ../vnc.html:404
 msgid "Username:"
 msgstr "Имя Пользователя"
 
-#: ../vnc.html:281
+#: ../vnc.html:408
 msgid "Password:"
 msgstr "Пароль:"
 
-#: ../vnc.html:285
-msgid "Send Credentials"
-msgstr "Передача Учетных Данных"
+#: ../vnc.html:412
+msgid "Send credentials"
+msgstr "Отправить учётные данные"
 
-#: ../vnc.html:295
-msgid "Cancel"
-msgstr "Выход"
+#~ msgid "Must set host"
+#~ msgstr "Задайте имя сервера или IP"
+
+#~ msgid "Clear"
+#~ msgstr "Очистить"

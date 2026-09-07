@@ -516,6 +516,186 @@ describe('Remote Frame Buffer protocol client', function () {
             });
         });
 
+        describe('#sendText', function () {
+            beforeEach(function () {
+                sinon.stub(client, 'sendKey');
+            });
+
+            afterEach(function () {
+                client.sendKey.restore();
+            });
+
+            it('should send ASCII text using US keyboard codes', async function () {
+                const sending = client.sendText('a1 -', { delay: 1 });
+                await clock.tickAsync(3);
+                await sending;
+
+                expect(client.sendKey).to.have.callCount(4);
+                expect(client.sendKey.getCall(0)).to.have.been.calledWith(0x61, 'KeyA');
+                expect(client.sendKey.getCall(1)).to.have.been.calledWith(0x31, 'Digit1');
+                expect(client.sendKey.getCall(2)).to.have.been.calledWith(0x20, 'Space');
+                expect(client.sendKey.getCall(3)).to.have.been.calledWith(0x2d, 'Minus');
+            });
+
+            it('should use Shift for uppercase and shifted characters', async function () {
+                const sending = client.sendText('A!', { delay: 1 });
+                await clock.tickAsync(1);
+                await sending;
+
+                expect(client.sendKey).to.have.callCount(6);
+                expect(client.sendKey.getCall(0)).to.have.been.calledWith(KeyTable.XK_Shift_L,
+                                                                          'ShiftLeft', true);
+                expect(client.sendKey.getCall(1)).to.have.been.calledWith(0x41, 'KeyA');
+                expect(client.sendKey.getCall(2)).to.have.been.calledWith(KeyTable.XK_Shift_L,
+                                                                          'ShiftLeft', false);
+                expect(client.sendKey.getCall(3)).to.have.been.calledWith(KeyTable.XK_Shift_L,
+                                                                          'ShiftLeft', true);
+                expect(client.sendKey.getCall(4)).to.have.been.calledWith(0x21, 'Digit1');
+                expect(client.sendKey.getCall(5)).to.have.been.calledWith(KeyTable.XK_Shift_L,
+                                                                          'ShiftLeft', false);
+            });
+
+            it('should map all ASCII punctuation to US keyboard codes', async function () {
+                const unshifted = "`-=[]\\;',./";
+                const unshiftedCodes = [
+                    'Backquote', 'Minus', 'Equal', 'BracketLeft',
+                    'BracketRight', 'Backslash', 'Semicolon', 'Quote',
+                    'Comma', 'Period', 'Slash',
+                ];
+                let sending = client.sendText(unshifted, { delay: 1 });
+                await clock.tickAsync(unshifted.length - 1);
+                await sending;
+
+                unshiftedCodes.forEach((code, index) => {
+                    expect(client.sendKey.getCall(index).args[1]).to.equal(code);
+                });
+
+                client.sendKey.resetHistory();
+                const shifted = '~!@#$%^&*()_+{}|:"<>?';
+                const shiftedCodes = [
+                    'Backquote', 'Digit1', 'Digit2', 'Digit3', 'Digit4',
+                    'Digit5', 'Digit6', 'Digit7', 'Digit8', 'Digit9',
+                    'Digit0', 'Minus', 'Equal', 'BracketLeft', 'BracketRight',
+                    'Backslash', 'Semicolon', 'Quote', 'Comma', 'Period',
+                    'Slash',
+                ];
+                sending = client.sendText(shifted, { delay: 1 });
+                await clock.tickAsync(shifted.length - 1);
+                await sending;
+
+                shiftedCodes.forEach((code, index) => {
+                    expect(client.sendKey.getCall(index * 3 + 1).args[1]).to.equal(code);
+                });
+            });
+
+            it('should send newlines and tabs as special keys', async function () {
+                const sending = client.sendText('\r\n\t', { delay: 1 });
+                await clock.tickAsync(1);
+                await sending;
+
+                expect(client.sendKey).to.have.been.calledTwice;
+                expect(client.sendKey.firstCall).to.have.been.calledWith(KeyTable.XK_Return,
+                                                                         'Enter');
+                expect(client.sendKey.secondCall).to.have.been.calledWith(KeyTable.XK_Tab,
+                                                                          'Tab');
+            });
+
+            it('should reject unsupported text before sending any keys', async function () {
+                let error;
+                try {
+                    await client.sendText('abc€', { delay: 0 });
+                } catch (err) {
+                    error = err;
+                }
+
+                expect(error).to.be.an.instanceof(TypeError);
+                expect(client.sendKey).to.not.have.been.called;
+            });
+
+            it('should reject concurrent text input', async function () {
+                const controller = new AbortController();
+                const first = client.sendText('abc', { signal: controller.signal });
+
+                let error;
+                try {
+                    await client.sendText('def', { delay: 0 });
+                } catch (err) {
+                    error = err;
+                }
+                controller.abort();
+
+                expect(error).to.be.an.instanceof(Error);
+                expect(error.message).to.equal('Text input is already in progress');
+                try {
+                    await first;
+                } catch (err) {
+                    expect(err.name).to.equal('AbortError');
+                }
+            });
+
+            it('should support cancelling text input', async function () {
+                const controller = new AbortController();
+                const sending = client.sendText('abc', { signal: controller.signal });
+                controller.abort();
+
+                let error;
+                try {
+                    await sending;
+                } catch (err) {
+                    error = err;
+                }
+
+                expect(error.name).to.equal('AbortError');
+                expect(client.sendKey).to.have.been.calledOnce;
+                await client.sendText('d', { delay: 0 });
+                expect(client.sendKey).to.have.been.calledTwice;
+            });
+
+            it('should stop if the connection is lost', async function () {
+                const sending = client.sendText('abc', { delay: 1 });
+                client._rfbConnectionState = 'disconnecting';
+                await clock.tickAsync(1);
+
+                let error;
+                try {
+                    await sending;
+                } catch (err) {
+                    error = err;
+                }
+                client._rfbConnectionState = 'connected';
+
+                expect(error.message).to.equal('Text input was interrupted');
+                expect(client.sendKey).to.have.been.calledOnce;
+            });
+        });
+
+        describe('#clipboardPasteEnabled', function () {
+            it('should enable automatic clipboard paste by default', function () {
+                expect(client.clipboardPasteEnabled).to.be.true;
+            });
+
+            it('should grab and ungrab automatic clipboard paste', function () {
+                sinon.spy(client._asyncClipboard, 'grab');
+                sinon.spy(client._asyncClipboard, 'ungrab');
+
+                client.clipboardPasteEnabled = false;
+                expect(client._asyncClipboard.ungrab).to.have.been.calledOnce;
+
+                client.clipboardPasteEnabled = true;
+                expect(client._asyncClipboard.grab).to.have.been.calledOnce;
+            });
+
+            it('should remain disabled after leaving view-only mode', function () {
+                sinon.spy(client._asyncClipboard, 'grab');
+
+                client.clipboardPasteEnabled = false;
+                client.viewOnly = true;
+                client.viewOnly = false;
+
+                expect(client._asyncClipboard.grab).to.not.have.been.called;
+            });
+        });
+
         describe('#focus', function () {
             it('should move focus to canvas object', function () {
                 sinon.spy(client._canvas, "focus");

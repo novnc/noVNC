@@ -12,6 +12,7 @@ export default class AsyncClipboard {
         this._target = target || null;
 
         this._isAvailable = null;
+        this._grabbed = false;
 
         this._eventHandlers = {
             'focus': this._handleFocus.bind(this),
@@ -36,10 +37,12 @@ export default class AsyncClipboard {
     }
 
     async _handleFocus(event) {
-        if (!(await this._ensureAvailable())) return;
+        if (!this._grabbed || !(await this._ensureAvailable())) return;
         try {
             const text = await navigator.clipboard.readText();
-            this.onpaste(text);
+            if (this._grabbed) {
+                this.onpaste(text);
+            }
         } catch (error) {
             Log.Error("Clipboard read failed: ", error);
         }
@@ -57,9 +60,10 @@ export default class AsyncClipboard {
 
     grab() {
         if (!this._target) return;
+        this._grabbed = true;
         this._ensureAvailable()
             .then((isAvailable) => {
-                if (isAvailable) {
+                if (isAvailable && this._grabbed) {
                     this._target.addEventListener('focus', this._eventHandlers.focus);
                 }
             });
@@ -67,6 +71,7 @@ export default class AsyncClipboard {
 
     ungrab() {
         if (!this._target) return;
+        this._grabbed = false;
         this._target.removeEventListener('focus', this._eventHandlers.focus);
     }
 }

@@ -23,6 +23,7 @@ import GestureHandler from "./input/gesturehandler.js";
 import Cursor from "./util/cursor.js";
 import Websock from "./websock.js";
 import KeyTable from "./input/keysym.js";
+import keysyms from "./input/keysymdef.js";
 import XtScancode from "./input/xtscancodes.js";
 import { encodings } from "./encodings.js";
 import RSAAESAuthenticationState from "./ra2.js";
@@ -87,6 +88,82 @@ const extendedClipboardActionRequest = 1 << 25;
 const extendedClipboardActionPeek    = 1 << 26;
 const extendedClipboardActionNotify  = 1 << 27;
 const extendedClipboardActionProvide = 1 << 28;
+
+const asciiKeyCodes = {
+    ' ': 'Space',
+    '`': 'Backquote',
+    '-': 'Minus',
+    '=': 'Equal',
+    '[': 'BracketLeft',
+    ']': 'BracketRight',
+    '\\': 'Backslash',
+    ';': 'Semicolon',
+    "'": 'Quote',
+    ',': 'Comma',
+    '.': 'Period',
+    '/': 'Slash',
+};
+
+const shiftedAsciiKeyCodes = {
+    '~': 'Backquote',
+    '!': 'Digit1',
+    '@': 'Digit2',
+    '#': 'Digit3',
+    '$': 'Digit4',
+    '%': 'Digit5',
+    '^': 'Digit6',
+    '&': 'Digit7',
+    '*': 'Digit8',
+    '(': 'Digit9',
+    ')': 'Digit0',
+    '_': 'Minus',
+    '+': 'Equal',
+    '{': 'BracketLeft',
+    '}': 'BracketRight',
+    '|': 'Backslash',
+    ':': 'Semicolon',
+    '"': 'Quote',
+    '<': 'Comma',
+    '>': 'Period',
+    '?': 'Slash',
+};
+
+function getAsciiKey(character) {
+    if (/^[a-z]$/.test(character)) {
+        return { code: `Key${character.toUpperCase()}`, shift: false };
+    }
+    if (/^[A-Z]$/.test(character)) {
+        return { code: `Key${character}`, shift: true };
+    }
+    if (/^[0-9]$/.test(character)) {
+        return { code: `Digit${character}`, shift: false };
+    }
+    if (asciiKeyCodes[character] !== undefined) {
+        return { code: asciiKeyCodes[character], shift: false };
+    }
+    if (shiftedAsciiKeyCodes[character] !== undefined) {
+        return { code: shiftedAsciiKeyCodes[character], shift: true };
+    }
+    return null;
+}
+
+function abortError() {
+    return new DOMException("Text input was cancelled", "AbortError");
+}
+
+function wait(delay, signal) {
+    return new Promise((resolve, reject) => {
+        const handleAbort = () => {
+            clearTimeout(timeout);
+            reject(abortError());
+        };
+        const timeout = setTimeout(() => {
+            signal?.removeEventListener("abort", handleAbort);
+            resolve();
+        }, delay);
+        signal?.addEventListener("abort", handleAbort, { once: true });
+    });
+}
 
 export default class RFB extends EventTargetMixin {
     constructor(target, urlOrChannel, options) {
@@ -160,6 +237,8 @@ export default class RFB extends EventTargetMixin {
         this._clipboardText = null;
         this._clipboardServerCapabilitiesActions = {};
         this._clipboardServerCapabilitiesFormats = {};
+        this._clipboardPasteEnabled = true;
+        this._textSendInProgress = false;
 
         // Internal objects
         this._sock = null;              // Websock object
@@ -323,7 +402,24 @@ export default class RFB extends EventTargetMixin {
                 this._asyncClipboard.ungrab();
             } else {
                 this._keyboard.grab();
+                if (this._clipboardPasteEnabled) {
+                    this._asyncClipboard.grab();
+                }
+            }
+        }
+    }
+
+    get clipboardPasteEnabled() { return this._clipboardPasteEnabled; }
+    set clipboardPasteEnabled(enabled) {
+        this._clipboardPasteEnabled = enabled;
+
+        if ((this._rfbConnectionState === "connecting" ||
+             this._rfbConnectionState === "connected") &&
+            !this._viewOnly) {
+            if (enabled) {
                 this._asyncClipboard.grab();
+            } else {
+                this._asyncClipboard.ungrab();
             }
         }
     }
@@ -493,6 +589,77 @@ export default class RFB extends EventTargetMixin {
             }
             Log.Info("Sending keysym (" + (down ? "down" : "up") + "): " + keysym);
             RFB.messages.keyEvent(this._sock, keysym, down ? 1 : 0);
+        }
+    }
+
+    async sendText(text, options = {}) {
+        const delay = options.delay ?? 30;
+        const signal = options.signal;
+        const normalizedText = text.replace(/\r\n|\r/g, '\n');
+
+        if (!Number.isFinite(delay) || delay < 0) {
+            throw new TypeError("Text input delay must be a non-negative number");
+        }
+
+        for (const character of normalizedText) {
+            const codePoint = character.codePointAt(0);
+            if (character !== '\n' && character !== '\t' &&
+                (codePoint < 0x20 || codePoint > 0x7e)) {
+                throw new TypeError("Text input supports ASCII characters only");
+            }
+        }
+
+        if (signal?.aborted) {
+            throw abortError();
+        }
+        if (this._textSendInProgress) {
+            throw new Error("Text input is already in progress");
+        }
+        if (this._rfbConnectionState !== 'connected' || this._viewOnly) {
+            throw new Error("Text input is not available");
+        }
+
+        this._textSendInProgress = true;
+        try {
+            const characters = [...normalizedText];
+            for (let i = 0; i < characters.length; i++) {
+                if (signal?.aborted) {
+                    throw abortError();
+                }
+                if (this._rfbConnectionState !== 'connected' || this._viewOnly) {
+                    throw new Error("Text input was interrupted");
+                }
+
+                const character = characters[i];
+                let keysym;
+                let code;
+                let shift = false;
+
+                if (character === '\n') {
+                    keysym = KeyTable.XK_Return;
+                    code = 'Enter';
+                } else if (character === '\t') {
+                    keysym = KeyTable.XK_Tab;
+                    code = 'Tab';
+                } else {
+                    keysym = keysyms.lookup(character.codePointAt(0));
+                    ({ code, shift } = getAsciiKey(character));
+                }
+
+                if (shift) {
+                    this.sendKey(KeyTable.XK_Shift_L, 'ShiftLeft', true);
+                }
+                this.sendKey(keysym, code);
+                if (shift) {
+                    this.sendKey(KeyTable.XK_Shift_L, 'ShiftLeft', false);
+                }
+
+                if (i < characters.length - 1) {
+                    await wait(delay, signal);
+                }
+            }
+        } finally {
+            this._textSendInProgress = false;
         }
     }
 
@@ -2217,7 +2384,9 @@ export default class RFB extends EventTargetMixin {
 
         if (!this._viewOnly) {
             this._keyboard.grab();
-            this._asyncClipboard.grab();
+            if (this._clipboardPasteEnabled) {
+                this._asyncClipboard.grab();
+            }
         }
 
         this._fbDepth = 24;

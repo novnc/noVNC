@@ -783,6 +783,15 @@ html {
     /* minus approximate height of title, height of subtitle, and margin */
     max-height: calc(100vh - 10em - 25px);
 }
+#noVNC_clipboard_send_button {
+    width: 100%;
+}
+#noVNC_clipboard_send_button.noVNC_hidden {
+    display: none;
+}
+#noVNC_clipboard_status:empty {
+    display: none;
+}
 
 /* Settings */
 #noVNC_settings {
