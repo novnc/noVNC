@@ -1,17 +1,15 @@
-# Spanish translations for noVNC package
-# Traducciones al español para el paquete noVNC.
-# Copyright (C) 2018 The noVNC authors
+# Spanish translations for noVNC package.
+# Copyright (C) 2025 The noVNC authors
 # This file is distributed under the same license as the noVNC package.
-# Juanjo Diaz <juanjo.diazmo@gmail.com>, 2018.
-# Adrian Scillato <ascillato@gmail.com>, 2021.
+# FSun1 <FSun1@cm7ldm3.ra-int.com>, 2025.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: noVNC 1.0.0-testing.2\n"
+"Project-Id-Version: noVNC 1.6.0\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
-"POT-Creation-Date: 2017-10-06 10:07+0200\n"
-"PO-Revision-Date: 2021-04-23 12:00-0300\n"
-"Last-Translator: Adrian Scillato <ascillato@gmail.com>\n"
+"POT-Creation-Date: 2025-06-20 08:24+0800\n"
+"PO-Revision-Date: 2025-06-20 08:29+0800\n"
+"Last-Translator: FSun1 <FSun1@cm7ldm3.ra-int.com>\n"
 "Language-Team: Spanish\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -19,266 +17,315 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../app/ui.js:430
+#: ../app/ui.js:84
+msgid "Running without HTTPS is not recommended, crashes or other issues are likely."
+msgstr "No se recomienda ejecutar sin HTTPS, ya que es probable que ocurran bloqueos u otros problemas."
+
+#: ../app/ui.js:413
 msgid "Connecting..."
 msgstr "Conectando..."
 
-#: ../app/ui.js:438
-msgid "Connected (encrypted) to "
-msgstr "Conectado (con encriptación) a"
-
-#: ../app/ui.js:440
-msgid "Connected (unencrypted) to "
-msgstr "Conectado (sin encriptación) a"
-
-#: ../app/ui.js:446
+#: ../app/ui.js:420
 msgid "Disconnecting..."
 msgstr "Desconectando..."
 
-#: ../app/ui.js:450
-msgid "Disconnected"
-msgstr "Desconectado"
-
-#: ../app/ui.js:1052 ../core/rfb.js:248
-msgid "Must set host"
-msgstr "Se debe configurar el host"
-
-#: ../app/ui.js:1101
+#: ../app/ui.js:426
 msgid "Reconnecting..."
 msgstr "Reconectando..."
 
-#: ../app/ui.js:1140
-msgid "Password is required"
-msgstr "La contraseña es obligatoria"
+#: ../app/ui.js:431
+msgid "Internal error"
+msgstr "Error interno"
 
-#: ../core/rfb.js:548
-msgid "Disconnect timeout"
-msgstr "Tiempo de desconexión agotado"
+#: ../app/ui.js:1084
+msgid "Failed to connect to server: "
+msgstr "No se pudo conectar al servidor: "
 
-#: ../vnc.html:89
+#: ../app/ui.js:1150
+msgid "Connected (encrypted) to "
+msgstr "Conectado (con cifrado) a "
+
+#: ../app/ui.js:1152
+msgid "Connected (unencrypted) to "
+msgstr "Conectado (sin cifrado) a "
+
+#: ../app/ui.js:1175
+msgid "Something went wrong, connection is closed"
+msgstr "Algo salió mal, la conexión se ha cerrado"
+
+#: ../app/ui.js:1178
+msgid "Failed to connect to server"
+msgstr "No se pudo conectar al servidor"
+
+#: ../app/ui.js:1190
+msgid "Disconnected"
+msgstr "Desconectado"
+
+#: ../app/ui.js:1205
+msgid "New connection has been rejected with reason: "
+msgstr "Se ha rechazado una nueva conexión con el motivo: "
+
+#: ../app/ui.js:1208
+msgid "New connection has been rejected"
+msgstr "Se ha rechazado una nueva conexión"
+
+#: ../app/ui.js:1274
+msgid "Credentials are required"
+msgstr "Se requieren credenciales"
+
+#: ../vnc.html:106
 msgid "noVNC encountered an error:"
 msgstr "noVNC ha encontrado un error:"
 
-#: ../vnc.html:99
+#: ../vnc.html:116
 msgid "Hide/Show the control bar"
 msgstr "Ocultar/Mostrar la barra de control"
 
-#: ../vnc.html:106
+#: ../vnc.html:125
+msgid "Drag"
+msgstr "Arrastrar"
+
+#: ../vnc.html:125
 msgid "Move/Drag viewport"
-msgstr "Mover/Arrastrar la ventana"
+msgstr "Mover/Arrastrar la ventanilla"
 
-#: ../vnc.html:106
-msgid "viewport drag"
-msgstr "Arrastrar la ventana"
-
-#: ../vnc.html:112 ../vnc.html:115 ../vnc.html:118 ../vnc.html:121
-msgid "Active Mouse Button"
-msgstr "Botón activo del ratón"
-
-#: ../vnc.html:112
-msgid "No mousebutton"
-msgstr "Ningún botón del ratón"
-
-#: ../vnc.html:115
-msgid "Left mousebutton"
-msgstr "Botón izquierdo del ratón"
-
-#: ../vnc.html:118
-msgid "Middle mousebutton"
-msgstr "Botón central del ratón"
-
-#: ../vnc.html:121
-msgid "Right mousebutton"
-msgstr "Botón derecho del ratón"
-
-#: ../vnc.html:124
+#: ../vnc.html:131
 msgid "Keyboard"
 msgstr "Teclado"
 
-#: ../vnc.html:124
+#: ../vnc.html:131
 msgid "Show keyboard"
 msgstr "Mostrar teclado"
 
-#: ../vnc.html:131
+#: ../vnc.html:136
 msgid "Extra keys"
 msgstr "Teclas adicionales"
 
-#: ../vnc.html:131
-msgid "Show Extra Keys"
-msgstr "Mostrar Teclas Adicionales"
-
 #: ../vnc.html:136
+msgid "Show extra keys"
+msgstr "Mostrar teclas adicionales"
+
+#: ../vnc.html:141
 msgid "Ctrl"
 msgstr "Ctrl"
 
-#: ../vnc.html:136
+#: ../vnc.html:141
 msgid "Toggle Ctrl"
 msgstr "Pulsar/Soltar Ctrl"
 
-#: ../vnc.html:139
+#: ../vnc.html:144
 msgid "Alt"
 msgstr "Alt"
 
-#: ../vnc.html:139
+#: ../vnc.html:144
 msgid "Toggle Alt"
 msgstr "Pulsar/Soltar Alt"
 
-#: ../vnc.html:142
+#: ../vnc.html:147
+msgid "Toggle Windows"
+msgstr "Pulsar/Soltar Windows"
+
+#: ../vnc.html:147
+msgid "Windows"
+msgstr "Windows"
+
+#: ../vnc.html:150
 msgid "Send Tab"
 msgstr "Enviar Tabulación"
 
-#: ../vnc.html:142
+#: ../vnc.html:150
 msgid "Tab"
 msgstr "Tabulación"
 
-#: ../vnc.html:145
+#: ../vnc.html:153
 msgid "Esc"
 msgstr "Esc"
 
-#: ../vnc.html:145
+#: ../vnc.html:153
 msgid "Send Escape"
 msgstr "Enviar Escape"
 
-#: ../vnc.html:148
+#: ../vnc.html:156
 msgid "Ctrl+Alt+Del"
 msgstr "Ctrl+Alt+Del"
 
-#: ../vnc.html:148
+#: ../vnc.html:156
 msgid "Send Ctrl-Alt-Del"
 msgstr "Enviar Ctrl+Alt+Del"
 
-#: ../vnc.html:156
+#: ../vnc.html:163
 msgid "Shutdown/Reboot"
 msgstr "Apagar/Reiniciar"
 
-#: ../vnc.html:156
+#: ../vnc.html:163
 msgid "Shutdown/Reboot..."
 msgstr "Apagar/Reiniciar..."
 
-#: ../vnc.html:162
+#: ../vnc.html:169
 msgid "Power"
-msgstr "Encender"
+msgstr "Inicio/Apagado"
 
-#: ../vnc.html:164
+#: ../vnc.html:171
 msgid "Shutdown"
 msgstr "Apagar"
 
-#: ../vnc.html:165
+#: ../vnc.html:172
 msgid "Reboot"
 msgstr "Reiniciar"
 
-#: ../vnc.html:166
+#: ../vnc.html:173
 msgid "Reset"
 msgstr "Restablecer"
 
-#: ../vnc.html:171 ../vnc.html:177
+#: ../vnc.html:178 ../vnc.html:184
 msgid "Clipboard"
 msgstr "Portapapeles"
 
-#: ../vnc.html:181
-msgid "Clear"
-msgstr "Vaciar"
+#: ../vnc.html:186
+msgid "Edit clipboard content in the textarea below."
+msgstr "Edite el contenido del portapapeles en el área de texto a continuación."
 
-#: ../vnc.html:187
-msgid "Fullscreen"
-msgstr "Pantalla Completa"
+#: ../vnc.html:194
+msgid "Full screen"
+msgstr "Pantalla completa"
 
-#: ../vnc.html:192 ../vnc.html:199
+#: ../vnc.html:199 ../vnc.html:205
 msgid "Settings"
-msgstr "Configuraciones"
+msgstr "Configuración"
 
-#: ../vnc.html:200
-msgid "Encrypt"
-msgstr "Encriptar"
+#: ../vnc.html:211
+msgid "Shared mode"
+msgstr "Modo compartido"
 
-#: ../vnc.html:202
-msgid "Shared Mode"
-msgstr "Modo Compartido"
-
-#: ../vnc.html:205
+#: ../vnc.html:218
 msgid "View only"
 msgstr "Solo visualización"
 
-#: ../vnc.html:209
+#: ../vnc.html:226
 msgid "Clip to window"
 msgstr "Recortar al tamaño de la ventana"
 
-#: ../vnc.html:212
+#: ../vnc.html:231
 msgid "Scaling mode:"
 msgstr "Modo de escalado:"
 
-#: ../vnc.html:214
+#: ../vnc.html:233
 msgid "None"
 msgstr "Ninguno"
 
-#: ../vnc.html:215
-msgid "Local Scaling"
-msgstr "Escalado Local"
+#: ../vnc.html:234
+msgid "Local scaling"
+msgstr "Escalado local"
 
-#: ../vnc.html:216
-msgid "Local Downscaling"
-msgstr "Reducción de escala local"
-
-#: ../vnc.html:217
+#: ../vnc.html:235
 msgid "Remote resizing"
 msgstr "Cambio de tamaño remoto"
 
-#: ../vnc.html:222
+#: ../vnc.html:240
 msgid "Advanced"
 msgstr "Avanzado"
 
-#: ../vnc.html:225
-msgid "Local Cursor"
-msgstr "Cursor Local"
+#: ../vnc.html:243
+msgid "Quality:"
+msgstr "Calidad:"
 
-#: ../vnc.html:229
+#: ../vnc.html:247
+msgid "Compression level:"
+msgstr "Nivel de compresión:"
+
+#: ../vnc.html:252
 msgid "Repeater ID:"
-msgstr "ID del Repetidor:"
+msgstr "ID del repetidor:"
 
-#: ../vnc.html:233
+#: ../vnc.html:256
 msgid "WebSocket"
 msgstr "WebSocket"
 
-#: ../vnc.html:239
+#: ../vnc.html:261
+msgid "Encrypt"
+msgstr "Cifrar"
+
+#: ../vnc.html:266
 msgid "Host:"
 msgstr "Host:"
 
-#: ../vnc.html:243
+#: ../vnc.html:270
 msgid "Port:"
 msgstr "Puerto:"
 
-#: ../vnc.html:247
+#: ../vnc.html:274
 msgid "Path:"
 msgstr "Ruta:"
 
-#: ../vnc.html:254
+#: ../vnc.html:283
 msgid "Automatic reconnect"
 msgstr "Reconexión automática"
 
-#: ../vnc.html:257
+#: ../vnc.html:288
 msgid "Reconnect delay (ms):"
 msgstr "Retraso en la reconexión (ms):"
 
-#: ../vnc.html:263
+#: ../vnc.html:295
+msgid "Show dot when no cursor"
+msgstr "Mostrar punto cuando no hay cursor"
+
+#: ../vnc.html:302
 msgid "Logging:"
 msgstr "Registrando:"
 
-#: ../vnc.html:275
+#: ../vnc.html:311
+msgid "Version:"
+msgstr "Versión:"
+
+#: ../vnc.html:319
 msgid "Disconnect"
 msgstr "Desconectar"
 
-#: ../vnc.html:294
+#: ../vnc.html:342
 msgid "Connect"
 msgstr "Conectar"
 
-#: ../vnc.html:304
+#: ../vnc.html:351
+msgid "Server identity"
+msgstr "Identidad del servidor"
+
+#: ../vnc.html:354
+msgid "The server has provided the following identifying information:"
+msgstr "El servidor ha proporcionado la siguiente información de identificación:"
+
+#: ../vnc.html:357
+msgid "Fingerprint:"
+msgstr "Huella digital:"
+
+#: ../vnc.html:361
+msgid "Please verify that the information is correct and press \"Approve\". Otherwise press \"Reject\"."
+msgstr "Verifique que la información sea correcta y presione \"Aprobar\". De lo contrario, presione \"Rechazar\"."
+
+#: ../vnc.html:366
+msgid "Approve"
+msgstr "Aprobar"
+
+#: ../vnc.html:367
+msgid "Reject"
+msgstr "Rechazar"
+
+#: ../vnc.html:375
+msgid "Credentials"
+msgstr "Credenciales"
+
+#: ../vnc.html:379
+msgid "Username:"
+msgstr "Nombre de usuario:"
+
+#: ../vnc.html:383
 msgid "Password:"
 msgstr "Contraseña:"
 
-#: ../vnc.html:318
+#: ../vnc.html:387
+msgid "Send credentials"
+msgstr "Enviar credenciales"
+
+#: ../vnc.html:396
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: ../vnc.html:334
-msgid "Canvas not supported."
-msgstr "Canvas no soportado."
