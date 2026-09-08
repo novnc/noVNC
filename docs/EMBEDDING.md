@@ -85,6 +85,13 @@ Currently, the following options are available:
 * `resize` - How to resize the remote session if it is not the same size as
   the browser window. Can be one of `off`, `scale` and `remote`.
 
+* `crop_rect` - This option specifies the remote framebuffer area that will be
+  shown in the noVNC client. The format is widthxheight+xoffset+yoffset, where
+  ‘+’ signs can be replaced with ‘−’ signs to specify offsets from the right
+  and/or from the bottom of the screen. Offsets are optional, +0+0 is assumed
+  by default (top left corner). If the argument is empty, full screen is shown
+  to VNC clients (this is the default). See -Geometry parameter of TigerVNC.
+
 * `quality` - The session JPEG quality level. Can be `0` to `9`.
 
 * `compression` - The session compression level. Can be `0` to `9`.
