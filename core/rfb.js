@@ -2642,6 +2642,11 @@ export default class RFB extends EventTargetMixin {
                 this._display.flush()
                     .then(() => {
                         this._flushing = false;
+                        // We may have disconnected while waiting for the flush
+                        // to complete
+                        if (this._rfbConnectionState !== 'connected') {
+                            return false;
+                        }
                         // Resume processing
                         if (!this._sock.rQwait("message", 1)) {
                             this._handleMessage();
