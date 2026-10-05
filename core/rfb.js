@@ -302,7 +302,7 @@ export default class RFB extends EventTargetMixin {
         this._clipViewport = false;
         this._clippingViewport = false;
         this._scaleViewport = false;
-        this._resizeSession = false;
+        this._resizeSession = true; // Enable handshake resize sync (guards prevent premature sends)
 
         this._showDotCursor = false;
 
