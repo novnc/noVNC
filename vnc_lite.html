@@ -123,6 +123,20 @@
             return defaultValue;
         }
 
+        // This function reads a boolean variable from the query string.
+        // The values "0", "no" and "false" are false and any other value
+        // is true, like the settings in vnc.html. If the variable isn't
+        // defined in the URL it returns the default value instead.
+        function readQueryBoolean(name, defaultValue) {
+            const value = readQueryVariable(name);
+
+            if (value === undefined) {
+                return defaultValue;
+            }
+
+            return !['0', 'no', 'false'].includes(value.toLowerCase());
+        }
+
         document.getElementById('sendCtrlAltDelButton')
             .onclick = sendCtrlAltDel;
 
@@ -169,8 +183,8 @@
         rfb.addEventListener("desktopname", updateDesktopName);
 
         // Set parameters that can be changed on an active connection
-        rfb.viewOnly = readQueryVariable('view_only', false);
-        rfb.scaleViewport = readQueryVariable('scale', false);
+        rfb.viewOnly = readQueryBoolean('view_only', false);
+        rfb.scaleViewport = readQueryBoolean('scale', false);
     </script>
 </head>
 
