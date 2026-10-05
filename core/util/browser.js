@@ -160,7 +160,9 @@ async function _checkWebCodecsH264DecodeSupport() {
         data: data,
     });
 
-    decoder.configure(config);
+    // Chrome on macOS fails if the test frame does not match the
+    // configured size, so use the real size of the test frame
+    decoder.configure({ ...config, codedWidth: 32, codedHeight: 34 });
     decoder.decode(chunk);
     try {
         await decoder.flush();
