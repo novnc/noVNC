@@ -454,6 +454,13 @@ export default class Display {
     // ===== PRIVATE METHODS =====
 
     _rescale(factor) {
+        // HiDPI: factor===1 means no viewport scaling. Present the device-pixel
+        // backing store (framebuffer requested at devicePixelRatio in
+        // RFB._screenSize) at CSS size (/dpr) so it renders crisp at the correct
+        // logical size instead of overflowing by the pixel ratio.
+        if (factor === 1) {
+            factor = 1 / (window.devicePixelRatio || 1);
+        }
         this._scale = factor;
         const vp = this._viewportLoc;
 

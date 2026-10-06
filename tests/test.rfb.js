@@ -4976,6 +4976,214 @@ describe('Remote Frame Buffer protocol client', function () {
                     expect(qemuKeyEvent).to.not.have.been.called;
                 });
             });
+
+            describe('Trackpad mode', function () {
+                // The framebuffer is 100x100 so the virtual cursor starts
+                // centred at (50, 50). Sensitivity 1.0 keeps deltas 1:1.
+                beforeEach(function () {
+                    client.trackpadMode = true;
+                    client.trackpadSensitivity = 1.0;
+                });
+
+                it('should left click at the virtual cursor on onetap', function () {
+                    gestureStart('onetap', 20, 40, client);
+                    gestureEnd('onetap', 20, 40, client);
+
+                    expect(pointerEvent).to.have.been.calledThrice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock, 50, 50, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock, 50, 50, 0x1);
+                    expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock, 50, 50, 0x0);
+                });
+
+                it('should right click at the virtual cursor on a two-finger tap', function () {
+                    // Two fingers down then up with no movement -> right click at
+                    // the virtual cursor (centre 50,50). Handled from raw touch.
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[40, 40], [60, 40]]));
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
+
+                    expect(pointerEvent).to.have.been.calledThrice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock, 50, 50, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock, 50, 50, 0x4);
+                    expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock, 50, 50, 0x0);
+                });
+
+                it('should not right click when the two fingers move (pinch/pan)', function () {
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[40, 40], [60, 40]]));
+                    pointerEvent.resetHistory();
+                    // Fingers spread apart -> a pinch, not a tap.
+                    client._canvas.dispatchEvent(touchEv('touchmove', client, [[20, 40], [80, 40]]));
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
+                    expect(pointerEvent).to.not.have.been.calledWith(client._sock, 50, 50, 0x4);
+                });
+
+                it('should move the cursor live from the first pixel of a one-finger drag', function () {
+                    // Cursor movement comes straight from raw touch events, so it
+                    // tracks immediately rather than waiting for noVNC's drag
+                    // recognition threshold.
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[20, 40]]));
+                    pointerEvent.resetHistory();
+
+                    // Finger moves +10/+10 -> cursor 50,50 -> 60,60 (sensitivity 1.0)
+                    client._canvas.dispatchEvent(touchEv('touchmove', client, [[30, 50]]));
+                    clock.tick(50);
+                    expect(pointerEvent).to.have.been.calledWith(client._sock, 60, 60, 0x0);
+
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
+                });
+
+                it('should hold the left button for a double-tap-drag (text selection)', function () {
+                    // First tap.
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[20, 40]]));
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
+                    // Second touch within the double-tap window, then drag holds
+                    // the left button from the first pixel (selects text).
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[20, 40]]));
+                    pointerEvent.resetHistory();
+                    client._canvas.dispatchEvent(touchEv('touchmove', client, [[40, 60]]));
+                    clock.tick(50);
+                    expect(pointerEvent).to.have.been.calledWith(client._sock, 50, 50, 0x1);
+                    expect(client._trackpadDragButton).to.equal(0x1);
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
+                    expect(client._trackpadDragButton).to.equal(0);
+                });
+
+                it('should not hold a button for a plain one-finger drag', function () {
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[20, 40]]));
+                    pointerEvent.resetHistory();
+                    client._canvas.dispatchEvent(touchEv('touchmove', client, [[40, 60]]));
+                    clock.tick(50);
+                    expect(client._trackpadDragButton).to.equal(0);
+                    expect(pointerEvent).to.not.have.been.calledWith(client._sock, 50, 50, 0x1);
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
+                });
+
+                it('should scroll the remote on a parallel two-finger drag at fit', function () {
+                    // Two fingers down, then both move straight down 30px with
+                    // no change in separation -> no zoom, a wheel step instead.
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[40, 40], [60, 40]]));
+                    pointerEvent.resetHistory();
+
+                    client._canvas.dispatchEvent(touchEv('touchmove', client, [[40, 70], [60, 70]]));
+
+                    expect(client._trackpadZoom).to.equal(1.0);
+                    expect(pointerEvent).to.have.been.calledTwice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock, 50, 50, 0x8);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock, 50, 50, 0x0);
+
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
+                });
+
+                it('should clamp the virtual cursor to the framebuffer bounds', function () {
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[20, 40]]));
+                    pointerEvent.resetHistory();
+
+                    // Huge positive delta -> clamp to bottom-right (99, 99)
+                    client._canvas.dispatchEvent(touchEv('touchmove', client, [[1020, 1040]]));
+                    clock.tick(50);
+                    expect(pointerEvent).to.have.been.calledWith(client._sock, 99, 99, 0x0);
+
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
+                });
+
+                // Build a TouchEvent with N touches at the given element coords.
+                function touchEv(type, client, points) {
+                    let touches = points.map((p, i) => {
+                        let c = elementToClient(p[0], p[1], client);
+                        return new Touch({ identifier: i + 1, target: client._canvas,
+                                           clientX: c.x, clientY: c.y });
+                    });
+                    return new TouchEvent(type, { touches: touches,
+                                                  changedTouches: touches,
+                                                  bubbles: true, cancelable: true });
+                }
+
+                it('should magnify locally on a two-finger pinch, not poke the remote', function () {
+                    expect(client._trackpadZoom).to.equal(1.0);
+
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[40, 40], [60, 60]]));
+                    pointerEvent.resetHistory();
+                    keyEvent.resetHistory();
+
+                    // Fingers move apart -> zoom in
+                    client._canvas.dispatchEvent(touchEv('touchmove', client, [[20, 20], [80, 80]]));
+
+                    expect(client._trackpadZoom).to.be.greaterThan(1.0);
+                    expect(client._canvas.style.transform).to.contain('scale');
+                    // Local zoom must NOT send anything to the remote
+                    expect(pointerEvent).to.not.have.been.called;
+                    expect(keyEvent).to.not.have.been.called;
+
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
+                });
+
+                it('should clamp magnification at 5.0 and reset on a pinch back to fit', function () {
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[49, 49], [51, 51]]));
+                    // Huge spread -> capped at 5.0
+                    client._canvas.dispatchEvent(touchEv('touchmove', client, [[0, 0], [99, 99]]));
+                    expect(client._trackpadZoom).to.equal(5.0);
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
+
+                    // Leaving trackpad mode resets the zoom and clears the transform
+                    client.trackpadMode = false;
+                    expect(client._trackpadZoom).to.equal(1.0);
+                    expect(client._canvas.style.transform).to.equal('');
+                });
+
+                it('should ignore single-finger gestures while two fingers are down', function () {
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[40, 40], [60, 60]]));
+                    expect(client._trackpadMultitouch).to.be.true;
+
+                    pointerEvent.resetHistory();
+                    // A stray one-finger drag gesture must be ignored mid-pinch
+                    gestureStart('drag', 20, 40, client);
+                    gestureMove('drag', 30, 50, client);
+                    clock.tick(50);
+                    expect(pointerEvent).to.not.have.been.called;
+
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
+                    expect(client._trackpadMultitouch).to.be.false;
+                });
+
+                it('should edge-pan the magnified view when the cursor pushes against a border', function () {
+                    // Pre-zoom 2x, centred. Pushing the cursor into the left
+                    // margin should pan the view (panX rises toward 0, revealing
+                    // left content) and keep emitting pointer moves.
+                    client._trackpadZoom = 2.0;
+                    client._trackpadPanX = -50;
+                    client._trackpadPanY = -50;
+                    client._trackpadPos = { x: 50, y: 50 };
+                    client._trackpadApplyTransform();
+
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[50, 40]]));
+                    pointerEvent.resetHistory();
+
+                    // Drag left -> cursor enters the left edge band -> edge pan.
+                    client._canvas.dispatchEvent(touchEv('touchmove', client, [[-100, 40]]));
+                    clock.tick(100);
+
+                    expect(client._trackpadPanX).to.be.greaterThan(-50);
+                    expect(pointerEvent).to.have.been.called;
+
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
+                });
+
+                it('should stop edge panning once all fingers lift', function () {
+                    client._trackpadZoom = 2.0;
+                    client._trackpadPanX = -50;
+                    client._trackpadPanY = -50;
+                    client._trackpadPos = { x: 50, y: 50 };
+                    client._trackpadApplyTransform();
+
+                    client._canvas.dispatchEvent(touchEv('touchstart', client, [[50, 40]]));
+                    client._canvas.dispatchEvent(touchEv('touchmove', client, [[-100, 40]]));
+                    clock.tick(50);
+                    client._canvas.dispatchEvent(touchEv('touchend', client, []));
+
+                    const panAfterLift = client._trackpadPanX;
+                    clock.tick(200);
+                    expect(client._trackpadPanX).to.equal(panAfterLift);
+                });
+            });
         });
 
         describe('WebSocket events', function () {

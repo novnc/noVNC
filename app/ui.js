@@ -191,6 +191,7 @@ const UI = {
         UI.initSetting('bell', 'on');
         UI.initSetting('view_only', false);
         UI.initSetting('show_dot', false);
+        UI.initSetting('trackpad_mode', false);
         UI.initSetting('path', 'websockify');
         UI.initSetting('repeaterID', '');
         UI.initSetting('reconnect', false);
@@ -250,6 +251,14 @@ const UI = {
             .addEventListener('mousemove', UI.dragControlbarHandle);
         // resize events aren't available for elements
         window.addEventListener('resize', UI.updateControlbarHandle);
+
+        // Stop iOS Safari from pinch-zooming the page itself (it ignores
+        // user-scalable=no). These proprietary gesture events carry a
+        // `scale` property; noVNC's own synthetic gesture CustomEvents don't,
+        // so we only block the native ones.
+        const preventNativeGestureZoom = (e) => { if ('scale' in e) e.preventDefault(); };
+        document.addEventListener('gesturestart', preventNativeGestureZoom, { passive: false });
+        document.addEventListener('gesturechange', preventNativeGestureZoom, { passive: false });
 
         const exps = document.getElementsByClassName("noVNC_expander");
         for (let i = 0;i < exps.length;i++) {
@@ -347,6 +356,10 @@ const UI = {
             .addEventListener('click', UI.toggleClipboardPanel);
         document.getElementById("noVNC_clipboard_text")
             .addEventListener('change', UI.clipboardSend);
+        document.getElementById("noVNC_clipboard_to_device")
+            .addEventListener('click', UI.clipboardToDevice);
+        document.getElementById("noVNC_clipboard_from_device")
+            .addEventListener('click', UI.clipboardFromDevice);
     },
 
     // Add a call to save settings when the element changes,
@@ -378,6 +391,8 @@ const UI = {
         UI.addSettingChangeHandler('view_only', UI.updateViewOnly);
         UI.addSettingChangeHandler('show_dot');
         UI.addSettingChangeHandler('show_dot', UI.updateShowDotCursor);
+        UI.addSettingChangeHandler('trackpad_mode');
+        UI.addSettingChangeHandler('trackpad_mode', UI.updateTrackpadMode);
         UI.addSettingChangeHandler('keep_device_awake');
         UI.addSettingChangeHandler('keep_device_awake', UI.updateRequestWakelock);
         UI.addSettingChangeHandler('host');
@@ -1084,6 +1099,48 @@ const UI = {
         Log.Debug("<< UI.clipboardSend");
     },
 
+    // Copy the (remote) clipboard text shown in the panel onto the local device
+    // clipboard. Runs inside the button's click gesture so Safari/iOS allows
+    // navigator.clipboard.writeText.
+    clipboardToDevice() {
+        const text = document.getElementById('noVNC_clipboard_text').value;
+        const btn = document.getElementById('noVNC_clipboard_to_device');
+        if (!navigator.clipboard || !navigator.clipboard.writeText) {
+            btn.value = 'Not supported';
+            return;
+        }
+        navigator.clipboard.writeText(text)
+            .then(() => {
+                btn.value = 'Copied!';
+                setTimeout(() => { btn.value = 'Copy to device'; }, 1500);
+            })
+            .catch(() => {
+                btn.value = 'Failed';
+                setTimeout(() => { btn.value = 'Copy to device'; }, 1500);
+            });
+    },
+
+    // Read the local device clipboard and send it to the remote (and show it in
+    // the panel). Runs inside the button's click gesture for iOS permission.
+    clipboardFromDevice() {
+        const btn = document.getElementById('noVNC_clipboard_from_device');
+        if (!navigator.clipboard || !navigator.clipboard.readText) {
+            btn.value = 'Not supported';
+            return;
+        }
+        navigator.clipboard.readText()
+            .then((text) => {
+                document.getElementById('noVNC_clipboard_text').value = text;
+                if (UI.rfb) { UI.rfb.clipboardPasteFrom(text); }
+                btn.value = 'Pasted!';
+                setTimeout(() => { btn.value = 'Paste from device'; }, 1500);
+            })
+            .catch(() => {
+                btn.value = 'Failed';
+                setTimeout(() => { btn.value = 'Paste from device'; }, 1500);
+            });
+    },
+
 /* ------^-------
  *  /CLIPBOARD
  * ==============
@@ -1182,6 +1239,7 @@ const UI = {
         UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
         UI.rfb.compressionLevel = parseInt(UI.getSetting('compression'));
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
+        UI.rfb.trackpadMode = UI.getSetting('trackpad_mode');
 
         UI.updateViewOnly(); // requires UI.rfb
         UI.updateClipboard();
@@ -1889,6 +1947,11 @@ const UI = {
     updateShowDotCursor() {
         if (!UI.rfb) return;
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
+    },
+
+    updateTrackpadMode() {
+        if (!UI.rfb) return;
+        UI.rfb.trackpadMode = UI.getSetting('trackpad_mode');
     },
 
     updateLogging() {
