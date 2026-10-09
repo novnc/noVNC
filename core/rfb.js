@@ -2446,6 +2446,11 @@ export default class RFB extends EventTargetMixin {
                 }
 
             } else if (actions === extendedClipboardActionProvide) {
+                // Always consume the payload, even when we ignore it: leaving
+                // it in the receive queue desyncs the stream (the zlib header
+                // is parsed as the next message type) and fails the session.
+                let zlibStream = this._sock.rQshiftBytes(length - 4);
+
                 if (this._viewOnly) {
                     return true;
                 }
@@ -2457,7 +2462,6 @@ export default class RFB extends EventTargetMixin {
                 this._clipboardText = null;
 
                 // FIXME: Should probably verify that this data was actually requested
-                let zlibStream = this._sock.rQshiftBytes(length - 4);
                 let streamInflator = new Inflator();
                 let textData = null;
 
