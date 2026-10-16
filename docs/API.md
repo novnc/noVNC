@@ -261,7 +261,7 @@ property is an `Object` containing the property `types` which is an
 
 The `connect` event is fired after all the handshaking with the server
 is completed and the connection is fully established. After this event
-the `RFB` object is ready to recieve graphics updates and to send input.
+the `RFB` object is ready to receive graphics updates and to send input.
 
 #### desktopname
 
