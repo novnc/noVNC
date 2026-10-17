@@ -139,4 +139,14 @@ describe('ZRLE decoder', function () {
         let data = [0x00, 0x00, 0x00, 0x0c, 0x78, 0x5e, 0x6a, 0x64, 0x60, 0xf8, 0x0f, 0x00, 0x00, 0x00, 0xff, 0xff];
         expect(() => testDecodeRect(decoder, 0, 0, 4, 4, data, display, 24)).to.throw();
     });
+
+    it('should fail on an out of range RLE palette index', function () {
+        // Two colour palette, followed by a run using index 2
+        let data = [0x00, 0x00, 0x00, 0x11, 0x78, 0x5e,
+                    0x6a, 0xfa, 0xcf, 0xc0, 0xc0, 0xf0,
+                    0x9f, 0xa1, 0x89, 0x1f, 0x00, 0x00,
+                    0x00, 0xff, 0xff];
+        expect(() => testDecodeRect(decoder, 0, 0, 4, 4, data, display, 24))
+            .to.throw('Too big index in palette');
+    });
 });

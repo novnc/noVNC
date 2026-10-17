@@ -155,7 +155,7 @@ export default class ZRLEDecoder {
                 indexInPalette -= 128;
                 length = this._readRLELength();
             }
-            if (indexInPalette > paletteSize) {
+            if (indexInPalette >= paletteSize) {
                 throw new Error('Too big index in palette: ' + indexInPalette + ', palette size: ' + paletteSize);
             }
             if (offset + length > tileSize) {
