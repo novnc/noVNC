@@ -77,5 +77,7 @@
     "Username:": "ユーザー名:",
     "Password:": "パスワード:",
     "Send credentials": "資格情報を送信",
-    "Cancel": "キャンセル"
+    "Cancel": "キャンセル",
+    "Use native resolution": "ネイティブ解像度を使用",
+    "Use device pixels for a sharper image. Text and controls may become smaller; increase the remote desktop's display scaling first if needed. Local scaling still fits the desktop to the window.": "デバイスピクセルを使用して、より鮮明に表示します。文字や操作部品が小さくなる場合があります。必要に応じて、先にリモートデスクトップの表示倍率を上げてください。ローカルでのスケーリングは、引き続きデスクトップをウィンドウに合わせます。"
 }

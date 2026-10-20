@@ -286,3 +286,18 @@ msgstr "Vazgeç"
 #: ../vnc.html:329
 msgid "Canvas not supported."
 msgstr "Tuval desteklenmiyor."
+
+#: ../vnc.html:240
+msgid "Use native resolution"
+msgstr "Doğal çözünürlüğü kullan"
+
+#: ../vnc.html:237
+msgid ""
+"Use device pixels for a sharper image. Text and controls may become "
+"smaller; increase the remote desktop's display scaling first if needed. "
+"Local scaling still fits the desktop to the window."
+msgstr ""
+"Daha net bir görüntü için cihaz piksellerini kullanın. Metin ve "
+"denetimler küçülebilir; gerekirse önce uzak masaüstünün ekran "
+"ölçeklendirmesini artırın. Yerel ölçeklendirme, masaüstünü pencereye "
+"sığdırmaya devam eder."

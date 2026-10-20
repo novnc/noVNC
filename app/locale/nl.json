@@ -91,5 +91,7 @@
     "Local Downscaling": "Lokaal Neerschalen",
     "Local Cursor": "Lokale Cursor",
     "Canvas not supported.": "Canvas wordt niet ondersteund.",
-    "Forcing clipping mode since scrollbars aren't supported by IE in fullscreen": "''Clipping mode' ingeschakeld, omdat schuifbalken in volledige-scherm-modus in IE niet worden ondersteund"
+    "Forcing clipping mode since scrollbars aren't supported by IE in fullscreen": "''Clipping mode' ingeschakeld, omdat schuifbalken in volledige-scherm-modus in IE niet worden ondersteund",
+    "Use native resolution": "Native resolutie gebruiken",
+    "Use device pixels for a sharper image. Text and controls may become smaller; increase the remote desktop's display scaling first if needed. Local scaling still fits the desktop to the window.": "Gebruik apparaatpixels voor een scherper beeld. Tekst en bedieningselementen kunnen kleiner worden; verhoog zo nodig eerst de beeldschermschaal van het externe bureaublad. Lokaal schalen blijft het bureaublad aan het venster aanpassen."
 }

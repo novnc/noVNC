@@ -300,3 +300,18 @@ msgstr "Передача Учетных Данных"
 #: ../vnc.html:295
 msgid "Cancel"
 msgstr "Выход"
+
+#: ../vnc.html:240
+msgid "Use native resolution"
+msgstr "Использовать нативное разрешение"
+
+#: ../vnc.html:237
+msgid ""
+"Use device pixels for a sharper image. Text and controls may become "
+"smaller; increase the remote desktop's display scaling first if needed. "
+"Local scaling still fits the desktop to the window."
+msgstr ""
+"Используйте пиксели устройства для более чёткого изображения. Текст и "
+"элементы управления могут стать меньше; при необходимости сначала "
+"увеличьте масштаб интерфейса удалённого рабочего стола. Локальное "
+"масштабирование по-прежнему подгоняет рабочий стол под размер окна."

@@ -76,5 +76,7 @@
     "Username:": "Felhasználónév:",
     "Password:": "Jelszó:",
     "Send credentials": "Hitelesítő adatok küldése",
-    "Cancel": "Mégse"
+    "Cancel": "Mégse",
+    "Use native resolution": "Natív felbontás használata",
+    "Use device pixels for a sharper image. Text and controls may become smaller; increase the remote desktop's display scaling first if needed. Local scaling still fits the desktop to the window.": "Az élesebb képhez használja az eszköz képpontjait. A szöveg és a vezérlőelemek kisebbé válhatnak; szükség esetén előbb növelje a távoli asztal megjelenítési méretezését. A helyi méretezés továbbra is az ablakhoz igazítja az asztalt."
 }

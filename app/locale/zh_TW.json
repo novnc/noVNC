@@ -65,5 +65,7 @@
     "Disconnect": "中斷連線",
     "Connect": "連線",
     "Password:": "密碼：",
-    "Cancel": "取消"
+    "Cancel": "取消",
+    "Use native resolution": "使用原生解析度",
+    "Use device pixels for a sharper image. Text and controls may become smaller; increase the remote desktop's display scaling first if needed. Local scaling still fits the desktop to the window.": "使用裝置像素，讓畫面更清晰。文字和控制項可能變小；如有需要，請先提高遠端桌面的顯示縮放比例。「本機縮放」仍會將桌面縮放至視窗大小。"
 }

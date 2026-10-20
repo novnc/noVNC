@@ -85,6 +85,19 @@ Currently, the following options are available:
 * `resize` - How to resize the remote session if it is not the same size as
   the browser window. Can be one of `off`, `scale` and `remote`.
 
+* `native_resolution` - Use device pixels instead of CSS pixels. With
+  `resize=remote`, request a desktop size matching the browser's device
+  pixels. With `resize=off`, show one remote pixel per device pixel. Local
+  scaling (`resize=scale`) still fits the desktop to the window. This does
+  not change the remote desktop's UI or font scaling. Disabled by default.
+
+  Text and controls may become smaller when this option is enabled. If the
+  remote desktop supports display scaling, consider configuring it before
+  enabling native resolution. For example, with `devicePixelRatio = 2`,
+  200% remote display scaling can preserve a similar apparent UI size while
+  rendering more pixels. The appropriate setting depends on the remote
+  desktop and the user's preferences; noVNC does not set it automatically.
+
 * `quality` - The session JPEG quality level. Can be `0` to `9`.
 
 * `compression` - The session compression level. Can be `0` to `9`.

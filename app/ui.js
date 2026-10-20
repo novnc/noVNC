@@ -185,6 +185,7 @@ const UI = {
         UI.initSetting('autoconnect', false);
         UI.initSetting('view_clip', false);
         UI.initSetting('resize', 'off');
+        UI.initSetting('native_resolution', false);
         UI.initSetting('quality', 6);
         UI.initSetting('compression', 2);
         UI.initSetting('shared', true);
@@ -367,6 +368,8 @@ const UI = {
         UI.addSettingChangeHandler('resize');
         UI.addSettingChangeHandler('resize', UI.applyResizeMode);
         UI.addSettingChangeHandler('resize', UI.updateViewClip);
+        UI.addSettingChangeHandler('native_resolution');
+        UI.addSettingChangeHandler('native_resolution', UI.applyResizeMode);
         UI.addSettingChangeHandler('quality');
         UI.addSettingChangeHandler('quality', UI.updateQuality);
         UI.addSettingChangeHandler('compression');
@@ -960,6 +963,7 @@ const UI = {
         UI.updateSetting('encrypt');
         UI.updateSetting('view_clip');
         UI.updateSetting('resize');
+        UI.updateSetting('native_resolution');
         UI.updateSetting('quality');
         UI.updateSetting('compression');
         UI.updateSetting('shared');
@@ -1178,6 +1182,7 @@ const UI = {
         UI.rfb.addEventListener("desktopname", UI.updateDesktopName);
         UI.rfb.clipViewport = UI.getSetting('view_clip');
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
+        UI.rfb.useNativeDPI = UI.getSetting('native_resolution');
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
         UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
         UI.rfb.compressionLevel = parseInt(UI.getSetting('compression'));
@@ -1455,6 +1460,7 @@ const UI = {
         if (!UI.rfb) return;
 
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
+        UI.rfb.useNativeDPI = UI.getSetting('native_resolution');
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
     },
 

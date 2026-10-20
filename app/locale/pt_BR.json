@@ -68,5 +68,7 @@
     "Username:": "Nome de usuário:",
     "Password:": "Senha:",
     "Send credentials": "Enviar credenciais",
-    "Cancel": "Cancelar"
+    "Cancel": "Cancelar",
+    "Use native resolution": "Usar resolução nativa",
+    "Use device pixels for a sharper image. Text and controls may become smaller; increase the remote desktop's display scaling first if needed. Local scaling still fits the desktop to the window.": "Use os pixels do dispositivo para obter uma imagem mais nítida. O texto e os controles podem ficar menores; se necessário, aumente primeiro a escala de exibição da área de trabalho remota. O dimensionamento local continua ajustando a área de trabalho à janela."
 }

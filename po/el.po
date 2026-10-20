@@ -334,6 +334,22 @@ msgstr "Αποστολή Διαπιστευτηρίων"
 msgid "Cancel"
 msgstr "Ακύρωση"
 
+#: ../vnc.html:240
+msgid "Use native resolution"
+msgstr "Χρήση εγγενούς ανάλυσης"
+
+#: ../vnc.html:237
+msgid ""
+"Use device pixels for a sharper image. Text and controls may become "
+"smaller; increase the remote desktop's display scaling first if needed. "
+"Local scaling still fits the desktop to the window."
+msgstr ""
+"Χρησιμοποιήστε τα εικονοστοιχεία της συσκευής για πιο ευκρινή εικόνα. Το "
+"κείμενο και τα στοιχεία ελέγχου μπορεί να μικρύνουν· αν χρειάζεται, "
+"αυξήστε πρώτα την κλιμάκωση της οθόνης στην απομακρυσμένη επιφάνεια "
+"εργασίας. Η τοπική κλιμάκωση εξακολουθεί να προσαρμόζει την επιφάνεια "
+"εργασίας στο παράθυρο."
+
 #~ msgid "Password is required"
 #~ msgstr "Απαιτείται ο κωδικός πρόσβασης"
 

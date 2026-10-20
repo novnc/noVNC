@@ -70,5 +70,7 @@
     "Local Downscaling": "Lokales herunterskalieren",
     "Local Cursor": "Lokaler Mauszeiger",
     "Forcing clipping mode since scrollbars aren't supported by IE in fullscreen": "'Clipping-Modus' aktiviert, Scrollbalken in 'IE-Vollbildmodus' werden nicht unterstützt",
-    "True Color": "True Color"
+    "True Color": "True Color",
+    "Use native resolution": "Native Auflösung verwenden",
+    "Use device pixels for a sharper image. Text and controls may become smaller; increase the remote desktop's display scaling first if needed. Local scaling still fits the desktop to the window.": "Gerätepixel für ein schärferes Bild verwenden. Text und Bedienelemente können kleiner werden; erhöhen Sie bei Bedarf zuerst die Anzeigeskalierung des entfernten Desktops. Lokales Skalieren passt den Desktop weiterhin an das Fenster an."
 }

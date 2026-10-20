@@ -77,6 +77,15 @@ protocol stream.
     if the remote session is smaller than its container, or handled
     according to `clipViewport` if it is larger. Disabled by default.
 
+`useNativeDPI`
+  - Is a `boolean` indicating if device pixels should be used instead of
+    CSS pixels. When `scaleViewport` is disabled, one remote pixel is shown
+    as one device pixel. When `resizeSession` is enabled, requested sizes
+    are multiplied by `window.devicePixelRatio`. Changes to the pixel ratio
+    (including browser zoom and moving between monitors) are applied
+    automatically. This does not configure scaling on the remote desktop,
+    which may need to be adjusted separately. Disabled by default.
+
 `viewOnly`
   - Is a `boolean` indicating if any events (e.g. key presses or mouse
     movement) should be prevented from being sent to the server.

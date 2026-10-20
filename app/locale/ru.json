@@ -68,5 +68,7 @@
     "Username:": "Имя Пользователя",
     "Password:": "Пароль:",
     "Send Credentials": "Передача Учетных Данных",
-    "Cancel": "Выход"
+    "Cancel": "Выход",
+    "Use native resolution": "Использовать нативное разрешение",
+    "Use device pixels for a sharper image. Text and controls may become smaller; increase the remote desktop's display scaling first if needed. Local scaling still fits the desktop to the window.": "Используйте пиксели устройства для более чёткого изображения. Текст и элементы управления могут стать меньше; при необходимости сначала увеличьте масштаб интерфейса удалённого рабочего стола. Локальное масштабирование по-прежнему подгоняет рабочий стол под размер окна."
 }

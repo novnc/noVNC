@@ -342,6 +342,20 @@ msgstr "Skicka användaruppgifter"
 msgid "Cancel"
 msgstr "Avbryt"
 
+#: ../vnc.html:240
+msgid "Use native resolution"
+msgstr "Använd ursprunglig upplösning"
+
+#: ../vnc.html:237
+msgid ""
+"Use device pixels for a sharper image. Text and controls may become "
+"smaller; increase the remote desktop's display scaling first if needed. "
+"Local scaling still fits the desktop to the window."
+msgstr ""
+"Använd enhetspixlar för en skarpare bild. Text och kontroller kan bli "
+"mindre; öka vid behov först skärmskalningen på fjärrskrivbordet. Lokal "
+"skalning anpassar fortfarande skrivbordet till fönstret."
+
 #~ msgid "Must set host"
 #~ msgstr "Du måste specifiera en värd"
 

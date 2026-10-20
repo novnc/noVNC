@@ -65,5 +65,7 @@
     "Connect": "Bağlan",
     "Password:": "Parola:",
     "Cancel": "Vazgeç",
-    "Canvas not supported.": "Tuval desteklenmiyor."
+    "Canvas not supported.": "Tuval desteklenmiyor.",
+    "Use native resolution": "Doğal çözünürlüğü kullan",
+    "Use device pixels for a sharper image. Text and controls may become smaller; increase the remote desktop's display scaling first if needed. Local scaling still fits the desktop to the window.": "Daha net bir görüntü için cihaz piksellerini kullanın. Metin ve denetimler küçülebilir; gerekirse önce uzak masaüstünün ekran ölçeklendirmesini artırın. Yerel ölçeklendirme, masaüstünü pencereye sığdırmaya devam eder."
 }

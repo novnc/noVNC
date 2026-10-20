@@ -619,6 +619,14 @@ html {
     white-space: nowrap;
     margin: 5px;
 }
+.noVNC_panel .noVNC_help {
+    width: 1em;
+    height: 1em;
+    margin-inline-start: 0.25em;
+    vertical-align: text-bottom;
+    filter: invert(1);
+    cursor: help;
+}
 @media (max-width: 540px) {
     /* Allow wrapping on small screens */
     .noVNC_panel label {

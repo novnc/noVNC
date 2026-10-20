@@ -340,3 +340,15 @@ msgstr "資格情報を送信"
 #: ../vnc.html:321
 msgid "Cancel"
 msgstr "キャンセル"
+
+#: ../vnc.html:240
+msgid "Use native resolution"
+msgstr "ネイティブ解像度を使用"
+
+#: ../vnc.html:237
+msgid ""
+"Use device pixels for a sharper image. Text and controls may become "
+"smaller; increase the remote desktop's display scaling first if needed. "
+"Local scaling still fits the desktop to the window."
+msgstr ""
+"デバイスピクセルを使用して、より鮮明に表示します。文字や操作部品が小さくなる場合があります。必要に応じて、先にリモートデスクトップの表示倍率を上げてください。ローカルでのスケーリングは、引き続きデスクトップをウィンドウに合わせます。"

@@ -298,3 +298,18 @@ msgstr "Invia Credenziale"
 #: ../vnc.html:295
 msgid "Cancel"
 msgstr "Annulla"
+
+#: ../vnc.html:240
+msgid "Use native resolution"
+msgstr "Usa la risoluzione nativa"
+
+#: ../vnc.html:237
+msgid ""
+"Use device pixels for a sharper image. Text and controls may become "
+"smaller; increase the remote desktop's display scaling first if needed. "
+"Local scaling still fits the desktop to the window."
+msgstr ""
+"Usa i pixel del dispositivo per un'immagine più nitida. Il testo e i "
+"controlli potrebbero diventare più piccoli; se necessario, aumenta prima "
+"il fattore di scala dello schermo del desktop remoto. Il "
+"ridimensionamento locale continua ad adattare il desktop alla finestra."

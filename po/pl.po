@@ -287,6 +287,21 @@ msgstr "Anuluj"
 msgid "Canvas not supported."
 msgstr "Element Canvas nie jest wspierany."
 
+#: ../vnc.html:240
+msgid "Use native resolution"
+msgstr "Używaj natywnej rozdzielczości"
+
+#: ../vnc.html:237
+msgid ""
+"Use device pixels for a sharper image. Text and controls may become "
+"smaller; increase the remote desktop's display scaling first if needed. "
+"Local scaling still fits the desktop to the window."
+msgstr ""
+"Używaj pikseli urządzenia, aby uzyskać ostrzejszy obraz. Tekst i elementy "
+"sterujące mogą stać się mniejsze; w razie potrzeby najpierw zwiększ "
+"skalowanie ekranu pulpitu zdalnego. Skalowanie lokalne nadal dopasowuje "
+"pulpit do okna."
+
 #~ msgid "Disconnect timeout"
 #~ msgstr "Timeout rozłączenia"
 

@@ -287,6 +287,21 @@ msgstr "Abbrechen"
 msgid "Canvas not supported."
 msgstr "Canvas nicht unterstützt."
 
+#: ../vnc.html:240
+msgid "Use native resolution"
+msgstr "Native Auflösung verwenden"
+
+#: ../vnc.html:237
+msgid ""
+"Use device pixels for a sharper image. Text and controls may become "
+"smaller; increase the remote desktop's display scaling first if needed. "
+"Local scaling still fits the desktop to the window."
+msgstr ""
+"Gerätepixel für ein schärferes Bild verwenden. Text und Bedienelemente "
+"können kleiner werden; erhöhen Sie bei Bedarf zuerst die "
+"Anzeigeskalierung des entfernten Desktops. Lokales Skalieren passt den "
+"Desktop weiterhin an das Fenster an."
+
 #~ msgid "Disconnect timeout"
 #~ msgstr "Zeitüberschreitung beim Trennen"
 

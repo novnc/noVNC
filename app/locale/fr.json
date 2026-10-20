@@ -78,5 +78,7 @@
     "Send credentials": "Envoyer les identifiants",
     "Cancel": "Annuler",
     "Must set host": "Doit définir l'hôte",
-    "Clear": "Effacer"
+    "Clear": "Effacer",
+    "Use native resolution": "Utiliser la résolution native",
+    "Use device pixels for a sharper image. Text and controls may become smaller; increase the remote desktop's display scaling first if needed. Local scaling still fits the desktop to the window.": "Utilisez les pixels de l'appareil pour obtenir une image plus nette. Le texte et les commandes peuvent devenir plus petits ; si nécessaire, augmentez d'abord l'échelle d'affichage du bureau distant. La mise à l'échelle locale continue d'adapter le bureau à la fenêtre."
 }

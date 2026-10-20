@@ -67,5 +67,7 @@
     "Connect": "Připojit",
     "Password:": "Heslo",
     "Send Password": "Odeslat heslo",
-    "Cancel": "Zrušit"
+    "Cancel": "Zrušit",
+    "Use native resolution": "Použít nativní rozlišení",
+    "Use device pixels for a sharper image. Text and controls may become smaller; increase the remote desktop's display scaling first if needed. Local scaling still fits the desktop to the window.": "Pro ostřejší obraz použijte pixely zařízení. Text a ovládací prvky se mohou zmenšit; podle potřeby nejprve zvětšete měřítko zobrazení vzdálené plochy. Místní škálování nadále přizpůsobuje plochu velikosti okna."
 }

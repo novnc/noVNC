@@ -64,5 +64,7 @@
     "Connect": "Conectar",
     "Password:": "Contraseña:",
     "Cancel": "Cancelar",
-    "Canvas not supported.": "Canvas no soportado."
+    "Canvas not supported.": "Canvas no soportado.",
+    "Use native resolution": "Usar resolución nativa",
+    "Use device pixels for a sharper image. Text and controls may become smaller; increase the remote desktop's display scaling first if needed. Local scaling still fits the desktop to the window.": "Utilice los píxeles del dispositivo para obtener una imagen más nítida. El texto y los controles pueden verse más pequeños; si es necesario, aumente primero la escala de visualización del escritorio remoto. El escalado local sigue ajustando el escritorio a la ventana."
 }

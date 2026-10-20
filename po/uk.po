@@ -339,3 +339,18 @@ msgstr "Надіслати особові дані"
 #: ../vnc.html:396
 msgid "Cancel"
 msgstr "Скасувати"
+
+#: ../vnc.html:240
+msgid "Use native resolution"
+msgstr "Використовувати нативну роздільну здатність"
+
+#: ../vnc.html:237
+msgid ""
+"Use device pixels for a sharper image. Text and controls may become "
+"smaller; increase the remote desktop's display scaling first if needed. "
+"Local scaling still fits the desktop to the window."
+msgstr ""
+"Використовуйте пікселі пристрою для чіткішого зображення. Текст і "
+"елементи керування можуть зменшитися; за потреби спочатку збільште "
+"масштаб інтерфейсу віддаленої стільниці. Локальне масштабування й надалі "
+"підлаштовує стільницю під розмір вікна."

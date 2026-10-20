@@ -336,3 +336,18 @@ msgstr "Pošalji podatke za prijavu"
 #: ../vnc.html:396
 msgid "Cancel"
 msgstr "Odustani"
+
+#: ../vnc.html:240
+msgid "Use native resolution"
+msgstr "Koristi izvornu razlučivost"
+
+#: ../vnc.html:237
+msgid ""
+"Use device pixels for a sharper image. Text and controls may become "
+"smaller; increase the remote desktop's display scaling first if needed. "
+"Local scaling still fits the desktop to the window."
+msgstr ""
+"Upotrijebite piksele uređaja za oštriju sliku. Tekst i kontrole mogu "
+"postati manji; po potrebi prvo povećajte skaliranje prikaza udaljene "
+"radne površine. Lokalno skaliranje i dalje prilagođava radnu površinu "
+"veličini prozora."

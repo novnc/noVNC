@@ -76,5 +76,7 @@
     "Apply": "Zapisz",
     "Connection": "Połączenie",
     "Token:": "Token:",
-    "Send Password": "Wyślij Hasło"
+    "Send Password": "Wyślij Hasło",
+    "Use native resolution": "Używaj natywnej rozdzielczości",
+    "Use device pixels for a sharper image. Text and controls may become smaller; increase the remote desktop's display scaling first if needed. Local scaling still fits the desktop to the window.": "Używaj pikseli urządzenia, aby uzyskać ostrzejszy obraz. Tekst i elementy sterujące mogą stać się mniejsze; w razie potrzeby najpierw zwiększ skalowanie ekranu pulpitu zdalnego. Skalowanie lokalne nadal dopasowuje pulpit do okna."
 }

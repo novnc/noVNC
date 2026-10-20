@@ -1060,6 +1060,334 @@ describe('Remote Frame Buffer protocol client', function () {
         });
     });
 
+    describe('Native DPI', function () {
+        let client;
+        let sandbox;
+        let pixelRatio;
+        let queries;
+
+        beforeEach(function () {
+            sandbox = sinon.createSandbox();
+            pixelRatio = sandbox.stub(window, 'devicePixelRatio').value(2);
+            queries = [];
+            sandbox.stub(window, 'matchMedia').callsFake((media) => {
+                const query = new EventTarget();
+                query.media = media;
+                sandbox.spy(query, 'removeEventListener');
+                queries.push(query);
+                return query;
+            });
+
+            client = makeRFB();
+            container.style.width = '80px';
+            container.style.height = '60px';
+            sendExtendedDesktopSize(client, 0, 0, 160, 120,
+                                    0x7890abcd, 0x12345678);
+            sandbox.spy(RFB.messages, 'setDesktopSize');
+        });
+
+        afterEach(function () {
+            sandbox.restore();
+        });
+
+        it('should keep using CSS pixels by default', function () {
+            expect(client.useNativeDPI).to.be.false;
+            expect(client._canvas.style.width).to.equal('160px');
+            expect(client._canvas.style.height).to.equal('120px');
+        });
+
+        it('should show one remote pixel per device pixel', function () {
+            client.useNativeDPI = true;
+            expect(client._canvas.width).to.equal(160);
+            expect(client._canvas.height).to.equal(120);
+            expect(client._canvas.style.width).to.equal('80px');
+            expect(client._canvas.style.height).to.equal('60px');
+
+            client.useNativeDPI = false;
+            expect(client._canvas.style.width).to.equal('160px');
+            expect(client._canvas.style.height).to.equal('120px');
+        });
+
+        it('should preserve local scaling to fit', function () {
+            client._resize(320, 120);
+            client.scaleViewport = true;
+            client.useNativeDPI = true;
+            expect(client._canvas.style.width).to.equal('80px');
+            expect(client._canvas.style.height).to.equal('30px');
+
+            client.scaleViewport = false;
+            expect(client._canvas.style.width).to.equal('160px');
+            expect(client._canvas.style.height).to.equal('60px');
+        });
+
+        it('should clip using device pixels', function () {
+            client.useNativeDPI = true;
+            client.clipViewport = true;
+            expect(client.clippingViewport).to.be.false;
+            expect(client._canvas.width).to.equal(160);
+            expect(client._canvas.height).to.equal(120);
+
+            client._resize(320, 240);
+            expect(client.clippingViewport).to.be.true;
+            expect(client._canvas.width).to.equal(160);
+            expect(client._canvas.height).to.equal(120);
+            expect(client._canvas.style.width).to.equal('80px');
+
+            client.useNativeDPI = false;
+            expect(client._canvas.width).to.equal(80);
+            expect(client._canvas.height).to.equal(60);
+        });
+
+        it('should map pointer coordinates to remote pixels', function () {
+            sandbox.spy(RFB.messages, 'pointerEvent');
+            client.useNativeDPI = true;
+            sendMouseButtonEvent(20, 15, true, 0x1, client);
+            expect(RFB.messages.pointerEvent).to.have.been.calledWith(
+                client._sock, 40, 30, 0x1);
+        });
+
+        it('should include the clipped viewport offset in pointer events', function () {
+            sandbox.spy(RFB.messages, 'pointerEvent');
+            client.useNativeDPI = true;
+            client.clipViewport = true;
+            client._resize(320, 240);
+            client._display.viewportChangePos(80, 40);
+
+            sendMouseButtonEvent(20, 15, true, 0x1, client);
+            expect(RFB.messages.pointerEvent).to.have.been.calledWith(
+                client._sock, 120, 70, 0x1);
+        });
+
+        it('should pan by the device pixel distance when dragging', function () {
+            client.useNativeDPI = true;
+            client.clipViewport = true;
+            client.dragViewport = true;
+            client._resize(320, 240);
+
+            sendMouseButtonEvent(60, 50, true, 0x1, client);
+            sendMouseMoveEvent(20, 20, 0x1, client);
+            sendMouseButtonEvent(20, 20, false, 0x0, client);
+            expect(client._display._viewportLoc.x).to.equal(80);
+            expect(client._display._viewportLoc.y).to.equal(60);
+        });
+
+        for (const gesture of ['drag', 'longpress']) {
+            it(`should pan by the device pixel distance with ${gesture}`, function () {
+                client.useNativeDPI = true;
+                client.clipViewport = true;
+                client.dragViewport = true;
+                client._resize(320, 240);
+
+                gestureStart(gesture, 60, 50, client);
+                gestureMove(gesture, 20, 20, client);
+                gestureEnd(gesture, 20, 20, client);
+                expect(client._display._viewportLoc.x).to.equal(80);
+                expect(client._display._viewportLoc.y).to.equal(60);
+            });
+        }
+
+        for (const [ratio, width, height] of [
+            [1, 70, 80],
+            [1.25, 87, 100],
+            [1.5, 105, 120],
+            [2, 140, 160],
+            [0.8, 56, 64],
+        ]) {
+            it(`should request device pixel dimensions at a pixel ratio of ${ratio}`, function () {
+                pixelRatio.value(ratio);
+                container.style.width = '70px';
+                container.style.height = '80px';
+                client.useNativeDPI = true;
+                client.resizeSession = true;
+
+                expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
+                expect(RFB.messages.setDesktopSize).to.have.been.calledWith(
+                    client._sock, width, height, 0x7890abcd, 0x12345678);
+            });
+        }
+
+        it('should keep requesting CSS pixel dimensions when disabled', function () {
+            container.style.width = '70px';
+            container.style.height = '80px';
+            client.resizeSession = true;
+            expect(RFB.messages.setDesktopSize).to.have.been.calledWith(
+                client._sock, 70, 80, 0x7890abcd, 0x12345678);
+        });
+
+        it('should resize when toggled on an existing session', function () {
+            client.resizeSession = true;
+            sendExtendedDesktopSize(client, 1, 0, 80, 60,
+                                    0x7890abcd, 0x12345678);
+            clock.tick(1000);
+            RFB.messages.setDesktopSize.resetHistory();
+
+            client.useNativeDPI = true;
+            expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
+            expect(RFB.messages.setDesktopSize).to.have.been.calledWith(
+                client._sock, 160, 120, 0x7890abcd, 0x12345678);
+            sendExtendedDesktopSize(client, 1, 0, 160, 120,
+                                    0x7890abcd, 0x12345678);
+            clock.tick(1000);
+            RFB.messages.setDesktopSize.resetHistory();
+
+            client.useNativeDPI = false;
+            expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
+            expect(RFB.messages.setDesktopSize).to.have.been.calledWith(
+                client._sock, 80, 60, 0x7890abcd, 0x12345678);
+        });
+
+        it('should not derive remote dimensions from local scaling', function () {
+            container.style.width = '70px';
+            container.style.height = '80px';
+            client.scaleViewport = true;
+            client.useNativeDPI = true;
+            client.resizeSession = true;
+            expect(RFB.messages.setDesktopSize).to.have.been.calledWith(
+                client._sock, 140, 160, 0x7890abcd, 0x12345678);
+        });
+
+        it('should not request a resize without remote resizing', function () {
+            client.useNativeDPI = true;
+            expect(RFB.messages.setDesktopSize).to.not.have.been.called;
+        });
+
+        it('should not request a resize from an unsupported server', function () {
+            client._supportsSetDesktopSize = false;
+            client.resizeSession = true;
+            client.useNativeDPI = true;
+            expect(RFB.messages.setDesktopSize).to.not.have.been.called;
+        });
+
+        it('should not request a resize in view only mode', function () {
+            client.viewOnly = true;
+            client.resizeSession = true;
+            client.useNativeDPI = true;
+            expect(RFB.messages.setDesktopSize).to.not.have.been.called;
+        });
+
+        it('should not repeatedly request fractional dimensions', function () {
+            pixelRatio.value(1.25);
+            container.style.width = '70.5px';
+            container.style.height = '80.5px';
+            client.useNativeDPI = true;
+            client.resizeSession = true;
+            expect(RFB.messages.setDesktopSize).to.have.been.calledWith(
+                client._sock, 88, 100, 0x7890abcd, 0x12345678);
+
+            clock.tick(1000);
+            sendExtendedDesktopSize(client, 1, 0, 88, 100,
+                                    0x7890abcd, 0x12345678);
+            fakeResizeObserver.fire();
+            clock.tick(1000);
+            expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
+        });
+
+        it('should apply the latest pixel ratio after a pending resize', function () {
+            client.useNativeDPI = true;
+            client.resizeSession = true;
+            pixelRatio.value(1.5);
+            queries[0].dispatchEvent(new Event('change'));
+            expect(RFB.messages.setDesktopSize).to.have.been.calledWith(
+                client._sock, 120, 90, 0x7890abcd, 0x12345678);
+
+            pixelRatio.value(1.25);
+            queries[1].dispatchEvent(new Event('change'));
+            expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
+
+            clock.tick(1000);
+            sendExtendedDesktopSize(client, 1, 0, 120, 90,
+                                    0x7890abcd, 0x12345678);
+            expect(RFB.messages.setDesktopSize).to.have.been.calledTwice;
+            expect(RFB.messages.setDesktopSize).to.have.been.calledWith(
+                client._sock, 100, 75, 0x7890abcd, 0x12345678);
+        });
+
+        it('should return to CSS pixels after toggling off during a resize', function () {
+            container.style.width = '70px';
+            container.style.height = '50px';
+            client.useNativeDPI = true;
+            client.resizeSession = true;
+            expect(RFB.messages.setDesktopSize).to.have.been.calledWith(
+                client._sock, 140, 100, 0x7890abcd, 0x12345678);
+
+            client.useNativeDPI = false;
+            expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
+            clock.tick(1000);
+            sendExtendedDesktopSize(client, 1, 0, 140, 100,
+                                    0x7890abcd, 0x12345678);
+            expect(RFB.messages.setDesktopSize).to.have.been.calledTwice;
+            expect(RFB.messages.setDesktopSize).to.have.been.calledWith(
+                client._sock, 70, 50, 0x7890abcd, 0x12345678);
+            expect(client._canvas.style.width).to.equal('140px');
+        });
+
+        it('should apply native dimensions when resizing is first advertised', function () {
+            client = makeRFB();
+            container.style.width = '70px';
+            container.style.height = '50px';
+            client.useNativeDPI = true;
+            client.resizeSession = true;
+            expect(RFB.messages.setDesktopSize).to.not.have.been.called;
+
+            sendExtendedDesktopSize(client, 0, 0, 160, 120,
+                                    0x7890abcd, 0x12345678);
+            expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
+            expect(RFB.messages.setDesktopSize).to.have.been.calledWith(
+                client._sock, 140, 100, 0x7890abcd, 0x12345678);
+        });
+
+        it('should update scaling and clipping without a container resize', function () {
+            client.useNativeDPI = true;
+            client.clipViewport = true;
+            client.resizeSession = true;
+            pixelRatio.value(1.5);
+            queries[0].dispatchEvent(new Event('change'));
+
+            expect(client._canvas.width).to.equal(120);
+            expect(client._canvas.height).to.equal(90);
+            expect(client._canvas.style.width).to.equal('80px');
+            expect(client._canvas.style.height).to.equal('60px');
+            expect(RFB.messages.setDesktopSize).to.have.been.calledWith(
+                client._sock, 120, 90, 0x7890abcd, 0x12345678);
+        });
+
+        it('should preserve the default behavior when the pixel ratio changes', function () {
+            client.resizeSession = true;
+            RFB.messages.setDesktopSize.resetHistory();
+            sandbox.spy(client._display, 'autoscale');
+            const scaleSpy = sandbox.spy(client._display, 'scale', ['set']);
+
+            pixelRatio.value(1.5);
+            queries[0].dispatchEvent(new Event('change'));
+            expect(client._display.autoscale).to.not.have.been.called;
+            expect(scaleSpy.set).to.not.have.been.called;
+            expect(RFB.messages.setDesktopSize).to.not.have.been.called;
+        });
+
+        it('should keep watching successive pixel ratio changes', function () {
+            expect(queries[0].media).to.equal('(resolution: 2dppx)');
+            pixelRatio.value(1.5);
+            queries[0].dispatchEvent(new Event('change'));
+            expect(queries[0].removeEventListener).to.have.been.calledWith(
+                'change', client._eventHandlers.handlePixelRatioChange);
+            expect(queries[1].media).to.equal('(resolution: 1.5dppx)');
+
+            pixelRatio.value(1);
+            queries[1].dispatchEvent(new Event('change'));
+            expect(queries[2].media).to.equal('(resolution: 1dppx)');
+            queries[0].dispatchEvent(new Event('change'));
+            expect(queries).to.have.length(3);
+        });
+
+        it('should stop watching the pixel ratio when disconnected', function () {
+            client.disconnect();
+            expect(queries[0].removeEventListener).to.have.been.calledWith(
+                'change', client._eventHandlers.handlePixelRatioChange);
+            queries[0].dispatchEvent(new Event('change'));
+            expect(queries).to.have.length(1);
+        });
+    });
+
     describe('Remote resize', function () {
         let client;
         beforeEach(function () {

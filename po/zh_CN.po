@@ -336,6 +336,17 @@ msgstr "发送凭证"
 msgid "Cancel"
 msgstr "取消"
 
+#: ../vnc.html:240
+msgid "Use native resolution"
+msgstr "使用原生分辨率"
+
+#: ../vnc.html:237
+msgid ""
+"Use device pixels for a sharper image. Text and controls may become "
+"smaller; increase the remote desktop's display scaling first if needed. "
+"Local scaling still fits the desktop to the window."
+msgstr "使用设备像素，让画面更清晰。文字和控件可能变小；如有需要，请先增大远端桌面的显示缩放。“本地缩放”仍会将桌面缩放到窗口大小。"
+
 #~ msgid "Password is required"
 #~ msgstr "请提供密码"
 

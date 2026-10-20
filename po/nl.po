@@ -350,6 +350,21 @@ msgstr "Stuur inloggegevens"
 msgid "Cancel"
 msgstr "Annuleren"
 
+#: ../vnc.html:240
+msgid "Use native resolution"
+msgstr "Native resolutie gebruiken"
+
+#: ../vnc.html:237
+msgid ""
+"Use device pixels for a sharper image. Text and controls may become "
+"smaller; increase the remote desktop's display scaling first if needed. "
+"Local scaling still fits the desktop to the window."
+msgstr ""
+"Gebruik apparaatpixels voor een scherper beeld. Tekst en "
+"bedieningselementen kunnen kleiner worden; verhoog zo nodig eerst de "
+"beeldschermschaal van het externe bureaublad. Lokaal schalen blijft het "
+"bureaublad aan het venster aanpassen."
+
 #~ msgid "Must set host"
 #~ msgstr "Host moeten worden ingesteld"
 

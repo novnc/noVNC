@@ -282,3 +282,18 @@ msgstr "Cancelar"
 #: ../vnc.html:334
 msgid "Canvas not supported."
 msgstr "Canvas no soportado."
+
+#: ../vnc.html:240
+msgid "Use native resolution"
+msgstr "Usar resolución nativa"
+
+#: ../vnc.html:237
+msgid ""
+"Use device pixels for a sharper image. Text and controls may become "
+"smaller; increase the remote desktop's display scaling first if needed. "
+"Local scaling still fits the desktop to the window."
+msgstr ""
+"Utilice los píxeles del dispositivo para obtener una imagen más nítida. "
+"El texto y los controles pueden verse más pequeños; si es necesario, "
+"aumente primero la escala de visualización del escritorio remoto. El "
+"escalado local sigue ajustando el escritorio a la ventana."

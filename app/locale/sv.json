@@ -79,5 +79,7 @@
     "Cancel": "Avbryt",
     "Must set host": "Du måste specifiera en värd",
     "HTTPS is required for full functionality": "HTTPS krävs för full funktionalitet",
-    "Clear": "Rensa"
+    "Clear": "Rensa",
+    "Use native resolution": "Använd ursprunglig upplösning",
+    "Use device pixels for a sharper image. Text and controls may become smaller; increase the remote desktop's display scaling first if needed. Local scaling still fits the desktop to the window.": "Använd enhetspixlar för en skarpare bild. Text och kontroller kan bli mindre; öka vid behov först skärmskalningen på fjärrskrivbordet. Lokal skalning anpassar fortfarande skrivbordet till fönstret."
 }

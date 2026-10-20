@@ -66,5 +66,7 @@
     "Connect": "연결",
     "Password:": "비밀번호:",
     "Send Password": "비밀번호 전송",
-    "Cancel": "취소"
+    "Cancel": "취소",
+    "Use native resolution": "네이티브 해상도 사용",
+    "Use device pixels for a sharper image. Text and controls may become smaller; increase the remote desktop's display scaling first if needed. Local scaling still fits the desktop to the window.": "장치 픽셀을 사용하여 더 선명하게 표시합니다. 글자와 컨트롤이 작아질 수 있으므로 필요한 경우 먼저 원격 데스크톱의 디스플레이 배율을 높이세요. 로컬 스케일링은 계속 데스크톱을 창 크기에 맞춥니다."
 }

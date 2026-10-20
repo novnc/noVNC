@@ -292,3 +292,17 @@ msgstr "Odeslat heslo"
 #: ../vnc.html:312
 msgid "Cancel"
 msgstr "Zrušit"
+
+#: ../vnc.html:240
+msgid "Use native resolution"
+msgstr "Použít nativní rozlišení"
+
+#: ../vnc.html:237
+msgid ""
+"Use device pixels for a sharper image. Text and controls may become "
+"smaller; increase the remote desktop's display scaling first if needed. "
+"Local scaling still fits the desktop to the window."
+msgstr ""
+"Pro ostřejší obraz použijte pixely zařízení. Text a ovládací prvky se "
+"mohou zmenšit; podle potřeby nejprve zvětšete měřítko zobrazení vzdálené "
+"plochy. Místní škálování nadále přizpůsobuje plochu velikosti okna."

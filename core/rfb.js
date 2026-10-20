@@ -169,6 +169,7 @@ export default class RFB extends EventTargetMixin {
         this._keyboard = null;          // Keyboard input handler object
         this._gestures = null;          // Gesture input handler object
         this._resizeObserver = null;    // Resize observer object
+        this._pixelRatioQuery = null;   // Device pixel ratio observer
 
         // Timers
         this._disconnTimer = null;      // disconnection timer
@@ -207,6 +208,7 @@ export default class RFB extends EventTargetMixin {
         this._eventHandlers = {
             focusCanvas: this._focusCanvas.bind(this),
             handleResize: this._handleResize.bind(this),
+            handlePixelRatioChange: this._updatePixelRatio.bind(this),
             handleMouse: this._handleMouse.bind(this),
             handleWheel: this._handleWheel.bind(this),
             handleGesture: this._handleGesture.bind(this),
@@ -303,6 +305,7 @@ export default class RFB extends EventTargetMixin {
         this._clippingViewport = false;
         this._scaleViewport = false;
         this._resizeSession = false;
+        this._useNativeDPI = false;
 
         this._showDotCursor = false;
 
@@ -369,6 +372,18 @@ export default class RFB extends EventTargetMixin {
         if (resize) {
             this._requestRemoteResize();
         }
+    }
+
+    get useNativeDPI() { return this._useNativeDPI; }
+    set useNativeDPI(native) {
+        if (native === this._useNativeDPI) {
+            return;
+        }
+        this._useNativeDPI = native;
+        this._updateClip();
+        this._updateScale();
+        this._saveExpectedClientSize();
+        this._requestRemoteResize();
     }
 
     get showDotCursor() { return this._showDotCursor; }
@@ -586,6 +601,7 @@ export default class RFB extends EventTargetMixin {
 
         // Monitor size changes of the screen element
         this._resizeObserver.observe(this._screen);
+        this._updatePixelRatio();
 
         // Always grab focus on some kind of click event
         this._canvas.addEventListener("mousedown", this._eventHandlers.focusCanvas);
@@ -627,6 +643,11 @@ export default class RFB extends EventTargetMixin {
         this._canvas.removeEventListener("mousedown", this._eventHandlers.focusCanvas);
         this._canvas.removeEventListener("touchstart", this._eventHandlers.focusCanvas);
         this._resizeObserver.disconnect();
+        if (this._pixelRatioQuery !== null) {
+            this._pixelRatioQuery.removeEventListener(
+                'change', this._eventHandlers.handlePixelRatioChange);
+            this._pixelRatioQuery = null;
+        }
         this._keyboard.ungrab();
         this._gestures.detach();
         this._sock.close();
@@ -746,6 +767,26 @@ export default class RFB extends EventTargetMixin {
         this._requestRemoteResize();
     }
 
+    // A monitor change can alter the pixel ratio without resizing the
+    // container. Recreate the query so it also detects subsequent changes.
+    _updatePixelRatio() {
+        if (this._pixelRatioQuery !== null) {
+            this._pixelRatioQuery.removeEventListener(
+                'change', this._eventHandlers.handlePixelRatioChange);
+        }
+        this._pixelRatioQuery = window.matchMedia(
+            `(resolution: ${window.devicePixelRatio}dppx)`);
+        this._pixelRatioQuery.addEventListener(
+            'change', this._eventHandlers.handlePixelRatioChange);
+
+        if (this._useNativeDPI) {
+            this._updateClip();
+            this._updateScale();
+            this._saveExpectedClientSize();
+            this._requestRemoteResize();
+        }
+    }
+
     // Update state of clipping in Display object, and make sure the
     // configured viewport matches the current screen size
     _updateClip() {
@@ -765,6 +806,10 @@ export default class RFB extends EventTargetMixin {
             // When clipping is enabled, the screen is limited to
             // the size of the container.
             const size = this._screenSize();
+            if (this._useNativeDPI) {
+                size.w = Math.floor(size.w * window.devicePixelRatio);
+                size.h = Math.floor(size.h * window.devicePixelRatio);
+            }
             this._display.viewportChangeSize(size.w, size.h);
             this._fixScrollbars();
             this._setClippingViewport(size.w < this._display.width ||
@@ -782,7 +827,8 @@ export default class RFB extends EventTargetMixin {
 
     _updateScale() {
         if (!this._scaleViewport) {
-            this._display.scale = 1.0;
+            this._display.scale = this._useNativeDPI ?
+                1 / window.devicePixelRatio : 1.0;
         } else {
             const size = this._screenSize();
             this._display.autoscale(size.w, size.h);
@@ -818,6 +864,14 @@ export default class RFB extends EventTargetMixin {
         this._resizeTimeout = null;
 
         const size = this._screenSize();
+        if (this._useNativeDPI) {
+            size.w *= window.devicePixelRatio;
+            size.h *= window.devicePixelRatio;
+        }
+        // Compare the same integer dimensions that are sent to the server,
+        // including when the container or pixel ratio is fractional.
+        size.w = Math.floor(size.w);
+        size.h = Math.floor(size.h);
 
         // Do we actually change anything?
         if (size.w === this._fbWidth && size.h === this._fbHeight) {
@@ -827,7 +881,7 @@ export default class RFB extends EventTargetMixin {
         this._pendingRemoteResize = true;
         this._lastResize = Date.now();
         RFB.messages.setDesktopSize(this._sock,
-                                    Math.floor(size.w), Math.floor(size.h),
+                                    size.w, size.h,
                                     this._screenID, this._screenFlags);
 
         Log.Debug('Requested new desktop size: ' +
@@ -1165,7 +1219,9 @@ export default class RFB extends EventTargetMixin {
                         this._viewportHasMoved = true;
 
                         this._viewportDragPos = {'x': pos.x, 'y': pos.y};
-                        this._display.viewportChangePos(deltaX, deltaY);
+                        this._display.viewportChangePos(
+                            deltaX / this._display.scale,
+                            deltaY / this._display.scale);
                     }
 
                     // Skip sending mouse events
@@ -1393,7 +1449,9 @@ export default class RFB extends EventTargetMixin {
                                 this._viewportHasMoved = true;
 
                                 this._viewportDragPos = {'x': pos.x, 'y': pos.y};
-                                this._display.viewportChangePos(deltaX, deltaY);
+                                this._display.viewportChangePos(
+                                    deltaX / this._display.scale,
+                                    deltaY / this._display.scale);
                             }
                         } else {
                             this._fakeMouseMove(ev, pos.x, pos.y);

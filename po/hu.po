@@ -330,3 +330,18 @@ msgstr "Hitelesítő adatok küldése"
 #: ../vnc.html:396
 msgid "Cancel"
 msgstr "Mégse"
+
+#: ../vnc.html:240
+msgid "Use native resolution"
+msgstr "Natív felbontás használata"
+
+#: ../vnc.html:237
+msgid ""
+"Use device pixels for a sharper image. Text and controls may become "
+"smaller; increase the remote desktop's display scaling first if needed. "
+"Local scaling still fits the desktop to the window."
+msgstr ""
+"Az élesebb képhez használja az eszköz képpontjait. A szöveg és a "
+"vezérlőelemek kisebbé válhatnak; szükség esetén előbb növelje a távoli "
+"asztal megjelenítési méretezését. A helyi méretezés továbbra is az "
+"ablakhoz igazítja az asztalt."

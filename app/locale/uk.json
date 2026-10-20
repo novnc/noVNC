@@ -77,5 +77,7 @@
     "Username:": "Користувацьке ім'я:",
     "Password:": "Пароль:",
     "Send credentials": "Надіслати особові дані",
-    "Cancel": "Скасувати"
+    "Cancel": "Скасувати",
+    "Use native resolution": "Використовувати нативну роздільну здатність",
+    "Use device pixels for a sharper image. Text and controls may become smaller; increase the remote desktop's display scaling first if needed. Local scaling still fits the desktop to the window.": "Використовуйте пікселі пристрою для чіткішого зображення. Текст і елементи керування можуть зменшитися; за потреби спочатку збільште масштаб інтерфейсу віддаленої стільниці. Локальне масштабування й надалі підлаштовує стільницю під розмір вікна."
 }
