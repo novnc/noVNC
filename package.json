@@ -12,9 +12,17 @@
     "docs/LIBRARY.md",
     "docs/LICENSE*"
   ],
-  "exports": "./core/rfb.js",
+  "exports": {
+    ".": {
+      "types": "./core/rfb.d.ts",
+      "default": "./core/rfb.js"
+    }
+  },
+  "main": "./core/rfb.js",
+  "types": "./core/rfb.d.ts",
   "scripts": {
     "lint": "eslint app core po/po2js po/xgettext-html tests utils",
+    "lint:types": "tsc --noEmit --project tests/types",
     "test": "karma start karma.conf.cjs"
   },
   "repository": {
@@ -55,7 +63,8 @@
     "mocha": "latest",
     "pofile": "latest",
     "sinon": "latest",
-    "sinon-chai": "latest"
+    "sinon-chai": "latest",
+    "typescript": "latest"
   },
   "dependencies": {},
   "keywords": [
