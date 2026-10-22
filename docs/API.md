@@ -94,7 +94,7 @@ protocol stream.
 
 [`clipboard`](#clipboard)
   - The `clipboard` event is fired when clipboard data is received from
-    the server.
+    the server (only if support for the [Clipboard module](API-internal.md#11-module-list) is not available).
 
 [`clippingviewport`](#clippingviewport)
   - The `clippingviewport` event is fired when `RFB.clippingViewport` is
