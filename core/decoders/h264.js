@@ -196,9 +196,9 @@ export class H264Context {
             }
 
             if (parser.profileIdc !== null) {
-                self._profileIdc = parser.profileIdc;
-                self._constraintSet = parser.constraintSet;
-                self._levelIdc = parser.levelIdc;
+                this._profileIdc = parser.profileIdc;
+                this._constraintSet = parser.constraintSet;
+                this._levelIdc = parser.levelIdc;
             }
 
             if (this._decoder === null || this._decoder.state !== 'configured') {
@@ -206,12 +206,12 @@ export class H264Context {
                     Log.Warn("Missing key frame. Can't decode until one arrives");
                     continue;
                 }
-                if (self._profileIdc === null) {
+                if (this._profileIdc === null) {
                     Log.Warn('Cannot config decoder. Have not received SPS and PPS yet.');
                     continue;
                 }
-                this._configureDecoder(self._profileIdc, self._constraintSet,
-                                       self._levelIdc);
+                this._configureDecoder(this._profileIdc, this._constraintSet,
+                                       this._levelIdc);
             }
 
             result = this._preparePendingFrame(timestamp);
