@@ -4,28 +4,31 @@
  * Licensed under MPL 2.0 or any later version (see LICENSE.txt)
  */
 
-import { supportsCursorURIs, isTouchDevice } from './browser.js';
-
-const useFallback = !supportsCursorURIs || isTouchDevice;
-
 export default class Cursor {
     constructor() {
         this._target = null;
 
+        this._container = document.createElement('div');
+        this._container.style.position = 'fixed';
+        this._container.style.zIndex = '65535';
+        this._container.style.overflow = 'hidden';
+        this._container.style.pointerEvents = 'none';
+
         this._canvas = document.createElement('canvas');
+        this._canvas.style.position = 'absolute';
+        this._canvas.style.pointerEvents = 'none';
+        // Safari on iOS can select the cursor image
+        // https://bugs.webkit.org/show_bug.cgi?id=249223
+        this._canvas.style.userSelect = 'none';
+        this._canvas.style.WebkitUserSelect = 'none';
+        // Can't use "display" because of Firefox bug #1445997
+        this._canvas.style.visibility = 'hidden';
 
-        if (useFallback) {
-            this._canvas.style.position = 'fixed';
-            this._canvas.style.zIndex = '65535';
-            this._canvas.style.pointerEvents = 'none';
-            // Safari on iOS can select the cursor image
-            // https://bugs.webkit.org/show_bug.cgi?id=249223
-            this._canvas.style.userSelect = 'none';
-            this._canvas.style.WebkitUserSelect = 'none';
-            // Can't use "display" because of Firefox bug #1445997
-            this._canvas.style.visibility = 'hidden';
-        }
+        this._container.appendChild(this._canvas);
 
+        // The position is the cursor hotspot in framebuffer canvas
+        // coordinates. Keeping it in the same coordinate system as the
+        // cursor bitmap makes browser pinch zoom irrelevant to positioning.
         this._position = { x: 0, y: 0 };
         this._hotSpot = { x: 0, y: 0 };
 
@@ -34,7 +37,10 @@ export default class Cursor {
             'mouseleave': this._handleMouseLeave.bind(this),
             'mousemove': this._handleMouseMove.bind(this),
             'mouseup': this._handleMouseUp.bind(this),
+            'geometrychange': this._updatePosition.bind(this),
         };
+
+        this._resizeObserver = new ResizeObserver(this._eventHandlers.geometrychange);
     }
 
     attach(target) {
@@ -44,14 +50,24 @@ export default class Cursor {
 
         this._target = target;
 
-        if (useFallback) {
-            document.body.appendChild(this._canvas);
+        document.body.appendChild(this._container);
 
-            const options = { capture: true, passive: true };
-            this._target.addEventListener('mouseover', this._eventHandlers.mouseover, options);
-            this._target.addEventListener('mouseleave', this._eventHandlers.mouseleave, options);
-            this._target.addEventListener('mousemove', this._eventHandlers.mousemove, options);
-            this._target.addEventListener('mouseup', this._eventHandlers.mouseup, options);
+        const options = { capture: true, passive: true };
+        this._target.addEventListener('mouseover', this._eventHandlers.mouseover, options);
+        this._target.addEventListener('mouseleave', this._eventHandlers.mouseleave, options);
+        this._target.addEventListener('mousemove', this._eventHandlers.mousemove, options);
+        this._target.addEventListener('mouseup', this._eventHandlers.mouseup, options);
+
+        // Local scaling changes the canvas's CSS size without changing its
+        // framebuffer dimensions. Recalculate the cursor even if the mouse is
+        // stationary when that happens, or when scrolling or browser zoom
+        // moves the canvas.
+        this._resizeObserver.observe(this._target);
+        window.addEventListener('resize', this._eventHandlers.geometrychange);
+        window.addEventListener('scroll', this._eventHandlers.geometrychange, true);
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', this._eventHandlers.geometrychange);
+            window.visualViewport.addEventListener('scroll', this._eventHandlers.geometrychange);
         }
 
         this.clear();
@@ -62,16 +78,22 @@ export default class Cursor {
             return;
         }
 
-        if (useFallback) {
-            const options = { capture: true, passive: true };
-            this._target.removeEventListener('mouseover', this._eventHandlers.mouseover, options);
-            this._target.removeEventListener('mouseleave', this._eventHandlers.mouseleave, options);
-            this._target.removeEventListener('mousemove', this._eventHandlers.mousemove, options);
-            this._target.removeEventListener('mouseup', this._eventHandlers.mouseup, options);
+        const options = { capture: true, passive: true };
+        this._target.removeEventListener('mouseover', this._eventHandlers.mouseover, options);
+        this._target.removeEventListener('mouseleave', this._eventHandlers.mouseleave, options);
+        this._target.removeEventListener('mousemove', this._eventHandlers.mousemove, options);
+        this._target.removeEventListener('mouseup', this._eventHandlers.mouseup, options);
 
-            if (document.contains(this._canvas)) {
-                document.body.removeChild(this._canvas);
-            }
+        this._resizeObserver.disconnect();
+        window.removeEventListener('resize', this._eventHandlers.geometrychange);
+        window.removeEventListener('scroll', this._eventHandlers.geometrychange, true);
+        if (window.visualViewport) {
+            window.visualViewport.removeEventListener('resize', this._eventHandlers.geometrychange);
+            window.visualViewport.removeEventListener('scroll', this._eventHandlers.geometrychange);
+        }
+
+        if (document.contains(this._container)) {
+            document.body.removeChild(this._container);
         }
 
         this._target = null;
@@ -83,8 +105,6 @@ export default class Cursor {
             return;
         }
 
-        this._position.x = this._position.x + this._hotSpot.x - hotx;
-        this._position.y = this._position.y + this._hotSpot.y - hoty;
         this._hotSpot.x = hotx;
         this._hotSpot.y = hoty;
 
@@ -97,20 +117,15 @@ export default class Cursor {
         ctx.clearRect(0, 0, w, h);
         ctx.putImageData(img, 0, 0);
 
-        if (useFallback) {
-            this._updatePosition();
-        } else {
-            let url = this._canvas.toDataURL();
-            this._target.style.cursor = 'url(' + url + ')' + hotx + ' ' + hoty + ', default';
-        }
+        this._updatePosition();
     }
 
     clear() {
         this._target.style.cursor = 'none';
         this._canvas.width = 0;
         this._canvas.height = 0;
-        this._position.x = this._position.x + this._hotSpot.x;
-        this._position.y = this._position.y + this._hotSpot.y;
+        this._canvas.style.width = '0px';
+        this._canvas.style.height = '0px';
         this._hotSpot.x = 0;
         this._hotSpot.y = 0;
     }
@@ -118,19 +133,7 @@ export default class Cursor {
     // Mouse events might be emulated, this allows
     // moving the cursor in such cases
     move(clientX, clientY) {
-        if (!useFallback) {
-            return;
-        }
-        // clientX/clientY are relative the _visual viewport_,
-        // but our position is relative the _layout viewport_,
-        // so try to compensate when we can
-        if (window.visualViewport) {
-            this._position.x = clientX + window.visualViewport.offsetLeft;
-            this._position.y = clientY + window.visualViewport.offsetTop;
-        } else {
-            this._position.x = clientX;
-            this._position.y = clientY;
-        }
+        this._setPosition(clientX, clientY);
         this._updatePosition();
         let target = document.elementFromPoint(clientX, clientY);
         this._updateVisibility(target);
@@ -151,8 +154,7 @@ export default class Cursor {
     _handleMouseMove(event) {
         this._updateVisibility(event.target);
 
-        this._position.x = event.clientX - this._hotSpot.x;
-        this._position.y = event.clientY - this._hotSpot.y;
+        this._setPosition(event.clientX, event.clientY);
 
         this._updatePosition();
     }
@@ -237,9 +239,43 @@ export default class Cursor {
         }
     }
 
+    _setPosition(clientX, clientY) {
+        const targetRect = this._target.getBoundingClientRect();
+        const scaleX = this._target.width ? targetRect.width / this._target.width : 1;
+        const scaleY = this._target.height ? targetRect.height / this._target.height : 1;
+
+        // Use the same client-to-canvas conversion as noVNC's mouse input.
+        // The visual viewport offset from Android pinch zoom is already
+        // reflected in client coordinates and the target rectangle.
+        this._position.x = scaleX ? (clientX - targetRect.left) / scaleX : 0;
+        this._position.y = scaleY ? (clientY - targetRect.top) / scaleY : 0;
+    }
+
     _updatePosition() {
-        this._canvas.style.left = this._position.x + "px";
-        this._canvas.style.top = this._position.y + "px";
+        if (!this._target) {
+            return;
+        }
+
+        const targetRect = this._target.getBoundingClientRect();
+        const scaleX = this._target.width ? targetRect.width / this._target.width : 1;
+        const scaleY = this._target.height ? targetRect.height / this._target.height : 1;
+        const width = this._canvas.width * scaleX;
+        const height = this._canvas.height * scaleY;
+        const left = (this._position.x - this._hotSpot.x) * scaleX;
+        const top = (this._position.y - this._hotSpot.y) * scaleY;
+
+        // Use the same viewport rectangle for every part of the overlay. In
+        // particular, do not mix offsetLeft/offsetTop layout coordinates with
+        // getBoundingClientRect() coordinates after browser pinch zoom.
+        this._container.style.left = targetRect.left + "px";
+        this._container.style.top = targetRect.top + "px";
+        this._container.style.width = targetRect.width + "px";
+        this._container.style.height = targetRect.height + "px";
+
+        this._canvas.style.width = width + "px";
+        this._canvas.style.height = height + "px";
+        this._canvas.style.left = left + "px";
+        this._canvas.style.top = top + "px";
     }
 
     _captureIsActive() {
