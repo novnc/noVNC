@@ -190,6 +190,7 @@ const UI = {
         UI.initSetting('shared', true);
         UI.initSetting('bell', 'on');
         UI.initSetting('view_only', false);
+        UI.initSetting('warn_before_close', false);
         UI.initSetting('show_dot', false);
         UI.initSetting('path', 'websockify');
         UI.initSetting('repeaterID', '');
@@ -376,6 +377,7 @@ const UI = {
         UI.addSettingChangeHandler('shared');
         UI.addSettingChangeHandler('view_only');
         UI.addSettingChangeHandler('view_only', UI.updateViewOnly);
+        UI.addSettingChangeHandler('warn_before_close');
         UI.addSettingChangeHandler('show_dot');
         UI.addSettingChangeHandler('show_dot', UI.updateShowDotCursor);
         UI.addSettingChangeHandler('keep_device_awake');
@@ -964,6 +966,7 @@ const UI = {
         UI.updateSetting('compression');
         UI.updateSetting('shared');
         UI.updateSetting('view_only');
+        UI.updateSetting('warn_before_close');
         UI.updateSetting('path');
         UI.updateSetting('repeaterID');
         UI.updateSetting('logging');
@@ -1303,8 +1306,10 @@ const UI = {
         // preventDefault() or a nonempty returnValue, though the latter is
         // considered legacy. The custom string is ignored by modern browsers,
         // which display a native message, but older browsers will show it.
-        e.preventDefault();
-        e.returnValue = _("Are you sure you want to disconnect the session?");
+        if (UI.getSetting('warn_before_close')) {
+            e.preventDefault();
+            e.returnValue = _("Are you sure you want to disconnect the session?");
+        }
     },
 
     updateBeforeUnload() {
@@ -1851,6 +1856,7 @@ const UI = {
                 .classList.add('noVNC_hidden');
             document.getElementById('noVNC_clipboard_button')
                 .classList.add('noVNC_hidden');
+            UI.disableSetting('warn_before_close');
         } else {
             document.getElementById('noVNC_keyboard_button')
                 .classList.remove('noVNC_hidden');
@@ -1858,6 +1864,7 @@ const UI = {
                 .classList.remove('noVNC_hidden');
             document.getElementById('noVNC_clipboard_button')
                 .classList.remove('noVNC_hidden');
+            UI.enableSetting('warn_before_close');
         }
     },
 
