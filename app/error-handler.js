@@ -17,6 +17,14 @@ function handleError(event, err) {
             return false;
         }
 
+        // Errors without a location can't come from our own same-origin
+        // scripts, so ignore them. Firefox for iOS triggers this from its
+        // injected password manager script when non-input elements get focus:
+        // https://github.com/mozilla-mobile/firefox-ios/issues/36259
+        if ((event.message === "Script error.") && !event.filename) {
+            return false;
+        }
+
         // Only show the initial error
         if (msg.hasChildNodes()) {
             return false;
