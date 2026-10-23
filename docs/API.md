@@ -33,6 +33,11 @@ protocol stream.
     | -------- | --------- | -----------
     | `power`  | `boolean` | Machine power control is available
 
+`clipboardPasteEnabled`
+  - Is a `boolean` indicating if text from the local clipboard should
+    automatically be sent to the server when the remote session gains
+    focus. Enabled by default.
+
 `clippingViewport` *Read only*
   - Is a `boolean` indicating if the remote session is currently being
     clipped to its container. Only relevant if `clipViewport` is
@@ -163,6 +168,9 @@ protocol stream.
 
 [`RFB.sendKey()`](#rfbsendkey)
   - Send a key event.
+
+[`RFB.sendText()`](#rfbsendtext)
+  - Send ASCII text as a sequence of key events.
 
 [`RFB.toBlob()`](#rfbtoblob)
   - Return the current content of the screen as Blob encoded image file.
@@ -490,6 +498,38 @@ RFB.sendKey(keysym, code, down);
 **`down`** *Optional*
   - A `boolean` specifying if a press or a release event should be
     sent. If omitted then both a press and release event are sent.
+
+#### RFB.sendText()
+
+The `RFB.sendText()` method is used to type text on the remote system
+using a sequence of key events. It uses a US keyboard layout and only
+supports printable ASCII characters, newline, and tab. Only one text
+input operation can be active at a time.
+
+##### Syntax
+
+```js
+await RFB.sendText(text);
+await RFB.sendText(text, options);
+```
+
+###### Parameters
+
+**`text`**
+  - A `DOMString` specifying the text to type.
+
+**`options`** *Optional*
+  - An `Object` containing:
+
+    `delay`
+      - A non-negative number specifying the delay in milliseconds
+        between characters. Defaults to `30`.
+
+    `signal`
+      - An [`AbortSignal`][mdn-abortsignal] that can be used to cancel
+        the operation.
+
+[mdn-abortsignal]: https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal
 
 #### RFB.toBlob()
 
