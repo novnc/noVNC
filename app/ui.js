@@ -196,6 +196,7 @@ const UI = {
         UI.initSetting('reconnect', false);
         UI.initSetting('reconnect_delay', 5000);
         UI.initSetting('keep_device_awake', false);
+        UI.initSetting('ignore_keys', '');
     },
     // Adds a link to the label elements on the corresponding input elements
     setupSettingLabels() {
@@ -388,6 +389,8 @@ const UI = {
         UI.addSettingChangeHandler('logging', UI.updateLogging);
         UI.addSettingChangeHandler('reconnect');
         UI.addSettingChangeHandler('reconnect_delay');
+        UI.addSettingChangeHandler('ignore_keys');
+        UI.addSettingChangeHandler('ignore_keys', UI.validateIgnoreKeysInput);
     },
 
     addFullscreenHandlers() {
@@ -969,6 +972,7 @@ const UI = {
         UI.updateSetting('logging');
         UI.updateSetting('reconnect');
         UI.updateSetting('reconnect_delay');
+        UI.updateSetting('ignore_keys');
 
         document.getElementById('noVNC_settings')
             .classList.add("noVNC_open");
@@ -1165,6 +1169,8 @@ const UI = {
             UI.showStatus(_("Failed to connect to server: ") + exc, 'error');
             return;
         }
+
+        UI.filterIgnoredKeys();
 
         UI.rfb.addEventListener("connect", UI.connectFinished);
         UI.rfb.addEventListener("disconnect", UI.disconnectFinished);
@@ -1666,6 +1672,21 @@ const UI = {
         UI.rfb.sendKey(keysym, code, down);
     },
 
+    // Intercept outgoing key events so that the keys listed in the
+    // "ignore_keys" setting are handled by the browser only, and never
+    // sent to the server
+    filterIgnoredKeys() {
+        const sendKey = UI.rfb.sendKey.bind(UI.rfb);
+
+        UI.rfb.sendKey = (keysym, code, down) => {
+            if (UI.shouldIgnoreKey(code)) {
+                Log.Debug("Ignoring key: " + code);
+                return;
+            }
+            sendKey(keysym, code, down);
+        };
+    },
+
     // When normal keyboard events are left uncought, use the input events from
     // the keyboardinput element instead and generate the corresponding key events.
     // This code is required since some browsers on Android are inconsistent in
@@ -1935,6 +1956,91 @@ const UI = {
         optn.text = text;
         optn.value = value;
         selectbox.options.add(optn);
+    },
+
+    supportedIgnoreKeys: [
+        { label: 'Escape', aliases: ['esc', 'escape'] },
+        { label: 'Tab', aliases: ['tab'] },
+        { label: 'Enter', aliases: ['enter', 'return'] },
+        { label: 'Delete', aliases: ['del', 'delete'] },
+        { label: 'Backspace', aliases: ['bs', 'backspace'] },
+        { label: 'ControlLeft', aliases: ['ctrl', 'ctl', 'controlleft'] },
+        { label: 'AltLeft', aliases: ['alt', 'altleft'] },
+        { label: 'MetaLeft', aliases: ['win', 'cmd', 'super', 'metaleft'] },
+    ],
+
+    parseIgnoredKeys() {
+        const raw = UI.getSetting('ignore_keys');
+        if (!raw) return new Set();
+
+        return new Set(
+            raw.split(',')
+                .map(k => k.trim().toLowerCase())
+                .filter(Boolean)
+        );
+    },
+
+    normalizeIgnoreKey(value) {
+        const normalized = (value || '').trim().toLowerCase();
+        if (!normalized) return '';
+
+        for (const { label, aliases } of UI.supportedIgnoreKeys) {
+            const canonical = label.toLowerCase();
+
+            if (canonical === normalized) {
+                return canonical;
+            }
+
+            for (const alias of aliases) {
+                if (alias.toLowerCase() === normalized) {
+                    return canonical;
+                }
+            }
+        }
+
+        return normalized;
+    },
+
+    shouldIgnoreKey: (code) => {
+        const ignored = UI.parseIgnoredKeys();
+        if (ignored.size === 0) return false;
+
+        const codeCanonical = UI.normalizeIgnoreKey(code);
+        if (!codeCanonical) return false;
+
+        for (const key of ignored) {
+            if (UI.normalizeIgnoreKey(key) === codeCanonical) {
+                return true;
+            }
+        }
+        return false;
+    },
+
+    validateIgnoreKeysInput() {
+        const input = document.getElementById('noVNC_setting_ignore_keys');
+        if (!input) return true;
+
+        const tokens = input.value
+            .split(',')
+            .map(k => k.trim())
+            .filter(Boolean);
+
+        if (tokens.length === 0) {
+            input.classList.remove('noVNC_invalid');
+            return true;
+        }
+
+        const validSet = new Set(
+            UI.supportedIgnoreKeys.map(k => k.label.toLowerCase())
+        );
+
+        const isValid = tokens.every((k) => {
+            const normalized = UI.normalizeIgnoreKey(k);
+            return validSet.has(normalized);
+        });
+
+        input.classList.toggle('noVNC_invalid', !isValid);
+        return isValid;
     },
 
 /* ------^-------
