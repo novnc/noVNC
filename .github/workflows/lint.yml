@@ -10,6 +10,13 @@ jobs:
       - uses: actions/setup-node@v6
       - run: npm update
       - run: npm run lint
+  types:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+      - run: npm update
+      - run: npm run lint:types
   html:
     runs-on: ubuntu-latest
     steps:
