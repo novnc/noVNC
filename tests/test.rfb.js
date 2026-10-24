@@ -2869,6 +2869,25 @@ describe('Remote Frame Buffer protocol client', function () {
                 expect(callback.args[0][0].detail.clean).to.be.false;
             });
 
+            it('should discard a pending display flush if disconnected', async function () {
+                sinon.stub(client._display, 'pending').returns(true);
+                let flushResolve;
+                const flushPromise = new Promise((resolve) => {
+                    flushResolve = resolve;
+                });
+                sinon.stub(client._display, 'flush').returns(flushPromise);
+                client._sock._websocket._receiveData(
+                    new Uint8Array([0, 0, 0, 10, 10])
+                );
+                expect(client._flushing).to.be.true;
+                client.disconnect();
+                sinon.spy(client, '_handleMessage');
+                flushResolve();
+                await flushPromise;
+                expect(client._flushing).to.be.false;
+                expect(client._handleMessage).to.not.have.been.called;
+            });
+
             describe('Message encoding handlers', function () {
                 beforeEach(function () {
                     // a really small frame
