@@ -135,6 +135,14 @@ describe('ZRLE decoder', function () {
         expect(display).to.have.displayed(targetData);
     });
 
+    it('should reject an out-of-range RLE palette index', function () {
+        decoder._inflator = { inflate: () => new Uint8Array([2]) };
+        decoder._readPixels = () => new Uint8Array(8);
+
+        expect(() => decoder._decodeRLEPaletteTile(2, 1))
+            .to.throw('Too big index in palette: 2, palette size: 2');
+    });
+
     it('should fail on an invalid subencoding', function () {
         let data = [0x00, 0x00, 0x00, 0x0c, 0x78, 0x5e, 0x6a, 0x64, 0x60, 0xf8, 0x0f, 0x00, 0x00, 0x00, 0xff, 0xff];
         expect(() => testDecodeRect(decoder, 0, 0, 4, 4, data, display, 24)).to.throw();
