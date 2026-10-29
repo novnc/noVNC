@@ -5,7 +5,8 @@
     android:orientation="vertical"
     android:background="@drawable/bg_card"
     android:padding="16dp"
-    android:layout_marginBottom="12dp">
+    android:layout_marginBottom="12dp"
+    android:elevation="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,124 +14,129 @@
         android:orientation="horizontal"
         android:gravity="center_vertical">
 
-        <!-- Host/Display icon -->
-        <TextView
-            android:layout_width="38dp"
-            android:layout_height="38dp"
-            android:background="@drawable/bg_button_secondary"
-            android:text="🖥"
-            android:textSize="18sp"
-            android:gravity="center"
-            android:layout_marginEnd="12dp" />
+        <FrameLayout
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:background="@drawable/bg_pill"
+            android:layout_marginEnd="12dp">
+            <ImageView
+                android:id="@+id/iv_profile_icon"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_server"
+                android:contentDescription="" />
+        </FrameLayout>
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical">
-
             <TextView
                 android:id="@+id/tv_profile_name"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Server Profile"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@color/text_primary" />
-
+                android:textColor="@color/text_primary"
+                android:maxLines="1"
+                android:ellipsize="end" />
             <TextView
                 android:id="@+id/tv_profile_endpoint"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="192.168.1.100:6080/websockify"
                 android:textSize="13sp"
                 android:textColor="@color/text_secondary"
-                android:layout_marginTop="2dp" />
+                android:layout_marginTop="3dp"
+                android:maxLines="1"
+                android:ellipsize="middle" />
         </LinearLayout>
 
-        <!-- Connect Action Button -->
         <Button
             android:id="@+id/btn_profile_connect"
             android:layout_width="wrap_content"
-            android:layout_height="38dp"
+            android:layout_height="48dp"
+            android:minWidth="112dp"
             android:text="Connect"
             android:textSize="13sp"
             android:textColor="@color/on_primary"
             android:textStyle="bold"
+            android:drawableEnd="@drawable/ic_connect"
+            android:drawableTint="@color/on_primary"
+            android:drawablePadding="6dp"
             android:background="@drawable/bg_button_primary"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp" />
+            android:paddingStart="14dp"
+            android:paddingEnd="12dp"
+            android:layout_marginStart="8dp" />
     </LinearLayout>
 
-    <!-- Badges & Action Buttons row -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider"
+        android:layout_marginTop="14dp"
+        android:layout_marginBottom="10dp" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginTop="12dp">
+        android:gravity="center_vertical">
 
-        <!-- Badges -->
-        <LinearLayout
-            android:id="@+id/layout_badges"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/badge_protocol"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="WS"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:textColor="@color/primary"
-                android:background="@drawable/bg_pill"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:paddingTop="3dp"
-                android:paddingBottom="3dp"
-                android:layout_marginEnd="6dp" />
-
-            <TextView
-                android:id="@+id/badge_mode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Trackpad"
-                android:textSize="10sp"
-                android:textColor="@color/text_secondary"
-                android:background="@drawable/bg_pill"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:paddingTop="3dp"
-                android:paddingBottom="3dp"
-                android:layout_marginEnd="6dp" />
-        </LinearLayout>
-
-        <!-- Edit & Delete buttons -->
-        <Button
-            android:id="@+id/btn_profile_edit"
+        <TextView
+            android:id="@+id/badge_protocol"
             android:layout_width="wrap_content"
             android:layout_height="32dp"
-            android:text="Edit"
-            android:textSize="12sp"
-            android:textColor="@color/text_primary"
-            android:background="@drawable/bg_button_secondary"
-            android:paddingLeft="12dp"
-            android:paddingRight="12dp"
+            android:gravity="center"
+            android:text="WSS"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary"
+            android:background="@drawable/bg_pill"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
             android:layout_marginEnd="6dp" />
 
-        <Button
-            android:id="@+id/btn_profile_delete"
+        <TextView
+            android:id="@+id/badge_mode"
             android:layout_width="wrap_content"
             android:layout_height="32dp"
-            android:text="Delete"
-            android:textSize="12sp"
-            android:textColor="@color/accent_error"
-            android:background="@drawable/bg_button_danger"
-            android:paddingLeft="12dp"
-            android:paddingRight="12dp" />
-    </LinearLayout>
+            android:gravity="center"
+            android:text="Trackpad"
+            android:textSize="11sp"
+            android:textColor="@color/text_secondary"
+            android:background="@drawable/bg_pill"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:layout_marginEnd="6dp" />
 
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <ImageButton
+            android:id="@+id/btn_profile_edit"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_button_secondary"
+            android:src="@drawable/ic_edit"
+            android:tint="@color/text_secondary"
+            android:padding="12dp"
+            android:contentDescription="Edit profile"
+            android:layout_marginEnd="8dp" />
+
+        <ImageButton
+            android:id="@+id/btn_profile_delete"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_button_danger"
+            android:src="@drawable/ic_delete"
+            android:tint="@color/accent_error"
+            android:padding="12dp"
+            android:contentDescription="Delete profile" />
+    </LinearLayout>
 </LinearLayout>

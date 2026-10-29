@@ -2,14 +2,14 @@
 
 A native Android client application built from the **noVNC** HTML5/RFB codebase, engineered for mobile usability using modern Native Android and Custom Components.
 
-**Current version: 1.3.13** — Fixed noVNC Menu Button Position: The floating `⚡ noVNC` menu button is now locked in its fixed default location (bottom-right corner) with no option to move or drag it. Removed touch-drag tracking to prevent accidental displacements, and ensured it stays fixed in place without jumping across the screen when typing.
+**Current version: 1.3.14** — Light blue-accent reference redesign for the connection manager, saved profiles, profile editor, and clipboard dialog. Replaced UI emoji/pictogram icons with matching native vector drawables. Kept existing app functionality and omitted unsupported reference-only elements.
 
 ---
 
 ## 🌐 Live Download Portal & Cloudflare Tunnel
 
-Download Landing Page: **[https://tommy-animation-recall-raised.trycloudflare.com](https://tommy-animation-recall-raised.trycloudflare.com)**  
-Direct APK Download: **[https://tommy-animation-recall-raised.trycloudflare.com/novnc-android-client.apk](https://tommy-animation-recall-raised.trycloudflare.com/novnc-android-client.apk)**
+Download Landing Page: **[https://pharmaceutical-practitioners-pottery-soldier.trycloudflare.com](https://pharmaceutical-practitioners-pottery-soldier.trycloudflare.com)**  
+Direct APK Download: **[https://pharmaceutical-practitioners-pottery-soldier.trycloudflare.com/novnc-android-client.apk](https://pharmaceutical-practitioners-pottery-soldier.trycloudflare.com/novnc-android-client.apk)**
 
 Includes dynamic QR code scanning for phones, step-by-step installation instructions, and SHA-256 verification.
 

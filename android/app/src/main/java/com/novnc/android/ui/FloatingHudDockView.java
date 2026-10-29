@@ -2,12 +2,15 @@ package com.novnc.android.ui;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -62,7 +65,7 @@ public class FloatingHudDockView extends FrameLayout {
         pillButton = new LinearLayout(context);
         pillButton.setOrientation(LinearLayout.HORIZONTAL);
         pillButton.setGravity(Gravity.CENTER_VERTICAL);
-        pillButton.setBackgroundResource(R.drawable.bg_pill);
+        pillButton.setBackgroundResource(R.drawable.bg_card);
         pillButton.setElevation(dpToPx(6));
         pillButton.setClickable(true);
         pillButton.setFocusable(true);
@@ -77,10 +80,17 @@ public class FloatingHudDockView extends FrameLayout {
         );
         pillButton.setLayoutParams(lpPill);
 
+        ImageView pillMark = new ImageView(context);
+        pillMark.setImageResource(R.drawable.ic_bolt);
+        pillMark.setColorFilter(Color.parseColor("#EAA817"), PorterDuff.Mode.SRC_IN);
+        LinearLayout.LayoutParams markLp = new LinearLayout.LayoutParams(dpToPx(22), dpToPx(22));
+        markLp.setMarginEnd(dpToPx(7));
+        pillButton.addView(pillMark, markLp);
+
         tvPillLabel = new TextView(context);
-        tvPillLabel.setText("⚡ noVNC");
-        tvPillLabel.setTextColor(Color.WHITE);
-        tvPillLabel.setTextSize(13);
+        tvPillLabel.setText("noVNC");
+        tvPillLabel.setTextColor(Color.parseColor("#16243A"));
+        tvPillLabel.setTextSize(14);
         tvPillLabel.setTypeface(null, android.graphics.Typeface.BOLD);
         pillButton.addView(tvPillLabel);
 
@@ -104,83 +114,47 @@ public class FloatingHudDockView extends FrameLayout {
         int padM = dpToPx(4);
         layoutExpandedMenu.setPadding(padM, padM, padM, padM);
 
-        // Leading pill in expanded menu to collapse back
-        Button btnCollapseHead = new Button(context);
-        btnCollapseHead.setText("⚡ noVNC ✕");
-        btnCollapseHead.setTextSize(12);
-        btnCollapseHead.setTextColor(Color.WHITE);
-        btnCollapseHead.setBackgroundResource(R.drawable.bg_button_secondary);
-        LinearLayout.LayoutParams lpH = new LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            dpToPx(36)
-        );
-        lpH.setMargins(dpToPx(3), 0, dpToPx(3), 0);
-        btnCollapseHead.setLayoutParams(lpH);
-        btnCollapseHead.setPadding(dpToPx(10), 0, dpToPx(10), 0);
+        // Leading compact brand mark collapses the menu
+        ImageButton btnCollapseHead = createIconButton(R.drawable.ic_bolt, "Collapse menu", false);
+        btnCollapseHead.setColorFilter(Color.parseColor("#EAA817"), PorterDuff.Mode.SRC_IN);
         btnCollapseHead.setOnClickListener(v -> collapse());
         layoutExpandedMenu.addView(btnCollapseHead);
 
         // Add action buttons to expanded menu
-        layoutExpandedMenu.addView(createMenuButton("⌨ Keyboard", () -> {
+        layoutExpandedMenu.addView(createMenuButton(R.drawable.ic_keyboard, "Keyboard", () -> {
             if (listener != null) listener.onToggleQuickKeyboard();
         }));
-
-        layoutExpandedMenu.addView(createMenuButton("🎛 Keys", () -> {
+        layoutExpandedMenu.addView(createMenuButton(R.drawable.ic_settings, "Keys", () -> {
             if (listener != null) listener.onToggleExtendedKeys();
         }));
 
-        btnMouseMode = createMenuButton("🖱 Mouse Mode", () -> {
+        btnMouseMode = createMenuButton(R.drawable.ic_mouse, "Trackpad", () -> {
             if (listener != null) listener.onToggleMouseMode();
         });
         layoutExpandedMenu.addView(btnMouseMode);
-
-        layoutExpandedMenu.addView(createMenuButton("🔲 Scale/Fit", () -> {
+        layoutExpandedMenu.addView(createMenuButton(R.drawable.ic_scale, "Scale/Fit", () -> {
             if (listener != null) listener.onToggleScaleMode();
         }));
-
-        layoutExpandedMenu.addView(createMenuButton("📋 Clipboard", () -> {
+        layoutExpandedMenu.addView(createMenuButton(R.drawable.ic_clipboard, "Clipboard", () -> {
             if (listener != null) listener.onOpenClipboard();
         }));
-
-        layoutExpandedMenu.addView(createMenuButton("⚡ CAD", () -> {
+        layoutExpandedMenu.addView(createMenuButton(R.drawable.ic_cad, "Ctrl Alt Delete", () -> {
             if (listener != null) listener.onSendCtrlAltDel();
         }));
-
-        layoutExpandedMenu.addView(createMenuButton("⚙ Settings", () -> {
+        layoutExpandedMenu.addView(createMenuButton(R.drawable.ic_settings, "Settings", () -> {
             if (listener != null) listener.onOpenSettings();
         }));
 
-        // Disconnect button
-        Button btnDisc = new Button(context);
-        btnDisc.setText("🚪 Disconnect");
-        btnDisc.setTextSize(12);
-        btnDisc.setTextColor(Color.parseColor("#f85149"));
-        btnDisc.setBackgroundResource(R.drawable.bg_button_danger);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            dpToPx(36)
-        );
-        lp.setMargins(dpToPx(3), 0, dpToPx(3), 0);
-        btnDisc.setLayoutParams(lp);
-        btnDisc.setPadding(dpToPx(12), 0, dpToPx(12), 0);
+        Button btnDisc = createMenuButton(R.drawable.ic_close, "Disconnect", () -> {
+            if (listener != null) listener.onDisconnect();
+        });
         btnDisc.setOnClickListener(v -> {
             collapse();
             if (listener != null) listener.onDisconnect();
         });
         layoutExpandedMenu.addView(btnDisc);
 
-        // Trailing close button
-        Button btnClose = new Button(context);
-        btnClose.setText("✕");
-        btnClose.setTextSize(14);
-        btnClose.setTextColor(Color.WHITE);
-        btnClose.setBackgroundResource(R.drawable.bg_button_secondary);
-        LinearLayout.LayoutParams lpClose = new LinearLayout.LayoutParams(
-            dpToPx(36),
-            dpToPx(36)
-        );
-        lpClose.setMargins(dpToPx(3), 0, dpToPx(3), 0);
-        btnClose.setLayoutParams(lpClose);
+        ImageButton btnClose = createIconButton(R.drawable.ic_close, "Close menu", false);
         btnClose.setOnClickListener(v -> collapse());
         layoutExpandedMenu.addView(btnClose);
 
@@ -193,24 +167,42 @@ public class FloatingHudDockView extends FrameLayout {
         pillButton.setOnClickListener(v -> expand());
     }
 
-    private Button createMenuButton(String label, Runnable action) {
+    private Button createMenuButton(int iconRes, String label, Runnable action) {
         Button btn = new Button(getContext());
         btn.setText(label);
         btn.setTextSize(12);
-        btn.setTextColor(Color.WHITE);
+        btn.setTextColor(Color.parseColor("#24344D"));
+        btn.setAllCaps(false);
         btn.setBackgroundResource(R.drawable.bg_button_secondary);
+        btn.setCompoundDrawablesWithIntrinsicBounds(iconRes, 0, 0, 0);
+        btn.setCompoundDrawableTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#2164F3")));
+        btn.setCompoundDrawablePadding(dpToPx(6));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT,
-            dpToPx(36)
+            dpToPx(44)
         );
         lp.setMargins(dpToPx(3), 0, dpToPx(3), 0);
         btn.setLayoutParams(lp);
-        btn.setPadding(dpToPx(12), 0, dpToPx(12), 0);
+        btn.setPadding(dpToPx(10), 0, dpToPx(10), 0);
+        btn.setContentDescription(label);
         btn.setOnClickListener(v -> {
             collapse();
             if (action != null) action.run();
         });
         return btn;
+    }
+
+    private ImageButton createIconButton(int iconRes, String description, boolean danger) {
+        ImageButton button = new ImageButton(getContext());
+        button.setImageResource(iconRes);
+        button.setColorFilter(danger ? Color.parseColor("#BE3A46") : Color.parseColor("#52647E"), PorterDuff.Mode.SRC_IN);
+        button.setBackgroundResource(danger ? R.drawable.bg_button_danger : R.drawable.bg_button_secondary);
+        button.setContentDescription(description);
+        button.setPadding(dpToPx(11), dpToPx(11), dpToPx(11), dpToPx(11));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dpToPx(44), dpToPx(44));
+        lp.setMargins(dpToPx(3), 0, dpToPx(3), 0);
+        button.setLayoutParams(lp);
+        return button;
     }
 
     public void expand() {
@@ -258,7 +250,9 @@ public class FloatingHudDockView extends FrameLayout {
 
     public void setMouseMode(boolean trackpad) {
         if (btnMouseMode != null) {
-            btnMouseMode.setText(trackpad ? "🖱 Mouse Mode" : "👆 Direct Touch");
+            btnMouseMode.setText(trackpad ? "Trackpad" : "Direct Touch");
+            btnMouseMode.setCompoundDrawablesWithIntrinsicBounds(trackpad ? R.drawable.ic_mouse : R.drawable.ic_touch, 0, 0, 0);
+            btnMouseMode.setContentDescription(trackpad ? "Trackpad mode; tap to switch to direct touch" : "Direct touch mode; tap to switch to trackpad");
         }
     }
 

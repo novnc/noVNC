@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -180,13 +181,25 @@ public class MainActivity extends Activity {
             TextView badgeProto = itemView.findViewById(R.id.badge_protocol);
             TextView badgeMode = itemView.findViewById(R.id.badge_mode);
             Button btnConnect = itemView.findViewById(R.id.btn_profile_connect);
-            Button btnEdit = itemView.findViewById(R.id.btn_profile_edit);
-            Button btnDelete = itemView.findViewById(R.id.btn_profile_delete);
+            View btnEdit = itemView.findViewById(R.id.btn_profile_edit);
+            View btnDelete = itemView.findViewById(R.id.btn_profile_delete);
+            View statusDot = itemView.findViewById(R.id.view_profile_status_dot);
+            ImageView profileIcon = itemView.findViewById(R.id.iv_profile_icon);
 
             tvName.setText(profile.getName());
             tvEndpoint.setText(profile.getEndpointString());
             badgeProto.setText(profile.isSsl() ? "WSS" : "WS");
             badgeMode.setText(profile.isTrackpadMode() ? "Trackpad" : "Direct Touch");
+            boolean recentlyConnected = profile.getLastConnected() > 0;
+            if (statusDot != null) {
+                statusDot.setBackgroundResource(recentlyConnected
+                        ? R.drawable.bg_status_online : R.drawable.bg_status_idle);
+                statusDot.setContentDescription(recentlyConnected ? "Recently connected" : "Not connected");
+            }
+            if (profileIcon != null) {
+                profileIcon.setColorFilter(getColor(recentlyConnected
+                        ? R.color.accent_green : R.color.primary));
+            }
 
             btnConnect.setOnClickListener(v -> {
                 profile.setLastConnected(System.currentTimeMillis());

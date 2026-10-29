@@ -16,14 +16,16 @@
         android:background="@color/bg_surface"
         android:elevation="4dp">
 
-        <Button
+        <ImageButton
             android:id="@+id/btn_settings_back"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:text="←"
-            android:textSize="20sp"
-            android:textColor="@color/text_primary"
-            android:background="@drawable/bg_button_secondary" />
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_connect"
+            android:rotation="180"
+            android:padding="12dp"
+            android:tint="@color/text_secondary"
+            android:contentDescription="Back"
+            android:background="@android:color/transparent" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -56,14 +58,27 @@
                 android:padding="18dp"
                 android:layout_marginBottom="16dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="🖱 Mouse &amp; Trackpad Speed"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/primary"
-                    android:layout_marginBottom="4dp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="6dp">
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/ic_mouse"
+                        android:tint="@color/primary"
+                        android:contentDescription="" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp"
+                        android:text="Mouse &amp; Trackpad Speed"
+                        android:textSize="17sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary" />
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -229,14 +244,27 @@
                 android:padding="18dp"
                 android:layout_marginBottom="16dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="🖥 Default Session Preferences"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/primary"
-                    android:layout_marginBottom="4dp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="6dp">
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/ic_windows"
+                        android:tint="@color/primary"
+                        android:contentDescription="" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp"
+                        android:text="Default Session Preferences"
+                        android:textSize="17sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary" />
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -384,10 +412,13 @@
                 <Button
                     android:id="@+id/btn_settings_reset_defaults"
                     android:layout_width="match_parent"
-                    android:layout_height="44dp"
-                    android:text="↺ Reset All Settings to Defaults"
+                    android:layout_height="48dp"
+                    android:text="Reset All Settings to Defaults"
                     android:textSize="13sp"
                     android:textColor="@color/accent_warning"
+                    android:drawableStart="@drawable/ic_reset"
+                    android:drawableTint="@color/accent_warning"
+                    android:drawablePadding="8dp"
                     android:background="@drawable/bg_button_secondary" />
             </LinearLayout>
 

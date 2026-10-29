@@ -167,7 +167,7 @@ public class VirtualTrackpadView extends View implements Runnable {
 
         ripplePaint.setStyle(Paint.Style.STROKE);
         ripplePaint.setStrokeWidth(3.5f * density);
-        ripplePaint.setColor(Color.parseColor("#58a6ff"));
+        ripplePaint.setColor(Color.parseColor("#2164F3"));
     }
 
     public void setTrackpadListener(TrackpadListener listener) {
@@ -550,7 +550,7 @@ public class VirtualTrackpadView extends View implements Runnable {
             long now = SystemClock.uptimeMillis();
             if (isZoomed && (now - lastTwoFingerTapTime < DOUBLE_TAP_MS)) {
                 // Double tap with 2 fingers resets zoom to fit (1.0x)
-                feedback(Color.parseColor("#58a6ff"));
+                feedback(Color.parseColor("#2164F3"));
                 if (listener != null) listener.onResetZoom();
                 lastTwoFingerTapTime = 0;
             } else {
@@ -592,7 +592,7 @@ public class VirtualTrackpadView extends View implements Runnable {
             float ny = Math.max(0f, Math.min(1f, y / Math.max(1, getHeight())));
 
             if (!moved && !suppressUp && duration < TAP_MAX_MS) {
-                feedback(Color.parseColor("#58a6ff"));
+                feedback(Color.parseColor("#2164F3"));
                 if (listener != null) {
                     listener.onDirectTouchTap(nx, ny, 1);
                 }
@@ -612,7 +612,7 @@ public class VirtualTrackpadView extends View implements Runnable {
         if (dragging) {
             dragging = false;
             if (!dragMoved) {
-                feedback(Color.parseColor("#58a6ff"));
+                feedback(Color.parseColor("#2164F3"));
             }
             if (listener != null) listener.onButtonRelease();
             lastTapTime = 0;
@@ -620,7 +620,7 @@ public class VirtualTrackpadView extends View implements Runnable {
         }
 
         if (!moved && !suppressUp && duration < TAP_MAX_MS) {
-            feedback(Color.parseColor("#58a6ff"));
+            feedback(Color.parseColor("#2164F3"));
             if (listener != null) listener.onClick(1, 1);
             lastTapTime = SystemClock.uptimeMillis();
             lastTapX = event.getX();

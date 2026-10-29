@@ -58,7 +58,7 @@ public class ExtendedKeyboardView extends LinearLayout {
 
     private void init(Context context) {
         setOrientation(VERTICAL);
-        setBackgroundColor(Color.parseColor("#EE161b22"));
+        setBackgroundResource(R.drawable.bg_keyboard_panel);
         int pad = dpToPx(6);
         setPadding(pad, pad, pad, pad);
 
@@ -90,10 +90,10 @@ public class ExtendedKeyboardView extends LinearLayout {
         });
         row1.addView(btnCad);
 
-        Button btnText = createSpecialButton(context, "⌨ Send Text", this::showTextInputDialog);
+        Button btnText = createSpecialButton(context, "Send Text", this::showTextInputDialog);
         row1.addView(btnText);
 
-        Button btnClose = createSpecialButton(context, "✕", () -> {
+        Button btnClose = createSpecialButton(context, "Close", () -> {
             if (listener != null) listener.onCloseRequested();
         });
         row1.addView(btnClose);
@@ -140,7 +140,7 @@ public class ExtendedKeyboardView extends LinearLayout {
         Button btn = new Button(context);
         btn.setText(label);
         btn.setTextSize(12);
-        btn.setTextColor(Color.WHITE);
+        btn.setTextColor(Color.parseColor("#24344D"));
         btn.setBackgroundResource(R.drawable.bg_key_button);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -177,7 +177,7 @@ public class ExtendedKeyboardView extends LinearLayout {
         Button btn = new Button(context);
         btn.setText(label);
         btn.setTextSize(12);
-        btn.setTextColor(Color.WHITE);
+        btn.setTextColor(Color.parseColor("#24344D"));
         btn.setBackgroundResource(R.drawable.bg_key_button);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -205,7 +205,7 @@ public class ExtendedKeyboardView extends LinearLayout {
         Button btn = new Button(context);
         btn.setText(label);
         btn.setTextSize(12);
-        btn.setTextColor(Color.parseColor("#58a6ff"));
+        btn.setTextColor(Color.parseColor("#2164F3"));
         btn.setBackgroundResource(R.drawable.bg_key_button);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -253,7 +253,7 @@ public class ExtendedKeyboardView extends LinearLayout {
 
         final EditText input = new EditText(context);
         input.setHint("Type text or shell command...");
-        input.setTextColor(Color.WHITE);
+        input.setTextColor(Color.parseColor("#16243A"));
         input.setHintTextColor(Color.GRAY);
         input.setBackgroundResource(R.drawable.bg_edittext);
         int pad = dpToPx(12);

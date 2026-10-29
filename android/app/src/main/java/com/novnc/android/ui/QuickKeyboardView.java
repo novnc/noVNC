@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
 import com.novnc.android.R;
@@ -83,8 +84,8 @@ public class QuickKeyboardView extends LinearLayout {
 
         inputField = new RemoteInputEditText(context);
         inputField.setHint("Type here to send to the remote desktop…");
-        inputField.setHintTextColor(Color.parseColor("#6e7681"));
-        inputField.setTextColor(Color.WHITE);
+        inputField.setHintTextColor(Color.parseColor("#71819A"));
+        inputField.setTextColor(Color.parseColor("#16243A"));
         inputField.setTextSize(14);
         inputField.setBackgroundResource(R.drawable.bg_edittext);
         inputField.setPadding(dp(12), dp(8), dp(12), dp(8));
@@ -95,27 +96,27 @@ public class QuickKeyboardView extends LinearLayout {
         inputRow.addView(inputField);
 
         Button cadButton = new Button(context);
-        cadButton.setText("⏻");
-        cadButton.setTextSize(16);
-        cadButton.setTextColor(Color.WHITE);
+        cadButton.setText("Ctrl\nAlt\nDel");
+        cadButton.setTextSize(9);
+        cadButton.setTextColor(Color.parseColor("#52647E"));
         cadButton.setBackgroundResource(R.drawable.bg_button_secondary);
         cadButton.setPadding(0, 0, 0, 0);
-        LinearLayout.LayoutParams cadLp = new LinearLayout.LayoutParams(dp(44), dp(40));
-        cadLp.setMargins(dp(6), 0, 0, 0);
+        LinearLayout.LayoutParams cadLp = new LinearLayout.LayoutParams(dp(48), dp(48));
+        cadLp.setMargins(dp(8), 0, 0, 0);
         cadButton.setLayoutParams(cadLp);
         cadButton.setOnClickListener(v -> {
             if (listener != null) listener.onCtrlAltDel();
         });
         inputRow.addView(cadButton);
 
-        Button hideButton = new Button(context);
-        hideButton.setText("⌄");
-        hideButton.setTextSize(16);
-        hideButton.setTextColor(Color.WHITE);
+        ImageButton hideButton = new ImageButton(context);
+        hideButton.setImageResource(R.drawable.ic_close);
+        hideButton.setColorFilter(Color.parseColor("#52647E"));
+        hideButton.setContentDescription("Hide keyboard");
         hideButton.setBackgroundResource(R.drawable.bg_button_secondary);
-        hideButton.setPadding(0, 0, 0, 0);
-        LinearLayout.LayoutParams hideLp = new LinearLayout.LayoutParams(dp(44), dp(40));
-        hideLp.setMargins(dp(6), 0, 0, 0);
+        hideButton.setPadding(dp(12), dp(12), dp(12), dp(12));
+        LinearLayout.LayoutParams hideLp = new LinearLayout.LayoutParams(dp(48), dp(48));
+        hideLp.setMargins(dp(8), 0, 0, 0);
         hideButton.setLayoutParams(hideLp);
         hideButton.setOnClickListener(v -> {
             if (listener != null) listener.onHideRequested();
@@ -241,14 +242,14 @@ public class QuickKeyboardView extends LinearLayout {
         Button b = new Button(getContext());
         b.setText(label);
         b.setTextSize(12);
-        b.setTextColor(Color.WHITE);
+        b.setTextColor(Color.parseColor("#24344D"));
         b.setBackgroundResource(R.drawable.bg_key_button);
         b.setGravity(Gravity.CENTER);
-        b.setMinWidth(dp(38));
-        b.setMinimumWidth(dp(38));
+        b.setMinWidth(dp(48));
+        b.setMinimumWidth(dp(48));
         b.setPadding(dp(10), 0, dp(10), 0);
         LinearLayout.LayoutParams lp =
-                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(38));
+                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(48));
         lp.setMargins(dp(3), 0, dp(3), 0);
         b.setLayoutParams(lp);
         return b;

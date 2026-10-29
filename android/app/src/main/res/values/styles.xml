@@ -8,7 +8,7 @@
         <item name="android:textColorSecondary">@color/text_secondary</item>
         <item name="android:navigationBarColor">@color/bg_dark</item>
         <item name="android:statusBarColor">@color/bg_dark</item>
-        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <!-- Fullscreen Immersive Theme for VncViewerActivity -->

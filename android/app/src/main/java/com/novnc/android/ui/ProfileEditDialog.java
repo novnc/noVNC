@@ -138,6 +138,7 @@ public class ProfileEditDialog {
         dialog.show();
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
             int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
             int maxDialogWidth = (int) (context.getResources().getDisplayMetrics().density * 480);
             int width = Math.min((int) (screenWidth * 0.92f), maxDialogWidth);
