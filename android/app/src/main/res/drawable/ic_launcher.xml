@@ -1,0 +1,33 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Background rounded square -->
+    <path
+        android:fillColor="#161b22"
+        android:pathData="M18,12 L90,12 A6,6 0,0,1 96,18 L96,90 A6,6 0,0,1 90,96 L18,96 A6,6 0,0,1 12,90 L12,18 A6,6 0,0,1 18,12 Z" />
+    
+    <!-- Outer screen border -->
+    <path
+        android:strokeColor="#58a6ff"
+        android:strokeWidth="3.5"
+        android:fillColor="#00000000"
+        android:pathData="M26,26 L82,26 A4,4 0,0,1 86,30 L86,70 A4,4 0,0,1 82,74 L26,74 A4,4 0,0,1 22,70 L22,30 A4,4 0,0,1 26,26 Z" />
+        
+    <!-- Monitor stand -->
+    <path
+        android:fillColor="#58a6ff"
+        android:pathData="M50,74 L58,74 L62,84 L46,84 Z" />
+    <path
+        android:strokeColor="#58a6ff"
+        android:strokeWidth="3.5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M40,84 L68,84" />
+        
+    <!-- VNC connection lightning / cursor motif in center -->
+    <path
+        android:fillColor="#3fb950"
+        android:pathData="M56,34 L40,52 L52,52 L46,66 L64,46 L52,46 Z" />
+</vector>

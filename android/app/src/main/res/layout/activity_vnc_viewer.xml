@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_viewer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+
+    <!-- WebView Container -->
+    <WebView
+        android:id="@+id/webview_vnc"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="0dp" />
+
+    <!-- Virtual Trackpad Touch Overlay View -->
+    <com.novnc.android.ui.VirtualTrackpadView
+        android:id="@+id/view_trackpad"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="4dp" />
+
+    <!-- Top Status Bar (Animated Translucent Pill) -->
+    <LinearLayout
+        android:id="@+id/hud_top_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_pill"
+        android:paddingLeft="14dp"
+        android:paddingRight="14dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        android:elevation="8dp">
+
+        <View
+            android:id="@+id/status_indicator_dot"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:background="@drawable/bg_button_primary"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:id="@+id/tv_hud_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Connecting…"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary" />
+
+        <TextView
+            android:id="@+id/tv_hud_resolution"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="11sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+    <!-- Bottom keyboard stack: quick keyboard and special keys live here so
+         they stay docked right above the system IME. -->
+    <LinearLayout
+        android:id="@+id/layout_bottom_keyboards"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical">
+
+        <com.novnc.android.ui.QuickKeyboardView
+            android:id="@+id/view_quick_keyboard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+        <com.novnc.android.ui.ExtendedKeyboardView
+            android:id="@+id/view_extended_keyboard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!-- Floating action dock -->
+    <com.novnc.android.ui.FloatingHudDockView
+        android:id="@+id/view_floating_hud"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="16dp"
+        android:elevation="16dp" />
+
+</RelativeLayout>

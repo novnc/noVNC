@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>noVNC Mobile Client</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #0d1117;
+            touch-action: none;
+        }
+        #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        #screen {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform-origin: 0 0;
+            will-change: transform;
+        }
+        canvas {
+            display: block;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+        #virtual-cursor {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 22px;
+            height: 22px;
+            pointer-events: none;
+            display: none;
+            z-index: 1000;
+            will-change: transform;
+            overflow: visible;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.75));
+        }
+        #virtual-cursor svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+    </style>
+</head>
+<body>
+    <div id="viewport">
+        <div id="screen"></div>
+    </div>
+
+    <!-- Virtual mouse pointer icon for trackpad mode: hotspot (tip) aligned exactly at (0, 0) -->
+    <div id="virtual-cursor">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 0L7 18L10.5 10.5L18 7Z" fill="#FFFFFF" stroke="#000000" stroke-width="1.8" stroke-linejoin="round"/>
+        </svg>
+    </div>
+
+    <!-- Bundled standalone engine: loads synchronously without ES module CORS restrictions -->
+    <script src="novnc.bundle.js"></script>
+</body>
+</html>

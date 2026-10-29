@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_dialog">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clipboard Sync"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Remote Clipboard Section -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Remote Desktop Clipboard"
+        android:textSize="12sp"
+        android:textColor="@color/text_secondary"
+        android:layout_marginBottom="4dp" />
+
+    <EditText
+        android:id="@+id/et_remote_clipboard"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:hint="(Empty)"
+        android:gravity="top|start"
+        android:textColorHint="@color/text_tertiary"
+        android:textColor="@color/text_primary"
+        android:background="@drawable/bg_edittext"
+        android:textSize="13sp"
+        android:focusable="false"
+        android:layout_marginBottom="8dp" />
+
+    <Button
+        android:id="@+id/btn_copy_remote_to_device"
+        android:layout_width="match_parent"
+        android:layout_height="38dp"
+        android:text="Copy Remote to Phone Clipboard"
+        android:textSize="13sp"
+        android:textColor="@color/text_primary"
+        android:background="@drawable/bg_button_secondary"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Send to Remote Section -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Send Text to Remote Desktop"
+        android:textSize="12sp"
+        android:textColor="@color/text_secondary"
+        android:layout_marginBottom="4dp" />
+
+    <EditText
+        android:id="@+id/et_send_clipboard"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:hint="Type or paste text to send to remote desktop"
+        android:gravity="top|start"
+        android:textColorHint="@color/text_tertiary"
+        android:textColor="@color/text_primary"
+        android:background="@drawable/bg_edittext"
+        android:textSize="13sp"
+        android:layout_marginBottom="12dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_paste_from_device"
+            android:layout_width="0dp"
+            android:layout_height="42dp"
+            android:layout_weight="1"
+            android:text="📋 Paste Phone"
+            android:textSize="12sp"
+            android:textColor="@color/text_primary"
+            android:background="@drawable/bg_button_secondary"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/btn_send_to_remote"
+            android:layout_width="0dp"
+            android:layout_height="42dp"
+            android:layout_weight="1.2"
+            android:text="Send to Remote"
+            android:textSize="12sp"
+            android:textColor="@color/on_primary"
+            android:textStyle="bold"
+            android:background="@drawable/bg_button_primary" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_dialog_close"
+        android:layout_width="match_parent"
+        android:layout_height="38dp"
+        android:text="Close"
+        android:textSize="13sp"
+        android:textColor="@color/text_secondary"
+        android:background="@drawable/bg_button_secondary"
+        android:layout_marginTop="16dp" />
+
+</LinearLayout>

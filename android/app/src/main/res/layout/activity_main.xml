@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:padding="16dp"
+        android:clipToPadding="false"
+        android:layout_marginBottom="72dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- App Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="20dp">
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_launcher"
+                    android:contentDescription="@string/app_name" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="noVNC Client"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="WebSocket RFB Mobile Client"
+                        android:textSize="13sp"
+                        android:textColor="@color/text_secondary" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btn_settings"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:text="⚙"
+                    android:textSize="18sp"
+                    android:textColor="@color/text_primary"
+                    android:background="@drawable/bg_button_secondary"
+                    android:layout_marginEnd="8dp" />
+
+                <Button
+                    android:id="@+id/btn_about"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:text="ℹ"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_secondary"
+                    android:background="@drawable/bg_button_secondary" />
+            </LinearLayout>
+
+            <!-- Quick Connect Card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card"
+                android:padding="16dp"
+                android:layout_marginBottom="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Quick Connect"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="12dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/et_quick_host"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="3"
+                        android:hint="Host or URL (wss://...)"
+                        android:textColorHint="@color/text_tertiary"
+                        android:textColor="@color/text_primary"
+                        android:background="@drawable/bg_edittext"
+                        android:textSize="14sp"
+                        android:singleLine="true"
+                        android:inputType="textUri" />
+
+                    <EditText
+                        android:id="@+id/et_quick_port"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.2"
+                        android:layout_marginStart="8dp"
+                        android:hint="Port (opt)"
+                        android:textColorHint="@color/text_tertiary"
+                        android:textColor="@color/text_primary"
+                        android:background="@drawable/bg_edittext"
+                        android:textSize="14sp"
+                        android:singleLine="true"
+                        android:inputType="number" />
+                </LinearLayout>
+
+                <!-- Advanced toggleable row -->
+                <LinearLayout
+                    android:id="@+id/layout_quick_advanced"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="10dp"
+                    android:visibility="gone">
+
+                    <EditText
+                        android:id="@+id/et_quick_path"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Path (default: websockify)"
+                        android:textColorHint="@color/text_tertiary"
+                        android:textColor="@color/text_primary"
+                        android:background="@drawable/bg_edittext"
+                        android:textSize="14sp"
+                        android:singleLine="true"
+                        android:layout_marginBottom="8dp" />
+
+                    <EditText
+                        android:id="@+id/et_quick_password"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Password (optional)"
+                        android:textColorHint="@color/text_tertiary"
+                        android:textColor="@color/text_primary"
+                        android:background="@drawable/bg_edittext"
+                        android:textSize="14sp"
+                        android:singleLine="true"
+                        android:inputType="textPassword"
+                        android:layout_marginBottom="8dp" />
+
+                    <Switch
+                        android:id="@+id/switch_quick_ssl"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Use SSL/TLS (wss://)"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="8dp" />
+
+                    <Switch
+                        android:id="@+id/switch_quick_remember"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Remember password"
+                        android:textColor="@color/text_primary"
+                        android:checked="true"
+                        android:layout_marginBottom="2dp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Saves this host and password to Saved Profiles automatically."
+                        android:textSize="11sp"
+                        android:textColor="@color/text_tertiary"
+                        android:layout_marginBottom="8dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="12dp">
+
+                    <TextView
+                        android:id="@+id/tv_toggle_advanced"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Options ▼"
+                        android:textSize="13sp"
+                        android:textColor="@color/primary"
+                        android:padding="6dp" />
+
+                    <Button
+                        android:id="@+id/btn_quick_connect"
+                        android:layout_width="wrap_content"
+                        android:layout_height="44dp"
+                        android:text="Connect"
+                        android:textColor="@color/on_primary"
+                        android:textStyle="bold"
+                        android:background="@drawable/bg_button_primary"
+                        android:paddingLeft="24dp"
+                        android:paddingRight="24dp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Saved Connections Section Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Saved Profiles"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary" />
+
+                <TextView
+                    android:id="@+id/tv_profile_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0 profiles"
+                    android:textSize="13sp"
+                    android:textColor="@color/text_secondary" />
+            </LinearLayout>
+
+            <!-- Profiles Container -->
+            <LinearLayout
+                android:id="@+id/container_profiles"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <!-- Empty State View -->
+            <LinearLayout
+                android:id="@+id/layout_empty_state"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="32dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🖥️"
+                    android:textSize="48sp"
+                    android:layout_marginBottom="12dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No Saved Connections"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="6dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tap the + button below to create a saved server profile."
+                    android:textSize="13sp"
+                    android:textColor="@color/text_secondary"
+                    android:gravity="center" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Floating Action Button for New Profile -->
+    <Button
+        android:id="@+id/fab_add_profile"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="20dp"
+        android:text="+"
+        android:textSize="28sp"
+        android:textColor="@color/on_primary"
+        android:background="@drawable/bg_button_primary"
+        android:elevation="6dp" />
+
+</RelativeLayout>

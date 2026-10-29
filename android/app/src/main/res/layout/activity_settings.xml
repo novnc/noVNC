@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_dark">
+
+    <!-- Top App Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/actionBarSize"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingLeft="8dp"
+        android:paddingRight="16dp"
+        android:background="@color/bg_surface"
+        android:elevation="4dp">
+
+        <Button
+            android:id="@+id/btn_settings_back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:text="←"
+            android:textSize="20sp"
+            android:textColor="@color/text_primary"
+            android:background="@drawable/bg_button_secondary" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:text="Settings"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp"
+        android:clipToPadding="false"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Card: Mouse & Trackpad Settings -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card"
+                android:padding="18dp"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🖱 Mouse &amp; Trackpad Speed"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Adjust cursor movement speed and gesture response"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Speed Label with live formatted value -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="6dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Pointer Speed"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary" />
+
+                    <TextView
+                        android:id="@+id/tv_settings_speed_val"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0.4x (Precision - Default)"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/primary" />
+                </LinearLayout>
+
+                <!-- Mouse Speed SeekBar: 0.2x to 3.0x -->
+                <SeekBar
+                    android:id="@+id/sb_settings_mouse_speed"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="30"
+                    android:progress="4"
+                    android:layout_marginBottom="10dp" />
+
+                <!-- Preset Speed Chips -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="18dp">
+
+                    <Button
+                        android:id="@+id/chip_speed_precision"
+                        android:layout_width="0dp"
+                        android:layout_height="34dp"
+                        android:layout_weight="1"
+                        android:text="0.4x Def"
+                        android:textSize="11sp"
+                        android:textColor="@color/text_primary"
+                        android:background="@drawable/bg_button_secondary"
+                        android:layout_marginEnd="4dp" />
+
+                    <Button
+                        android:id="@+id/chip_speed_normal"
+                        android:layout_width="0dp"
+                        android:layout_height="34dp"
+                        android:layout_weight="1"
+                        android:text="1.0x Norm"
+                        android:textSize="11sp"
+                        android:textColor="@color/text_secondary"
+                        android:background="@drawable/bg_button_secondary"
+                        android:layout_marginEnd="4dp" />
+
+                    <Button
+                        android:id="@+id/chip_speed_fast"
+                        android:layout_width="0dp"
+                        android:layout_height="34dp"
+                        android:layout_weight="1"
+                        android:text="1.5x Fast"
+                        android:textSize="11sp"
+                        android:textColor="@color/text_secondary"
+                        android:background="@drawable/bg_button_secondary"
+                        android:layout_marginEnd="4dp" />
+
+                    <Button
+                        android:id="@+id/chip_speed_ultra"
+                        android:layout_width="0dp"
+                        android:layout_height="34dp"
+                        android:layout_weight="1"
+                        android:text="2.2x Ultra"
+                        android:textSize="11sp"
+                        android:textColor="@color/text_secondary"
+                        android:background="@drawable/bg_button_secondary" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider"
+                    android:layout_marginBottom="14dp" />
+
+                <!-- Pointer Acceleration Switch -->
+                <Switch
+                    android:id="@+id/switch_settings_accel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Pointer Acceleration"
+                    android:textColor="@color/text_primary"
+                    android:checked="true"
+                    android:layout_marginBottom="2dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Accelerates cursor on fast finger swipes across the trackpad"
+                    android:textSize="11sp"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="14dp" />
+
+                <!-- Invert Scroll Switch -->
+                <Switch
+                    android:id="@+id/switch_settings_invert_scroll"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Reverse Scroll Direction"
+                    android:textColor="@color/text_primary"
+                    android:checked="false"
+                    android:layout_marginBottom="2dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Inverts two-finger and three-finger mouse wheel scrolling"
+                    android:textSize="11sp"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="14dp" />
+
+                <!-- Haptic Feedback Switch -->
+                <Switch
+                    android:id="@+id/switch_settings_haptics"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Haptic Vibration Feedback"
+                    android:textColor="@color/text_primary"
+                    android:checked="true"
+                    android:layout_marginBottom="2dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Provides gentle tactile feedback on clicks, taps, and mode switches"
+                    android:textSize="11sp"
+                    android:textColor="@color/text_secondary" />
+            </LinearLayout>
+
+            <!-- Card: Default Session Preferences -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card"
+                android:padding="18dp"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🖥 Default Session Preferences"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Default configuration applied when starting new sessions"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Default Mouse Mode -->
+                <Switch
+                    android:id="@+id/switch_settings_trackpad_mode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Default to Trackpad Mode"
+                    android:textColor="@color/text_primary"
+                    android:checked="true"
+                    android:layout_marginBottom="2dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Trackpad mode offers high-precision relative mouse navigation"
+                    android:textSize="11sp"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="14dp" />
+
+                <!-- Viewport Scaling -->
+                <Switch
+                    android:id="@+id/switch_settings_scale_viewport"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Fit Screen (Auto Scale Viewport)"
+                    android:textColor="@color/text_primary"
+                    android:checked="true"
+                    android:layout_marginBottom="2dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Scales the desktop to fit your device screen dimensions"
+                    android:textSize="11sp"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="14dp" />
+
+                <!-- Keep Awake -->
+                <Switch
+                    android:id="@+id/switch_settings_keep_awake"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Keep Screen Awake (WakeLock)"
+                    android:textColor="@color/text_primary"
+                    android:checked="true"
+                    android:layout_marginBottom="2dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Prevents screen timeout during active remote desktop sessions"
+                    android:textSize="11sp"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="16dp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider"
+                    android:layout_marginBottom="14dp" />
+
+                <!-- Quality Level -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="4dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Image Quality"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary" />
+
+                    <TextView
+                        android:id="@+id/tv_settings_quality_val"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Level 6"
+                        android:textSize="13sp"
+                        android:textColor="@color/primary" />
+                </LinearLayout>
+
+                <SeekBar
+                    android:id="@+id/sb_settings_quality"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="9"
+                    android:progress="6"
+                    android:layout_marginBottom="14dp" />
+
+                <!-- Compression Level -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="4dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Compression Level"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary" />
+
+                    <TextView
+                        android:id="@+id/tv_settings_compression_val"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Level 2"
+                        android:textSize="13sp"
+                        android:textColor="@color/primary" />
+                </LinearLayout>
+
+                <SeekBar
+                    android:id="@+id/sb_settings_compression"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="9"
+                    android:progress="2" />
+            </LinearLayout>
+
+            <!-- Reset Button Card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card"
+                android:padding="16dp"
+                android:layout_marginBottom="32dp">
+
+                <Button
+                    android:id="@+id/btn_settings_reset_defaults"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:text="↺ Reset All Settings to Defaults"
+                    android:textSize="13sp"
+                    android:textColor="@color/accent_warning"
+                    android:background="@drawable/bg_button_secondary" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

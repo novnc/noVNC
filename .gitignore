@@ -10,3 +10,7 @@ recordings
 *.swp
 *~
 noVNC-*.tgz
+download-portal/
+start-portal.sh
+*.apk
+*.idsig

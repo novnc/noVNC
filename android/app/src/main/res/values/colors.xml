@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Background and Surfaces (Dark theme) -->
+    <color name="bg_dark">#0d1117</color>
+    <color name="bg_surface">#161b22</color>
+    <color name="bg_surface_elevated">#21262d</color>
+    <color name="bg_surface_highlight">#30363d</color>
+
+    <!-- Brand / Primary Accent -->
+    <color name="primary">#58a6ff</color>
+    <color name="primary_variant">#1f6feb</color>
+    <color name="primary_container">#12233f</color>
+    <color name="on_primary">#ffffff</color>
+
+    <!-- Secondary Accent (Green success / connected) -->
+    <color name="accent_green">#2ea043</color>
+    <color name="accent_green_light">#3fb950</color>
+
+    <!-- Warning & Error -->
+    <color name="accent_warning">#d29922</color>
+    <color name="accent_error">#f85149</color>
+
+    <!-- Text & Icons -->
+    <color name="text_primary">#f0f6fc</color>
+    <color name="text_secondary">#8b949e</color>
+    <color name="text_tertiary">#6e7681</color>
+    <color name="divider">#30363d</color>
+
+    <!-- Overlay & HUD -->
+    <color name="hud_bg">#dd161b22</color>
+    <color name="hud_pill_bg">#ee21262d</color>
+    <color name="hud_border">#5558a6ff</color>
+    <color name="key_button_bg">#21262d</color>
+    <color name="key_button_pressed">#388bfd</color>
+    <color name="key_button_latched">#1f6feb</color>
+</resources>

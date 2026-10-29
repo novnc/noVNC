@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_dialog">
+
+    <!-- Dialog Header -->
+    <TextView
+        android:id="@+id/tv_dialog_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Server Profile"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:layout_marginBottom="12dp" />
+
+    <!-- Scrollable Form Area -->
+    <ScrollView
+        android:id="@+id/scroll_profile_form"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:fadeScrollbars="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Profile Name"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary"
+                android:layout_marginBottom="4dp" />
+
+            <EditText
+                android:id="@+id/et_edit_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="e.g. Ubuntu Workstation"
+                android:textColorHint="@color/text_tertiary"
+                android:textColor="@color/text_primary"
+                android:background="@drawable/bg_edittext"
+                android:textSize="14sp"
+                android:singleLine="true"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Host Address &amp; Port"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary"
+                android:layout_marginBottom="4dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <EditText
+                    android:id="@+id/et_edit_host"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3.2"
+                    android:hint="Host or wss:// URL"
+                    android:textColorHint="@color/text_tertiary"
+                    android:textColor="@color/text_primary"
+                    android:background="@drawable/bg_edittext"
+                    android:textSize="14sp"
+                    android:singleLine="true"
+                    android:inputType="textUri" />
+
+                <EditText
+                    android:id="@+id/et_edit_port"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.4"
+                    android:layout_marginStart="8dp"
+                    android:hint="Port"
+                    android:textColorHint="@color/text_tertiary"
+                    android:textColor="@color/text_primary"
+                    android:background="@drawable/bg_edittext"
+                    android:textSize="14sp"
+                    android:singleLine="true"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="WebSocket Path"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary"
+                android:layout_marginBottom="4dp" />
+
+            <EditText
+                android:id="@+id/et_edit_path"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="websockify"
+                android:textColorHint="@color/text_tertiary"
+                android:textColor="@color/text_primary"
+                android:background="@drawable/bg_edittext"
+                android:textSize="14sp"
+                android:singleLine="true"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Password (Optional)"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary"
+                android:layout_marginBottom="4dp" />
+
+            <EditText
+                android:id="@+id/et_edit_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Server password"
+                android:textColorHint="@color/text_tertiary"
+                android:textColor="@color/text_primary"
+                android:background="@drawable/bg_edittext"
+                android:textSize="14sp"
+                android:singleLine="true"
+                android:inputType="textPassword"
+                android:layout_marginBottom="10dp" />
+
+            <Switch
+                android:id="@+id/switch_edit_remember"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Remember password"
+                android:textColor="@color/text_primary"
+                android:checked="true"
+                android:layout_marginBottom="2dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="The password is stored on this device and replayed automatically on every reconnect."
+                android:textSize="11sp"
+                android:textColor="@color/text_tertiary"
+                android:layout_marginBottom="14dp" />
+
+            <!-- Switches -->
+            <Switch
+                android:id="@+id/switch_edit_ssl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Use SSL/TLS (wss://)"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="10dp" />
+
+            <Switch
+                android:id="@+id/switch_edit_trackpad"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Virtual Trackpad Mode"
+                android:textColor="@color/text_primary"
+                android:checked="true"
+                android:layout_marginBottom="10dp" />
+
+            <Switch
+                android:id="@+id/switch_edit_scale"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Fit Screen (Scale Viewport)"
+                android:textColor="@color/text_primary"
+                android:checked="true"
+                android:layout_marginBottom="10dp" />
+
+            <Switch
+                android:id="@+id/switch_edit_view_only"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="View-Only Mode"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="8dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Pinned Action Buttons: Always visible at bottom -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:layout_marginTop="16dp">
+
+        <Button
+            android:id="@+id/btn_dialog_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="Cancel"
+            android:textColor="@color/text_secondary"
+            android:background="@drawable/bg_button_secondary"
+            android:paddingLeft="18dp"
+            android:paddingRight="18dp"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/btn_dialog_save"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="Save"
+            android:textColor="@color/on_primary"
+            android:textStyle="bold"
+            android:background="@drawable/bg_button_primary"
+            android:paddingLeft="24dp"
+            android:paddingRight="24dp" />
+    </LinearLayout>
+
+</LinearLayout>

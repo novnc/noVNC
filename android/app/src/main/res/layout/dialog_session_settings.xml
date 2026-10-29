@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_dialog">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Session Settings"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:layout_marginBottom="12dp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:fadeScrollbars="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Mouse Mode -->
+            <Switch
+                android:id="@+id/switch_session_trackpad"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Virtual Trackpad Mode"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Mouse / Trackpad Speed -->
+            <TextView
+                android:id="@+id/tv_trackpad_sensitivity_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mouse Speed: 0.4x (Precision - Default)"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary" />
+
+            <SeekBar
+                android:id="@+id/sb_trackpad_speed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="30"
+                android:progress="4"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="6dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginBottom="16dp">
+
+                <Button
+                    android:id="@+id/btn_speed_slow"
+                    android:layout_width="0dp"
+                    android:layout_height="32dp"
+                    android:layout_weight="1"
+                    android:text="0.4x"
+                    android:textSize="11sp"
+                    android:textColor="@color/text_primary"
+                    android:background="@drawable/bg_button_secondary"
+                    android:layout_marginEnd="4dp" />
+
+                <Button
+                    android:id="@+id/btn_speed_normal"
+                    android:layout_width="0dp"
+                    android:layout_height="32dp"
+                    android:layout_weight="1"
+                    android:text="1.0x"
+                    android:textSize="11sp"
+                    android:textColor="@color/text_secondary"
+                    android:background="@drawable/bg_button_secondary"
+                    android:layout_marginEnd="4dp" />
+
+                <Button
+                    android:id="@+id/btn_speed_fast"
+                    android:layout_width="0dp"
+                    android:layout_height="32dp"
+                    android:layout_weight="1"
+                    android:text="1.5x"
+                    android:textSize="11sp"
+                    android:textColor="@color/text_secondary"
+                    android:background="@drawable/bg_button_secondary"
+                    android:layout_marginEnd="4dp" />
+
+                <Button
+                    android:id="@+id/btn_speed_ultra"
+                    android:layout_width="0dp"
+                    android:layout_height="32dp"
+                    android:layout_weight="1"
+                    android:text="2.2x"
+                    android:textSize="11sp"
+                    android:textColor="@color/text_secondary"
+                    android:background="@drawable/bg_button_secondary" />
+            </LinearLayout>
+
+            <!-- Reverse 2-Finger Scroll Direction -->
+            <Switch
+                android:id="@+id/switch_session_invert_scroll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Reverse 2-Finger Scroll"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Viewport Scaling -->
+            <Switch
+                android:id="@+id/switch_session_scale"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Fit Screen (Scale Viewport)"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="12dp" />
+
+            <!-- View Only -->
+            <Switch
+                android:id="@+id/switch_session_view_only"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="View-Only Mode"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Keep Screen Awake -->
+            <Switch
+                android:id="@+id/switch_session_wakelock"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Keep Screen Awake"
+                android:checked="true"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="14dp" />
+
+            <!-- Quality Level -->
+            <TextView
+                android:id="@+id/tv_quality_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="JPEG Quality: 6"
+                android:textSize="13sp"
+                android:textColor="@color/text_secondary" />
+
+            <SeekBar
+                android:id="@+id/sb_quality"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="9"
+                android:progress="6"
+                android:layout_marginBottom="14dp" />
+
+            <!-- Compression Level -->
+            <TextView
+                android:id="@+id/tv_compression_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Compression Level: 2"
+                android:textSize="13sp"
+                android:textColor="@color/text_secondary" />
+
+            <SeekBar
+                android:id="@+id/sb_compression"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="9"
+                android:progress="2"
+                android:layout_marginBottom="12dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Pinned Done Button -->
+    <Button
+        android:id="@+id/btn_settings_done"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:text="Close"
+        android:textColor="@color/on_primary"
+        android:textStyle="bold"
+        android:background="@drawable/bg_button_primary"
+        android:layout_marginTop="16dp" />
+
+</LinearLayout>

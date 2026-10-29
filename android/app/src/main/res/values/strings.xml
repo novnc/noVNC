@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">noVNC</string>
+    <string name="title_connections">Saved Connections</string>
+    <string name="quick_connect">Quick Connect</string>
+    <string name="hint_host">Host (e.g. 192.168.1.100)</string>
+    <string name="hint_port">Port (6080)</string>
+    <string name="hint_path">Path (websockify)</string>
+    <string name="hint_password">Password (optional)</string>
+    <string name="hint_name">Connection Name</string>
+    <string name="btn_connect">Connect</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_delete">Delete</string>
+    <string name="btn_edit">Edit</string>
+    <string name="switch_ssl">Use SSL/TLS (wss://)</string>
+    <string name="switch_trackpad">Virtual Trackpad Mode</string>
+    <string name="switch_scale">Fit Screen (Scale Viewport)</string>
+    <string name="switch_view_only">View-Only Mode</string>
+    <string name="new_connection">New Connection</string>
+    <string name="edit_connection">Edit Connection</string>
+    <string name="no_connections_title">No Connections Yet</string>
+    <string name="no_connections_subtitle">Tap + or enter details above for Quick Connect</string>
+    <string name="status_connecting">Connecting…</string>
+    <string name="status_connected">Connected</string>
+    <string name="status_disconnected">Disconnected</string>
+    <string name="confirm_disconnect_title">Disconnect Session?</string>
+    <string name="confirm_disconnect_message">Are you sure you want to end this remote desktop session?</string>
+    <string name="clipboard_title">Clipboard Sync</string>
+    <string name="session_settings_title">Session Settings</string>
+    <string name="quality_level">JPEG Quality (0-9): %d</string>
+    <string name="compression_level">Compression (0-9): %d</string>
+    <string name="trackpad_sensitivity">Trackpad Speed: %.1fx</string>
+</resources>

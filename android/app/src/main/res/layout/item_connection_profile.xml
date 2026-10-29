@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_card"
+    android:padding="16dp"
+    android:layout_marginBottom="12dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- Host/Display icon -->
+        <TextView
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:background="@drawable/bg_button_secondary"
+            android:text="🖥"
+            android:textSize="18sp"
+            android:gravity="center"
+            android:layout_marginEnd="12dp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_profile_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Server Profile"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary" />
+
+            <TextView
+                android:id="@+id/tv_profile_endpoint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="192.168.1.100:6080/websockify"
+                android:textSize="13sp"
+                android:textColor="@color/text_secondary"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <!-- Connect Action Button -->
+        <Button
+            android:id="@+id/btn_profile_connect"
+            android:layout_width="wrap_content"
+            android:layout_height="38dp"
+            android:text="Connect"
+            android:textSize="13sp"
+            android:textColor="@color/on_primary"
+            android:textStyle="bold"
+            android:background="@drawable/bg_button_primary"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp" />
+    </LinearLayout>
+
+    <!-- Badges & Action Buttons row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="12dp">
+
+        <!-- Badges -->
+        <LinearLayout
+            android:id="@+id/layout_badges"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/badge_protocol"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="WS"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary"
+                android:background="@drawable/bg_pill"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:layout_marginEnd="6dp" />
+
+            <TextView
+                android:id="@+id/badge_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Trackpad"
+                android:textSize="10sp"
+                android:textColor="@color/text_secondary"
+                android:background="@drawable/bg_pill"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:layout_marginEnd="6dp" />
+        </LinearLayout>
+
+        <!-- Edit & Delete buttons -->
+        <Button
+            android:id="@+id/btn_profile_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:text="Edit"
+            android:textSize="12sp"
+            android:textColor="@color/text_primary"
+            android:background="@drawable/bg_button_secondary"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:layout_marginEnd="6dp" />
+
+        <Button
+            android:id="@+id/btn_profile_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:text="Delete"
+            android:textSize="12sp"
+            android:textColor="@color/accent_error"
+            android:background="@drawable/bg_button_danger"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp" />
+    </LinearLayout>
+
+</LinearLayout>
