@@ -32,6 +32,11 @@ protocol stream.
     | name     | type      | description
     | -------- | --------- | -----------
     | `power`  | `boolean` | Machine power control is available
+    | `audio`  | `boolean` | QEMU audio extension is active
+
+`audioVolume`
+  - Is a `double` from `0.0` (muted) to `1.0` controlling the volume of
+    audio received through the QEMU audio extension. Defaults to `1.0`.
 
 `clippingViewport` *Read only*
   - Is a `boolean` indicating if the remote session is currently being
@@ -226,6 +231,23 @@ new RFB(target, urlOrChannel, options);
     `wsProtocols`
       - An `Array` of `DOMString`s specifying the sub-protocols to use
         in the WebSocket connection. Empty by default.
+
+    `audio`
+      - Set to `false` to disable the QEMU audio extension. It is enabled
+        by default and only does anything if the server supports it (for
+        example QEMU started with `-vnc :0,audiodev=snd0`). An `Object`
+        may be given instead to choose the stream format:
+
+        | name          | type     | description
+        | ------------- | -------- | -----------
+        | `"frequency"` | `Number` | Sample rate in Hz, up to 48000. Default 44100
+        | `"channels"`  | `Number` | 1 or 2. Default 2
+        | `"format"`    | `Number` | 3 for 16-bit (default) or 0 for 8-bit unsigned
+        | `"latency"`   | `Number` | Seconds buffered before playback. Default 0.1
+
+        Browsers block audio until the user has interacted with the page.
+        Audio sent before that is dropped; call `resumeAudio()` from a
+        click handler if needed.
 
 #### bell
 

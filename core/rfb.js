@@ -27,6 +27,7 @@ import XtScancode from "./input/xtscancodes.js";
 import { encodings } from "./encodings.js";
 import RSAAESAuthenticationState from "./ra2.js";
 import legacyCrypto from "./crypto/crypto.js";
+import QemuAudio from "./audio.js";
 
 import RawDecoder from "./decoders/raw.js";
 import CopyRectDecoder from "./decoders/copyrect.js";
@@ -121,6 +122,12 @@ export default class RFB extends EventTargetMixin {
         this._repeaterID = options.repeaterID || '';
         this._wsProtocols = options.wsProtocols || [];
 
+        // QEMU audio extension: options.audio = false turns it off, an object
+        // may set { frequency, channels, format, latency } (see audio.js)
+        this._audioEnabled = options.audio !== false;
+        this._audioOptions = (options.audio && typeof options.audio === 'object') ?
+            options.audio : {};
+
         // Internal state
         this._rfbConnectionState = '';
         this._rfbInitState = '';
@@ -140,7 +147,7 @@ export default class RFB extends EventTargetMixin {
 
         this._fbName = "";
 
-        this._capabilities = { power: false };
+        this._capabilities = { power: false, audio: false };
 
         this._supportsFence = false;
 
@@ -154,6 +161,9 @@ export default class RFB extends EventTargetMixin {
         this._lastResize = 0;
 
         this._qemuExtKeyEventSupported = false;
+
+        this._qemuAudioSupported = false;
+        this._audio = null;             // QemuAudio player
 
         this._extendedPointerEventSupported = false;
 
@@ -329,6 +339,21 @@ export default class RFB extends EventTargetMixin {
     }
 
     get capabilities() { return this._capabilities; }
+
+    // Volume of QEMU audio, 0.0 (muted) to 1.0
+    get audioVolume() {
+        if (this._audio) { return this._audio.volume; }
+        return this._audioVolume !== undefined ? this._audioVolume : 1;
+    }
+    set audioVolume(value) {
+        this._audioVolume = Math.max(0, Math.min(1, Number(value) || 0));
+        if (this._audio) { this._audio.volume = this._audioVolume; }
+    }
+
+    // Call from a click or key handler if the browser blocked audio
+    resumeAudio() {
+        if (this._audio) { this._audio.resume(); }
+    }
 
     get clippingViewport() { return this._clippingViewport; }
     _setClippingViewport(on) {
@@ -630,6 +655,11 @@ export default class RFB extends EventTargetMixin {
         this._keyboard.ungrab();
         this._gestures.detach();
         this._sock.close();
+        if (this._audio) {
+            this._audio.stop();
+            this._audio = null;
+        }
+        this._qemuAudioSupported = false;
         try {
             this._target.removeChild(this._screen);
         } catch (e) {
@@ -2262,6 +2292,9 @@ export default class RFB extends EventTargetMixin {
         encs.push(encodings.pseudoEncodingDesktopSize);
         encs.push(encodings.pseudoEncodingLastRect);
         encs.push(encodings.pseudoEncodingQEMUExtendedKeyEvent);
+        if (this._audioEnabled) {
+            encs.push(encodings.pseudoEncodingQEMUAudio);
+        }
         encs.push(encodings.pseudoEncodingQEMULedEvent);
         encs.push(encodings.pseudoEncodingExtendedDesktopSize);
         encs.push(encodings.pseudoEncodingXvp);
@@ -2571,6 +2604,61 @@ export default class RFB extends EventTargetMixin {
         return true;
     }
 
+    // Server -> client QEMU message: type 255, sub type 1 (audio), u16
+    // operation (0 end, 1 begin, 2 data), and for data a u32 length + bytes
+    _handleQemuMsg() {
+        if (this._sock.rQwait("QEMU message", 3, 1)) { return false; }
+        const subType = this._sock.rQshift8();
+        if (subType !== 1) {
+            this._fail("Illegal server QEMU message (sub type " + subType + ")");
+            return true;
+        }
+        const op = this._sock.rQshift16();
+
+        switch (op) {
+            case 0:  // audio end
+                if (this._audio) { this._audio.end(); }
+                return true;
+            case 1:  // audio begin
+                if (this._audio) { this._audio.begin(); }
+                return true;
+            case 2: {  // audio data
+                if (this._sock.rQwait("QEMU audio length", 4, 4)) { return false; }
+                const len = this._sock.rQshift32();
+                if (this._sock.rQwait("QEMU audio data", len, 8)) { return false; }
+                const bytes = this._sock.rQshiftBytes(len, false);
+                if (this._audio) { this._audio.push(bytes); }
+                return true;
+            }
+            default:
+                this._fail("Illegal server QEMU audio operation (" + op + ")");
+                return true;
+        }
+    }
+
+    // The server acknowledges the audio pseudo-encoding with an empty rect.
+    // It is sent again after every SetEncodings, so only react once.
+    _handleQemuAudioAck() {
+        if (!this._audioEnabled || this._qemuAudioSupported) {
+            return true;
+        }
+        this._qemuAudioSupported = true;
+
+        const audio = new QemuAudio(this._audioOptions);
+        if (this._audioVolume !== undefined) {
+            audio.volume = this._audioVolume;
+        }
+        this._audio = audio;
+        audio.start();
+
+        // The format has to be set before audio is enabled
+        RFB.messages.QEMUAudioSetFormat(this._sock, audio.format,
+                                        audio.channels, audio.frequency);
+        RFB.messages.QEMUAudioEnable(this._sock);
+        this._setCapability("audio", true);
+        return true;
+    }
+
     _normalMsg() {
         let msgType;
         if (this._FBU.rects > 0) {
@@ -2621,6 +2709,9 @@ export default class RFB extends EventTargetMixin {
 
             case 250:  // XVP
                 return this._handleXvpMsg();
+
+            case 255:  // QEMU
+                return this._handleQemuMsg();
 
             default:
                 this._fail("Unexpected server message (type " + msgType + ")");
@@ -2693,6 +2784,9 @@ export default class RFB extends EventTargetMixin {
             case encodings.pseudoEncodingQEMUExtendedKeyEvent:
                 this._qemuExtKeyEventSupported = true;
                 return true;
+
+            case encodings.pseudoEncodingQEMUAudio:
+                return this._handleQemuAudioAck();
 
             case encodings.pseudoEncodingDesktopName:
                 return this._handleDesktopName();
@@ -3120,6 +3214,35 @@ RFB.messages = {
         const RFBkeycode = getRFBkeycode(keycode);
 
         sock.sQpush32(RFBkeycode);
+
+        sock.flush();
+    },
+
+    // QEMU audio (client -> server): type 255, sub type 1, u16 operation
+    QEMUAudioEnable(sock) {
+        sock.sQpush8(255); // msg-type
+        sock.sQpush8(1);   // sub msg-type: audio
+        sock.sQpush16(0);  // enable
+
+        sock.flush();
+    },
+
+    QEMUAudioDisable(sock) {
+        sock.sQpush8(255); // msg-type
+        sock.sQpush8(1);   // sub msg-type: audio
+        sock.sQpush16(1);  // disable
+
+        sock.flush();
+    },
+
+    QEMUAudioSetFormat(sock, format, channels, frequency) {
+        sock.sQpush8(255); // msg-type
+        sock.sQpush8(1);   // sub msg-type: audio
+        sock.sQpush16(2);  // set format
+
+        sock.sQpush8(format);
+        sock.sQpush8(channels);
+        sock.sQpush32(frequency);
 
         sock.flush();
     },
