@@ -320,6 +320,40 @@ describe('Tight decoder', function () {
         expect(display).to.have.displayed(targetData);
     });
 
+    it('should not leak palette state across empty palette rects', function () {
+        // An empty palette rect must release the palette so that the
+        // next palette rect reads its own palette instead of reusing
+        // the stale one (issue #2098)
+        let emptyData = [
+            // Control bytes
+            0x40, 0x01,
+            // Palette (never used, no pixels to decode)
+            0x01, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff ];
+
+        let done = testDecodeRect(decoder, 1, 2, 0, 0, emptyData, display, 24);
+        expect(done).to.be.true;
+
+        let data = [
+            // Control bytes
+            0x40, 0x01,
+            // Palette
+            0x01, 0x00, 0x00, 0xff, 0x00, 0xff, 0x00,
+            // Pixels
+            0x30, 0x30, 0xc0, 0xc0 ];
+
+        done = testDecodeRect(decoder, 0, 0, 4, 4, data, display, 24);
+
+        let targetData = new Uint8Array([
+            0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255, 0x00, 0xff, 0x00, 255, 0x00, 0xff, 0x00, 255,
+            0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255, 0x00, 0xff, 0x00, 255, 0x00, 0xff, 0x00, 255,
+            0x00, 0xff, 0x00, 255, 0x00, 0xff, 0x00, 255, 0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255,
+            0x00, 0xff, 0x00, 255, 0x00, 0xff, 0x00, 255, 0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255
+        ]);
+
+        expect(done).to.be.true;
+        expect(display).to.have.displayed(targetData);
+    });
+
     it('should handle empty gradient rects', function () {
         display.fillRect(0, 0, 4, 4, [ 0x00, 0x00, 0xff ]);
         display.fillRect(2, 0, 2, 2, [ 0x00, 0xff, 0x00 ]);

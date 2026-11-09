@@ -204,6 +204,10 @@ export default class TightDecoder {
         let data;
 
         if (uncompressedSize === 0) {
+            // Zero-size rect: no data to decode, but the palette
+            // state must still be released so that the next palette
+            // rect reads its own palette instead of reusing this one
+            this._numColors = 0;
             return true;
         }
 
