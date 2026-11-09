@@ -162,6 +162,19 @@ describe('Helpers', function () {
             });
         });
 
+        describe('Characters outside of the BMP', function () {
+            it('should use the full code point of an astral character', function () {
+                expect(KeyboardUtil.getKeysym({key: '\u{1F680}'})).to.be.equal(0x0101F680);
+                expect(KeyboardUtil.getKeysym({key: '\u{1F600}'})).to.be.equal(0x0101F600);
+            });
+            it('should handle characters beyond the Astral Plane 1', function () {
+                expect(KeyboardUtil.getKeysym({key: '\u{20000}'})).to.be.equal(0x01020000);
+            });
+            it('should handle mathematical alphanumeric symbols', function () {
+                expect(KeyboardUtil.getKeysym({key: '\u{1D54F}'})).to.be.equal(0x0101D54F);
+            });
+        });
+
         describe('Numpad', function () {
             it('should handle Numpad numbers', function () {
                 expect(KeyboardUtil.getKeysym({code: 'Digit5', key: '5', location: 0})).to.be.equal(0x0035);
