@@ -178,11 +178,14 @@ export function getKeysym(evt) {
     // Now we need to look at the Unicode symbol instead
 
     // Special key? (FIXME: Should have been caught earlier)
-    if (key.length !== 1) {
+    // NOTE: A character outside of the BMP is a single code
+    //       point, but still two UTF-16 code units, so the
+    //       length check needs to count code points, not units
+    if ([...key].length !== 1) {
         return null;
     }
 
-    const codepoint = key.charCodeAt();
+    const codepoint = key.codePointAt(0);
     if (codepoint) {
         return keysyms.lookup(codepoint);
     }
