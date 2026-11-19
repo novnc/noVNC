@@ -100,3 +100,26 @@ chai.use(function (_chai, utils) {
         };
     });
 });
+
+// sinon-chai 2.x predates calledOnceWith / calledOnceWithExactly
+chai.use(function (_chai, utils) {
+    const describeArgs = (args) => args.map((a) => utils.inspect(a)).join(', ');
+
+    for (const [name, method] of [['calledOnceWith', 'calledWith'],
+                                  ['calledOnceWithExactly', 'calledWithExactly']]) {
+        if (_chai.Assertion.prototype[name] !== undefined) { continue; }
+
+        _chai.Assertion.addMethod(name, function (...args) {
+            const spy = this._obj;
+            new _chai.Assertion(spy).to.have.property('calledOnce');
+            this.assert(spy.calledOnce && spy[method](...args),
+                        'expected spy to have been called exactly once with ' +
+                            (method === 'calledWith' ? '' : 'exactly ') +
+                            'arguments (' + describeArgs(args) + '), but it was called ' +
+                            spy.callCount + ' times',
+                        'expected spy not to have been called exactly once with ' +
+                            (method === 'calledWith' ? '' : 'exactly ') +
+                            'arguments (' + describeArgs(args) + ')');
+        });
+    }
+});

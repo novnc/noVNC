@@ -23,7 +23,9 @@ describe('Base64 Tools', function () {
     describe('decode', function () {
         it('should decode a Base64 string into a normal string', function () {
             const decoded = Base64.decode(B64_STR);
-            expect(decoded).to.deep.equal(BIN_ARR);
+            // decode() returns a typed array
+            expect(decoded).to.be.an.instanceof(Uint8Array);
+            expect(Array.from(decoded)).to.deep.equal(Array.from(BIN_ARR));
         });
 
         it('should throw an error if we have extra characters at the end of the string', function () {

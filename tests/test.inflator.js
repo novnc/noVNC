@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 const expect = chai.expect;
 
-import { deflateInit, deflate, Z_FULL_FLUSH } from "../vendor/pako/lib/zlib/deflate.js";
-import ZStream from "../vendor/pako/lib/zlib/zstream.js";
+import { deflateInit, deflate, Z_FULL_FLUSH } from "pako/lib/zlib/deflate.js";
+import ZStream from "pako/lib/zlib/zstream.js";
 import Inflator from "../core/inflator.js";
 
 function _deflator(data) {

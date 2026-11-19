@@ -27,19 +27,18 @@ module.exports = (config) => {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['mocha'],
+    frameworks: ['mocha', 'sinon-chai'],
 
     // list of files / patterns to load in the browser
     files: [
       // node modules
-      { pattern: 'node_modules/chai/**', included: false },
-      { pattern: 'node_modules/sinon/**', included: false },
-      { pattern: 'node_modules/sinon-chai/**', included: false },
+      // chai, sinon and sinon-chai are added by the sinon-chai framework
       // modules to test
       { pattern: 'app/localization.js', included: false, type: 'module' },
       { pattern: 'app/webutil.js', included: false, type: 'module' },
+      // served as text only, test.ui_enhanced_metrics.js reads its source
+      { pattern: 'app/ui.js', included: false },
       { pattern: 'core/**/*.js', included: false, type: 'module' },
-      { pattern: 'vendor/pako/**/*.js', included: false, type: 'module' },
       // tests
       { pattern: 'tests/test.*.js', type: 'module' },
       // test support files
@@ -57,9 +56,24 @@ module.exports = (config) => {
 
     // list of files to exclude
     exclude: [
+      // These import decoders that were removed from core/decoders
+      'tests/test.jpeg.js',
+      'tests/test.zrle.js',
     ],
 
+    // Bundle every test with Vite, see tests/karma-vite-preprocessor.js
+    preprocessors: {
+      'tests/test.*.js': ['vite'],
+      'tests/fake.*.js': ['vite'],
+    },
+
+    customLaunchers: {
+      // Chrome in a container (no user namespaces) needs --no-sandbox
+      ChromeHeadlessNoSandbox: { base: 'ChromeHeadless', flags: ['--no-sandbox'] },
+    },
+
     plugins: [
+      require('./tests/karma-vite-preprocessor.js'),
       'karma-*',
       '@chiragrupani/karma-chromium-edge-launcher',
       { 'launcher:Safari': [ 'type', SafariBrowser ] },

@@ -47,7 +47,9 @@ import BasicChart from '../core/chart.js';
 import {
     UI_SETTINGS_STREAM_MODE_QUALITY_SETTINGS_GROUPS,
     UI_SETTINGS_CONTROL_ID as UI_SETTINGS,
-    FPS
+    FPS,
+    QUALITY_LEVEL_DEFAULT,
+    COMPRESSION_LEVEL_DEFAULT
 } from './constants.js';
 import {encodings} from "../core/encodings.js";
 import { normalizeFrameRate } from "../core/util/frame-rate.js";
@@ -111,7 +113,7 @@ const UI = {
     monitorStartX: 0,
     monitorStartY: 0,
 
-    multiMonitorSupport: (typeof BroadcastChannel !== "undefined" && typeof SharedWorker !== "undefined"),
+    multiMonitorSupport: (typeof MessageChannel !== "undefined"),
     get supportsMultiMonitor() {
         return this.multiMonitorSupport;
     },
@@ -324,7 +326,7 @@ const UI = {
         UI.initSetting('encrypt', (window.location.protocol === "https:"));
         UI.initSetting('view_clip', false);
         /* UI.initSetting('resize', 'off'); */
-        UI.initSetting('quality', 6);
+        UI.initSetting('quality', QUALITY_LEVEL_DEFAULT);
         UI.initSetting('dynamic_quality_min', 3);
         UI.initSetting('dynamic_quality_max', 9);
         UI.initSetting('translate_shortcuts', true);
@@ -343,7 +345,7 @@ const UI = {
         UI.initSetting('framerate', FPS.MIN);
         UI.initSetting('framerate_image_mode', FPS.MIN);
         UI.initSetting('framerate_streaming_mode', FPS.MIN);
-        UI.initSetting('compression', 2);
+        UI.initSetting('compression', COMPRESSION_LEVEL_DEFAULT);
         UI.initSetting('shared', true);
         UI.initSetting('view_only', false);
         UI.initSetting('show_dot', false);
@@ -696,6 +698,7 @@ const UI = {
         UI.addSettingChangeHandler('framerate_image_mode', () => {
             const value = UI.getSettingElement('framerate_image_mode').value;
             UI.getSettingElement('framerate_streaming_mode').value = value;
+            WebUtil.writeSetting('framerate_image_mode', value);
             WebUtil.writeSetting('framerate_streaming_mode', value);
             UI.updateQuality();
         });
@@ -2797,7 +2800,21 @@ const UI = {
     async addSecondaryMonitor() {
         let new_display_path = window.location.pathname.replace(/[^/]*$/, '');
         const windowId = uuidv4();
-        let new_display_url = `${window.location.protocol}//${window.location.host}${new_display_path}screen.html?windowId=${windowId}`;
+        const new_display_url = `${window.location.protocol}//${window.location.host}${new_display_path}screen.html?windowId=${windowId}`;
+
+        const openDisplay = (features) => {
+            const relayToken = UI.rfb.reserveSecondaryToken(windowId);
+            let win = null;
+            try {
+                win = window.open(new_display_url + (relayToken ? '#' + relayToken : ''), '_blank', features);
+            } finally {
+                if (!win) { UI.rfb.releaseSecondaryToken(windowId); }
+            }
+            if (!win) { return null; }
+            UI.displayWindows.set(windowId, win);
+            UI.rfb.registerSecondaryWindow(windowId, win);
+            return win;
+        };
 
         const auto_placement = document.getElementById('noVNC_auto_placement').checked
         if (auto_placement && 'getScreenDetails' in window) {
@@ -2810,8 +2827,7 @@ const UI = {
                     const current = UI.increaseCurrentDisplay(details)
                     let screen = details.screens[current]
                     const options = 'left='+screen.availLeft+',top='+screen.availTop+',width='+screen.availWidth+',height='+screen.availHeight+',fullscreen'
-                    let newdisplay = window.open(new_display_url, '_blank', options);
-                    UI.displayWindows.set(windowId, newdisplay);
+                    openDisplay(options);
                     return;
                 }
             } catch (e) {
@@ -2821,10 +2837,7 @@ const UI = {
         }
 
         Log.Debug(`Opening a secondary display ${new_display_url}`)
-        let newdisplay = window.open(new_display_url, '_blank', 'toolbar=0,location=0,menubar=0');
-        if (newdisplay) {
-            UI.displayWindows.set(windowId, newdisplay);
-        }
+        openDisplay('toolbar=0,location=0,menubar=0');
     },
 
     initMonitors(screenPlan) {

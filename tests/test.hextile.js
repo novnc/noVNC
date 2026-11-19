@@ -2,30 +2,35 @@ const expect = chai.expect;
 
 import Websock from '../core/websock.js';
 import Display from '../core/display.js';
+import makeCanvas, { sizeDisplay } from './fake.canvas.js';
 
 import HextileDecoder from '../core/decoders/hextile.js';
 
 import FakeWebSocket from './fake.websocket.js';
 
+// Display queues rects per frame. flush() forces the oldest queued frame onto the canvas
+let nextFrameId = 1;
+
 function testDecodeRect(decoder, x, y, width, height, data, display, depth) {
     let sock;
+    const frameId = nextFrameId++;
 
     sock = new Websock;
     sock.open("ws://example.com");
 
     sock.on('message', () => {
-        decoder.decodeRect(x, y, width, height, sock, display, depth);
+        decoder.decodeRect(x, y, width, height, sock, display, depth, frameId);
     });
 
     // Empty messages are filtered at multiple layers, so we need to
     // do a direct call
     if (data.length === 0) {
-        decoder.decodeRect(x, y, width, height, sock, display, depth);
+        decoder.decodeRect(x, y, width, height, sock, display, depth, frameId);
     } else {
         sock._websocket._receiveData(new Uint8Array(data));
     }
 
-    display.flip();
+    display.flush(false);
 }
 
 function push32(arr, num) {
@@ -44,8 +49,8 @@ describe('Hextile Decoder', function () {
 
     beforeEach(function () {
         decoder = new HextileDecoder();
-        display = new Display(document.createElement('canvas'));
-        display.resize(4, 4);
+        display = new Display(makeCanvas());
+        sizeDisplay(display, 4, 4);
     });
 
     it('should handle a tile with fg, bg specified, normal subrects', function () {
@@ -114,7 +119,7 @@ describe('Hextile Decoder', function () {
 
     it('should handle a tile with only bg specified and an empty frame afterwards', function () {
         // set the width so we can have two tiles
-        display.resize(8, 4);
+        sizeDisplay(display, 8, 4);
 
         let data = [];
 
@@ -169,7 +174,7 @@ describe('Hextile Decoder', function () {
     });
 
     it('should carry over fg and bg colors from the previous tile if not specified', function () {
-        display.resize(4, 17);
+        sizeDisplay(display, 4, 17);
 
         let data = [];
         data.push(0x02 | 0x04 | 0x08); // bg spec, fg spec, anysubrects
@@ -214,9 +219,9 @@ describe('Hextile Decoder', function () {
     });
 
     it('should handle empty rects', function () {
-        display.fillRect(0, 0, 4, 4, [ 0x00, 0x00, 0xff ]);
-        display.fillRect(2, 0, 2, 2, [ 0x00, 0xff, 0x00 ]);
-        display.fillRect(0, 2, 2, 2, [ 0x00, 0xff, 0x00 ]);
+        display.fillRect(0, 0, 4, 4, [ 0x00, 0x00, 0xff ], 0, true);
+        display.fillRect(2, 0, 2, 2, [ 0x00, 0xff, 0x00 ], 0, true);
+        display.fillRect(0, 2, 2, 2, [ 0x00, 0xff, 0x00 ], 0, true);
 
         testDecodeRect(decoder, 1, 2, 0, 0, [], display, 24);
 

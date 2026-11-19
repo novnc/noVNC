@@ -2,30 +2,35 @@ const expect = chai.expect;
 
 import Websock from '../core/websock.js';
 import Display from '../core/display.js';
+import makeCanvas, { sizeDisplay } from './fake.canvas.js';
 
 import TightPngDecoder from '../core/decoders/tightpng.js';
 
 import FakeWebSocket from './fake.websocket.js';
 
+// Display queues rects per frame. flush() forces the oldest queued frame onto the canvas
+let nextFrameId = 1;
+
 function testDecodeRect(decoder, x, y, width, height, data, display, depth) {
     let sock;
+    const frameId = nextFrameId++;
 
     sock = new Websock;
     sock.open("ws://example.com");
 
     sock.on('message', () => {
-        decoder.decodeRect(x, y, width, height, sock, display, depth);
+        decoder.decodeRect(x, y, width, height, sock, display, depth, frameId);
     });
 
     // Empty messages are filtered at multiple layers, so we need to
     // do a direct call
     if (data.length === 0) {
-        decoder.decodeRect(x, y, width, height, sock, display, depth);
+        decoder.decodeRect(x, y, width, height, sock, display, depth, frameId);
     } else {
         sock._websocket._receiveData(new Uint8Array(data));
     }
 
-    display.flip();
+    display.flush(false);
 }
 
 describe('TightPng Decoder', function () {
@@ -37,8 +42,8 @@ describe('TightPng Decoder', function () {
 
     beforeEach(function () {
         decoder = new TightPngDecoder();
-        display = new Display(document.createElement('canvas'));
-        display.resize(4, 4);
+        display = new Display(makeCanvas());
+        sizeDisplay(display, 4, 4);
     });
 
     it('should handle the TightPng encoding', function (done) {
@@ -135,10 +140,25 @@ describe('TightPng Decoder', function () {
             return diff < 30;
         }
 
-        display.onflush = () => {
-            expect(display).to.have.displayed(targetData, almost);
-            done();
-        };
-        display.flush();
+        // The image is decoded asynchronously and only joins the frame queue once ready
+        const queued = () => display._asyncFrameQueue.some((frame) => frame[2].length > 0);
+        const waitForImage = (tries = 100) => new Promise((resolve, reject) => {
+            const check = () => {
+                if (queued()) { resolve(); } else if (tries-- <= 0) { reject(new Error('image was never queued')); } else { setTimeout(check, 20); }
+            };
+            check();
+        });
+
+        waitForImage().then(() => {
+            display.onflush = () => {
+                try {
+                    expect(display).to.have.displayed(targetData, almost);
+                    done();
+                } catch (e) {
+                    done(e);
+                }
+            };
+            display.flush();
+        }).catch(done);
     });
 });

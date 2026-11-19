@@ -21,7 +21,7 @@ export default class RREDecoder {
             this._subrects = sock.rQshift32();
 
             let color = sock.rQshiftBytes(4);  // Background
-            display.fillRect(x, y, width, height, color);
+            display.fillRect(x, y, width, height, color, frame_id);
         }
 
         while (this._subrects > 0) {

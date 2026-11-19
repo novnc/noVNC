@@ -1,0 +1,22 @@
+export const MAX_SECONDARY_WINDOWS = 8;
+export const POINTER_BUTTON_MASK = 0x3FF;
+export const POINTER_EVENTS = new Set(['mousemove', 'mousedown', 'mouseup', 'scroll']);
+export const QUEUED_EVENTS = new Set(['register', 'reattach', 'unregister']);
+export const LIFECYCLE_EVENTS = new Set(['disconnect', 'terminate', 'secondarydisconnected']);
+
+export const RELAY_REOPEN_GRACE_MS = 30000;
+export const RELAY_CLAIM_WAIT_MS = 9000;
+export const RELAY_RESUME_RETRY_MS = 15000;
+export const RELAY_RESUME_RETRIES = 6;
+export const RELAY_PROBE_MS = 2000;
+export const RELAY_PING_MS = 20000;
+export const RELAY_LINK_WAIT_MS = 30000;
+export const RELAY_CLAIM_RETRY_MS = 3000;
+export const RELAY_CLAIM_RETRIES = 6;
+export const RELINK_INTERVAL_MS = 5000;
+export const RELINK_MAX_ATTEMPTS = 36;
+export const RELAY_STORE_KEY = 'kasm_relay_rooms:';
+export const RELAY_ROOM_TTL_MS = 120000;
+export const RELAY_CLAIM_TTL_MS = 10000;
+export const RELAY_STALE_MS = 150000;
+export const RELAY_RESUME_QUIET_MS = 70000;

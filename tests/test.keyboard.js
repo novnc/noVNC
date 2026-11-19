@@ -17,9 +17,25 @@ describe('Key Event Handling', function () {
         return e;
     }
 
+    // The keyboard now batches key events into animation frames. Run those frames
+    // synchronously so the tests can observe the events right after a handler runs.
+    let rafSandbox;
+    beforeEach(function () {
+        let now = 0;
+        rafSandbox = sinon.createSandbox();
+        rafSandbox.stub(window, 'requestAnimationFrame').callsFake((cb) => {
+            now += 1000;
+            cb(now);
+            return 0;
+        });
+    });
+    afterEach(function () {
+        rafSandbox.restore();
+    });
+
     describe('Decode Keyboard Events', function () {
         it('should decode keydown events', function (done) {
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = (keysym, code, down) => {
                 expect(keysym).to.be.equal(0x61);
                 expect(code).to.be.equal('KeyA');
@@ -30,7 +46,7 @@ describe('Key Event Handling', function () {
         });
         it('should decode keyup events', function (done) {
             let calls = 0;
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = (keysym, code, down) => {
                 expect(keysym).to.be.equal(0x61);
                 expect(code).to.be.equal('KeyA');
@@ -47,7 +63,7 @@ describe('Key Event Handling', function () {
     describe('Fake keyup', function () {
         it('should fake keyup events for virtual keyboards', function (done) {
             let count = 0;
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = (keysym, code, down) => {
                 switch (count++) {
                     case 0:
@@ -68,7 +84,7 @@ describe('Key Event Handling', function () {
 
     describe('Track Key State', function () {
         it('should send release using the same keysym as the press', function (done) {
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = (keysym, code, down) => {
                 expect(keysym).to.be.equal(0x61);
                 expect(code).to.be.equal('KeyA');
@@ -81,7 +97,7 @@ describe('Key Event Handling', function () {
         });
         it('should send the same keysym for multiple presses', function () {
             let count = 0;
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = (keysym, code, down) => {
                 expect(keysym).to.be.equal(0x61);
                 expect(code).to.be.equal('KeyA');
@@ -93,7 +109,7 @@ describe('Key Event Handling', function () {
             expect(count).to.be.equal(2);
         });
         it('should do nothing on keyup events if no keys are down', function () {
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = sinon.spy();
             kbd._handleKeyUp(keyevent('keyup', {code: 'KeyA', key: 'a'}));
             expect(kbd.onkeyevent).to.not.have.been.called;
@@ -101,7 +117,7 @@ describe('Key Event Handling', function () {
 
         describe('Legacy Events', function () {
             it('should track keys using keyCode if no code', function (done) {
-                const kbd = new Keyboard(document);
+                const kbd = new Keyboard(document, document.createElement("textarea"));
                 kbd.onkeyevent = (keysym, code, down) => {
                     expect(keysym).to.be.equal(0x61);
                     expect(code).to.be.equal('Platform65');
@@ -113,7 +129,7 @@ describe('Key Event Handling', function () {
                 kbd._handleKeyUp(keyevent('keyup', {keyCode: 65, key: 'b'}));
             });
             it('should ignore compositing code', function () {
-                const kbd = new Keyboard(document);
+                const kbd = new Keyboard(document, document.createElement("textarea"));
                 kbd.onkeyevent = (keysym, code, down) => {
                     expect(keysym).to.be.equal(0x61);
                     expect(code).to.be.equal('Unidentified');
@@ -121,7 +137,7 @@ describe('Key Event Handling', function () {
                 kbd._handleKeyDown(keyevent('keydown', {keyCode: 229, key: 'a'}));
             });
             it('should track keys using keyIdentifier if no code', function (done) {
-                const kbd = new Keyboard(document);
+                const kbd = new Keyboard(document, document.createElement("textarea"));
                 kbd.onkeyevent = (keysym, code, down) => {
                     expect(keysym).to.be.equal(0x61);
                     expect(code).to.be.equal('Platform65');
@@ -160,7 +176,7 @@ describe('Key Event Handling', function () {
 
         it('should change Alt to AltGraph', function () {
             let count = 0;
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = (keysym, code, down) => {
                 switch (count++) {
                     case 0:
@@ -174,11 +190,11 @@ describe('Key Event Handling', function () {
                 }
             };
             kbd._handleKeyDown(keyevent('keydown', {code: 'AltLeft', key: 'Alt', location: 1}));
-            kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'Alt', location: 2}));
+            kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'Alt', location: 2, altKey: true}));
             expect(count).to.be.equal(2);
         });
         it('should change left Super to Alt', function (done) {
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = (keysym, code, down) => {
                 expect(keysym).to.be.equal(0xFFE9);
                 expect(code).to.be.equal('MetaLeft');
@@ -187,7 +203,7 @@ describe('Key Event Handling', function () {
             kbd._handleKeyDown(keyevent('keydown', {code: 'MetaLeft', key: 'Meta', location: 1}));
         });
         it('should change right Super to left Super', function (done) {
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = (keysym, code, down) => {
                 expect(keysym).to.be.equal(0xFFEB);
                 expect(code).to.be.equal('MetaRight');
@@ -221,7 +237,7 @@ describe('Key Event Handling', function () {
 
         it('should toggle caps lock on key press on iOS', function () {
             window.navigator.platform = "iPad";
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = sinon.spy();
             kbd._handleKeyDown(keyevent('keydown', {code: 'CapsLock', key: 'CapsLock'}));
 
@@ -232,7 +248,7 @@ describe('Key Event Handling', function () {
 
         it('should toggle caps lock on key press on mac', function () {
             window.navigator.platform = "Mac";
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = sinon.spy();
             kbd._handleKeyDown(keyevent('keydown', {code: 'CapsLock', key: 'CapsLock'}));
 
@@ -243,7 +259,7 @@ describe('Key Event Handling', function () {
 
         it('should toggle caps lock on key release on iOS', function () {
             window.navigator.platform = "iPad";
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = sinon.spy();
             kbd._handleKeyUp(keyevent('keyup', {code: 'CapsLock', key: 'CapsLock'}));
 
@@ -254,7 +270,7 @@ describe('Key Event Handling', function () {
 
         it('should toggle caps lock on key release on mac', function () {
             window.navigator.platform = "Mac";
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = sinon.spy();
             kbd._handleKeyUp(keyevent('keyup', {code: 'CapsLock', key: 'CapsLock'}));
 
@@ -294,7 +310,7 @@ describe('Key Event Handling', function () {
                        'KanaMode': 0xff24 };
         for (let [key, keysym] of Object.entries(keys)) {
             it(`should fake key release for ${key} on Windows`, function () {
-                let kbd = new Keyboard(document);
+                let kbd = new Keyboard(document, document.createElement("textarea"));
                 kbd.onkeyevent = sinon.spy();
                 kbd._handleKeyDown(keyevent('keydown', {code: 'FakeIM', key: key}));
 
@@ -322,7 +338,7 @@ describe('Key Event Handling', function () {
 
             window.navigator.platform = "Windows x86_64";
 
-            this.clock = sinon.useFakeTimers();
+            this.clock = sinon.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date'] });
         });
         afterEach(function () {
             if (origNavigator !== undefined) {
@@ -334,14 +350,14 @@ describe('Key Event Handling', function () {
         });
 
         it('should supress ControlLeft until it knows if it is AltGr', function () {
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = sinon.spy();
             kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1}));
             expect(kbd.onkeyevent).to.not.have.been.called;
         });
 
         it('should not trigger on repeating ControlLeft', function () {
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = sinon.spy();
             kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1}));
             kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1}));
@@ -351,7 +367,7 @@ describe('Key Event Handling', function () {
         });
 
         it('should not supress ControlRight', function () {
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = sinon.spy();
             kbd._handleKeyDown(keyevent('keydown', {code: 'ControlRight', key: 'Control', location: 2}));
             expect(kbd.onkeyevent).to.have.been.calledOnce;
@@ -359,7 +375,7 @@ describe('Key Event Handling', function () {
         });
 
         it('should release ControlLeft after 100 ms', function () {
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = sinon.spy();
             kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1}));
             expect(kbd.onkeyevent).to.not.have.been.called;
@@ -369,7 +385,7 @@ describe('Key Event Handling', function () {
         });
 
         it('should release ControlLeft on other key press', function () {
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = sinon.spy();
             kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1}));
             expect(kbd.onkeyevent).to.not.have.been.called;
@@ -385,7 +401,7 @@ describe('Key Event Handling', function () {
         });
 
         it('should release ControlLeft on other key release', function () {
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = sinon.spy();
             kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
             kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1}));
@@ -403,7 +419,7 @@ describe('Key Event Handling', function () {
         });
 
         it('should generate AltGraph for quick Ctrl+Alt sequence', function () {
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = sinon.spy();
             kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1, timeStamp: Date.now()}));
             this.clock.tick(20);
@@ -418,7 +434,7 @@ describe('Key Event Handling', function () {
         });
 
         it('should generate Ctrl, Alt for slow Ctrl+Alt sequence', function () {
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = sinon.spy();
             kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1, timeStamp: Date.now()}));
             this.clock.tick(60);
@@ -434,7 +450,7 @@ describe('Key Event Handling', function () {
         });
 
         it('should pass through single Alt', function () {
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = sinon.spy();
             kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'Alt', location: 2}));
             expect(kbd.onkeyevent).to.have.been.calledOnce;
@@ -442,7 +458,7 @@ describe('Key Event Handling', function () {
         });
 
         it('should pass through single AltGr', function () {
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = sinon.spy();
             kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'AltGraph', location: 2}));
             expect(kbd.onkeyevent).to.have.been.calledOnce;
@@ -467,7 +483,7 @@ describe('Key Event Handling', function () {
 
             window.navigator.platform = "Windows x86_64";
 
-            this.clock = sinon.useFakeTimers();
+            this.clock = sinon.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date'] });
         });
         afterEach(function () {
             if (origNavigator !== undefined) {
@@ -479,7 +495,7 @@ describe('Key Event Handling', function () {
         });
 
         it('should fake a left Shift keyup', function () {
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = sinon.spy();
 
             kbd._handleKeyDown(keyevent('keydown', {code: 'ShiftLeft', key: 'Shift', location: 1}));
@@ -487,7 +503,7 @@ describe('Key Event Handling', function () {
             expect(kbd.onkeyevent).to.have.been.calledWith(0xffe1, 'ShiftLeft', true);
             kbd.onkeyevent.resetHistory();
 
-            kbd._handleKeyDown(keyevent('keydown', {code: 'ShiftRight', key: 'Shift', location: 2}));
+            kbd._handleKeyDown(keyevent('keydown', {code: 'ShiftRight', key: 'Shift', location: 2, shiftKey: true}));
             expect(kbd.onkeyevent).to.have.been.calledOnce;
             expect(kbd.onkeyevent).to.have.been.calledWith(0xffe2, 'ShiftRight', true);
             kbd.onkeyevent.resetHistory();
@@ -499,7 +515,7 @@ describe('Key Event Handling', function () {
         });
 
         it('should fake a right Shift keyup', function () {
-            const kbd = new Keyboard(document);
+            const kbd = new Keyboard(document, document.createElement("textarea"));
             kbd.onkeyevent = sinon.spy();
 
             kbd._handleKeyDown(keyevent('keydown', {code: 'ShiftLeft', key: 'Shift', location: 1}));
@@ -507,7 +523,7 @@ describe('Key Event Handling', function () {
             expect(kbd.onkeyevent).to.have.been.calledWith(0xffe1, 'ShiftLeft', true);
             kbd.onkeyevent.resetHistory();
 
-            kbd._handleKeyDown(keyevent('keydown', {code: 'ShiftRight', key: 'Shift', location: 2}));
+            kbd._handleKeyDown(keyevent('keydown', {code: 'ShiftRight', key: 'Shift', location: 2, shiftKey: true}));
             expect(kbd.onkeyevent).to.have.been.calledOnce;
             expect(kbd.onkeyevent).to.have.been.calledWith(0xffe2, 'ShiftRight', true);
             kbd.onkeyevent.resetHistory();

@@ -1,6 +1,6 @@
 import * as Log from "../util/logging";
 import { perfLogger } from '../util/performance-logger.js';
-import {clampDimension} from "../display";
+import {clampDimension} from "../util/fb-limits.js";
 
 export class Canvas2DRenderer {
     constructor(canvas, backbuffer) {

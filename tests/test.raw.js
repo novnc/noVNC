@@ -2,30 +2,35 @@ const expect = chai.expect;
 
 import Websock from '../core/websock.js';
 import Display from '../core/display.js';
+import makeCanvas, { sizeDisplay } from './fake.canvas.js';
 
 import RawDecoder from '../core/decoders/raw.js';
 
 import FakeWebSocket from './fake.websocket.js';
 
+// Display queues rects per frame. flush() forces the oldest queued frame onto the canvas
+let nextFrameId = 1;
+
 function testDecodeRect(decoder, x, y, width, height, data, display, depth) {
     let sock;
+    const frameId = nextFrameId++;
 
     sock = new Websock;
     sock.open("ws://example.com");
 
     sock.on('message', () => {
-        decoder.decodeRect(x, y, width, height, sock, display, depth);
+        decoder.decodeRect(x, y, width, height, sock, display, depth, frameId);
     });
 
     // Empty messages are filtered at multiple layers, so we need to
     // do a direct call
     if (data.length === 0) {
-        decoder.decodeRect(x, y, width, height, sock, display, depth);
+        decoder.decodeRect(x, y, width, height, sock, display, depth, frameId);
     } else {
         sock._websocket._receiveData(new Uint8Array(data));
     }
 
-    display.flip();
+    display.flush(false);
 }
 
 describe('Raw Decoder', function () {
@@ -37,8 +42,8 @@ describe('Raw Decoder', function () {
 
     beforeEach(function () {
         decoder = new RawDecoder();
-        display = new Display(document.createElement('canvas'));
-        display.resize(4, 4);
+        display = new Display(makeCanvas());
+        sizeDisplay(display, 4, 4);
     });
 
     it('should handle the Raw encoding', function () {
@@ -94,9 +99,9 @@ describe('Raw Decoder', function () {
     });
 
     it('should handle empty rects', function () {
-        display.fillRect(0, 0, 4, 4, [ 0x00, 0x00, 0xff ]);
-        display.fillRect(2, 0, 2, 2, [ 0x00, 0xff, 0x00 ]);
-        display.fillRect(0, 2, 2, 2, [ 0x00, 0xff, 0x00 ]);
+        display.fillRect(0, 0, 4, 4, [ 0x00, 0x00, 0xff ], 0, true);
+        display.fillRect(2, 0, 2, 2, [ 0x00, 0xff, 0x00 ], 0, true);
+        display.fillRect(0, 2, 2, 2, [ 0x00, 0xff, 0x00 ], 0, true);
 
         testDecodeRect(decoder, 1, 2, 0, 0, [], display, 24);
 
@@ -111,9 +116,9 @@ describe('Raw Decoder', function () {
     });
 
     it('should handle empty rects in low colour mode', function () {
-        display.fillRect(0, 0, 4, 4, [ 0x00, 0x00, 0xff ]);
-        display.fillRect(2, 0, 2, 2, [ 0x00, 0xff, 0x00 ]);
-        display.fillRect(0, 2, 2, 2, [ 0x00, 0xff, 0x00 ]);
+        display.fillRect(0, 0, 4, 4, [ 0x00, 0x00, 0xff ], 0, true);
+        display.fillRect(2, 0, 2, 2, [ 0x00, 0xff, 0x00 ], 0, true);
+        display.fillRect(0, 2, 2, 2, [ 0x00, 0xff, 0x00 ], 0, true);
 
         testDecodeRect(decoder, 1, 2, 0, 0, [], display, 8);
 

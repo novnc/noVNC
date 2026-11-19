@@ -5,17 +5,18 @@ import { isTouchDevice, isSafari, hasScrollbarGutter, dragThreshold, supportsBin
 import { MouseButtonMapper, XVNC_BUTTONS } from "../core/mousebuttonmapper.js";
 import * as Log from '../core/util/logging.js';
 import {showNotification} from "../core/util/notifications";
+import _ from "./localization.js";
+import { QUALITY_LEVEL_DEFAULT, COMPRESSION_LEVEL_DEFAULT } from "./constants.js";
 
 const UI = {
     connected: false,
     screenID: null,
     screen: {},
     screens: [],
-    multiMonitorSupport: (typeof BroadcastChannel !== "undefined" && typeof SharedWorker !== "undefined"),
+    multiMonitorSupport: (typeof MessageChannel !== "undefined"),
     get supportsMultiMonitor() {
         return this.multiMonitorSupport;
     },
-    controlChannel: null,
     draggingTab: false,
     //Initial Loading of the UI
     prime() {
@@ -175,7 +176,11 @@ const UI = {
         UI.rfb.clipViewport = resize_setting !== 'off';
         UI.rfb.scaleViewport = resize_setting === 'scale';
         UI.rfb.resizeSession = resize_setting === 'remote';
-        UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
+        const savedLevel = (name, fallback) => {
+            const level = parseInt(UI.getSetting(name));
+            return Number.isInteger(level) ? level : fallback;
+        };
+        UI.rfb.qualityLevel = savedLevel('quality', QUALITY_LEVEL_DEFAULT);
         UI.rfb.dynamicQualityMin = parseInt(UI.getSetting('dynamic_quality_min'));
         UI.rfb.dynamicQualityMax = parseInt(UI.getSetting('dynamic_quality_max'));
         UI.rfb.jpegVideoQuality = parseInt(UI.getSetting('jpeg_video_quality'));
@@ -188,7 +193,7 @@ const UI = {
         UI.rfb.maxVideoResolutionX = parseInt(UI.getSetting('max_video_resolution_x'));
         UI.rfb.maxVideoResolutionY = parseInt(UI.getSetting('max_video_resolution_y'));
         UI.rfb.frameRate = parseInt(UI.getSetting('framerate'));
-        UI.rfb.compressionLevel = parseInt(UI.getSetting('compression'));
+        UI.rfb.compressionLevel = savedLevel('compression', COMPRESSION_LEVEL_DEFAULT);
         UI.rfb.showDotCursor = UI.getSetting('show_dot', true);
         UI.rfb.idleDisconnect = UI.getSetting('idle_disconnect');
         UI.rfb.pointerRelative = UI.getSetting('pointer_relative');
@@ -210,8 +215,9 @@ const UI = {
         }
 
         if (UI.supportsMultiMonitor) {
-            UI.controlChannel = new BroadcastChannel(UI.rfb.connectionID);
-            UI.controlChannel.addEventListener('message', UI.handleControlMessage)
+            UI.rfb.addEventListener('identify', UI.handleIdentify);
+            UI.rfb.addEventListener('secondarydisconnected', UI.handleSecondaryDisconnected);
+            UI.rfb.addEventListener('secondaryrelinkfailed', UI.handleSecondaryRelinkFailed);
         }
 
         //attach this secondary display to the primary display
@@ -229,15 +235,21 @@ const UI = {
         }
     },
 
-    handleControlMessage(event) {
-        switch (event.data.eventType) {
-            case 'identify':
-                UI.identify(event.data)
-                break;
-            case 'secondarydisconnected':
-                UI.updateVisualState('disconnected');
-                break;
-        }
+    handleIdentify(event) {
+        UI.identify(event.detail)
+    },
+
+    handleSecondaryDisconnected() {
+        UI.updateVisualState('reconnecting');
+        UI.showStatus(_("The main display went away, looking for it..."), 'warn', 30000);
+    },
+
+    handleSecondaryRelinkFailed(event) {
+        UI.updateVisualState('disconnected');
+        const ended = event && event.detail && event.detail.reason === 'disconnected';
+        UI.showStatus(ended ? _("The main display was disconnected. Close this window.")
+                            : _("The main display was not found. Close this window and open a new display."),
+                      'error');
     },
 
     updateVisualState(state) {
@@ -259,7 +271,7 @@ const UI = {
             case 'init':
                 break;
             case 'connecting':
-                transitionElem.textContent = _("Connecting...");
+                if (transitionElem) { transitionElem.textContent = _("Connecting..."); }
                 document.documentElement.classList.add("noVNC_connecting");
                 break;
             case 'connected':
@@ -269,7 +281,7 @@ const UI = {
                 }
                 break;
             case 'disconnecting':
-                transitionElem.textContent = _("Disconnecting...");
+                if (transitionElem) { transitionElem.textContent = _("Disconnecting..."); }
                 document.documentElement.classList.add("noVNC_disconnecting");
                 break;
             case 'disconnected':
@@ -280,7 +292,7 @@ const UI = {
                 UI.disconnect()
                 break;
             case 'reconnecting':
-                transitionElem.textContent = _("Reconnecting...");
+                if (transitionElem) { transitionElem.textContent = _("Reconnecting..."); }
                 document.documentElement.classList.add("noVNC_reconnecting");
                 break;
             default:
@@ -370,7 +382,9 @@ const UI = {
         if (UI.rfb) {
             UI.rfb.disconnect();
             if (UI.supportsMultiMonitor) {
-                UI.controlChannel.removeEventListener('message', UI.handleControlMessage);
+                UI.rfb.removeEventListener('identify', UI.handleIdentify);
+                UI.rfb.removeEventListener('secondarydisconnected', UI.handleSecondaryDisconnected);
+                UI.rfb.removeEventListener('secondaryrelinkfailed', UI.handleSecondaryRelinkFailed);
                 UI.rfb.removeEventListener("connect", UI.connectFinished);
             }
             UI.rfb = null;
@@ -381,6 +395,7 @@ const UI = {
         UI.connected = true;
         UI.inhibitReconnect = false;
 
+        UI.hideStatus();
         UI.showStatus("Secondary Screen Connected");
         UI.updateVisualState('connected');
 

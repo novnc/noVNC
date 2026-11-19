@@ -29,3 +29,6 @@ export const FPS = {
     MIN: 24,
     MAX: 60
 };
+
+export const QUALITY_LEVEL_DEFAULT = 6;
+export const COMPRESSION_LEVEL_DEFAULT = 2;
