@@ -1,6 +1,42 @@
 /* eslint-disable key-spacing */
 
 export default {
+    // TODO remove unused
+    XK_dead_grave:                  0xfe50, // `
+    XK_dead_acute:                  0xfe51, // ´
+    XK_dead_circumflex:             0xfe52, // ^
+    XK_dead_tilde:                  0xfe53, // ~
+    XK_dead_macron:                 0xfe54,
+    XK_dead_breve:                  0xfe55,
+    XK_dead_abovedot:               0xfe56,
+    XK_dead_diaeresis:              0xfe57,
+    XK_dead_abovering:              0xfe58,
+    XK_dead_doubleacute:            0xfe59,
+    XK_dead_caron:                  0xfe5a,
+    XK_dead_cedilla:                0xfe5b,
+    XK_dead_ogonek:                 0xfe5c,
+    XK_dead_iota:                   0xfe5d,
+    XK_dead_voiced_sound:           0xfe5e,
+    XK_dead_semivoiced_sound:       0xfe5f,
+    XK_dead_belowdot:               0xfe60,
+    XK_dead_hook:                   0xfe61,
+    XK_dead_horn:                   0xfe62,
+    XK_dead_stroke:                 0xfe63,
+    XK_dead_abovecomma:             0xfe64,
+    XK_dead_psili:                  0xfe64,  /* non-deprecated alias for dead_abovecomma */
+    XK_dead_abovereversedcomma:     0xfe65,
+    XK_dead_dasia:                  0xfe65,  /* non-deprecated alias for dead_abovereversedcomma */
+    XK_dead_doublegrave:            0xfe66,
+    XK_dead_belowring:              0xfe67,
+    XK_dead_belowmacron:            0xfe68,
+    XK_dead_belowcircumflex:        0xfe69,
+    XK_dead_belowtilde:             0xfe6a,
+    XK_dead_belowbreve:             0xfe6b,
+    XK_dead_belowdiaeresis:         0xfe6c,
+    XK_dead_invertedbreve:          0xfe6d,
+    XK_dead_belowcomma:             0xfe6e,
+    XK_dead_currency:               0xfe6f,
+
     XK_VoidSymbol:                  0xffffff, /* Void symbol */
 
     XK_BackSpace:                   0xff08, /* Back space, back char */
